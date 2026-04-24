@@ -35,7 +35,11 @@
       "Bash(git -C D:/CUEMATH/Flashcard ls-files)",
       "Bash(git -C D:/CUEMATH/Flashcard rm -r --cached .obsidian)",
       "Bash(git -C D:/CUEMATH/Flashcard commit -m \"chore: untrack .obsidian \\(gitignored\\)\")",
-      "Bash(pnpm test *)"
+      "Bash(pnpm test *)",
+      "Bash(pnpm approve-builds *)",
+      "Bash(pnpm rebuild *)",
+      "Bash(npx --yes supabase@latest --version)",
+      "Bash(npx --yes supabase@latest init --yes)"
     ]
   }
 }
