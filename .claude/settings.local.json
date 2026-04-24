@@ -31,7 +31,11 @@
       "Bash(npx --yes shadcn@latest init --help)",
       "Bash(npx --yes shadcn@latest init -d -y -f -b radix)",
       "Bash(git -C D:/CUEMATH/Flashcard add -A)",
-      "Bash(git -C D:/CUEMATH/Flashcard commit -m \"chore: install core dependencies \\(Supabase, shadcn, testing\\)\")"
+      "Bash(git -C D:/CUEMATH/Flashcard commit -m \"chore: install core dependencies \\(Supabase, shadcn, testing\\)\")",
+      "Bash(git -C D:/CUEMATH/Flashcard ls-files)",
+      "Bash(git -C D:/CUEMATH/Flashcard rm -r --cached .obsidian)",
+      "Bash(git -C D:/CUEMATH/Flashcard commit -m \"chore: untrack .obsidian \\(gitignored\\)\")",
+      "Bash(pnpm test *)"
     ]
   }
 }
