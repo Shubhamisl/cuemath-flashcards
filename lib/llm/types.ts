@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const atomicCardSchema = z.object({
-  front: z.string().min(3).max(400),
+  front: z.string().min(1).max(400),
   back: z.string().min(1).max(600),
   concept_tag: z.string().min(1).max(80),
   source_page: z.number().int().min(0),
