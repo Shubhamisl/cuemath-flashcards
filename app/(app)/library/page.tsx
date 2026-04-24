@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/db/server'
 import { CueCard } from '@/lib/brand/primitives/card'
-import { CueButton } from '@/lib/brand/primitives/button'
 import { CuePill } from '@/lib/brand/primitives/pill'
+import { UploadModal } from '@/components/upload-modal'
+import { DeckCard } from '@/components/deck-card'
 import type { subjectFamily } from '@/lib/brand/tokens'
 
 export default async function LibraryPage() {
@@ -32,28 +33,26 @@ export default async function LibraryPage() {
         <CuePill tone="highlight">Day 1</CuePill>
       </header>
 
+      <div><UploadModal /></div>
+
       {(!decks || decks.length === 0) && (
-        <CueCard className="text-center space-y-4">
+        <CueCard className="text-center space-y-2">
           <h2 className="font-display text-xl font-bold">No decks yet</h2>
-          <p className="text-sm opacity-80">
-            Drop a PDF and we&apos;ll turn it into atomic flashcards — one idea per card.
-          </p>
-          <CueButton disabled>Upload PDF (coming in next plan)</CueButton>
+          <p className="text-sm opacity-80">Drop a PDF above to get started.</p>
         </CueCard>
       )}
 
       {decks && decks.length > 0 && (
         <div className="grid grid-cols-1 gap-4">
           {decks.map((d) => (
-            <CueCard key={d.id} subject={d.subject_family as subjectFamily}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-bold">{d.title}</div>
-                  <div className="text-sm opacity-70">{d.card_count} cards · {d.status}</div>
-                </div>
-                <CuePill>View</CuePill>
-              </div>
-            </CueCard>
+            <DeckCard
+              key={d.id}
+              id={d.id}
+              title={d.title}
+              subjectFamily={d.subject_family as subjectFamily}
+              status={d.status as 'ingesting' | 'ready' | 'failed'}
+              cardCount={d.card_count}
+            />
           ))}
         </div>
       )}
