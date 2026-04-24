@@ -40,7 +40,8 @@
       "Bash(pnpm rebuild *)",
       "Bash(npx --yes supabase@latest --version)",
       "Bash(npx --yes supabase@latest init --yes)",
-      "Bash(pnpm remove *)"
+      "Bash(pnpm remove *)",
+      "Bash(pnpm build *)"
     ]
   }
 }

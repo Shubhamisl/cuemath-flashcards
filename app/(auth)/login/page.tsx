@@ -30,7 +30,7 @@ export default function LoginPage() {
   async function handleGoogle() {
     const res = await signInWithGoogle()
     if ('url' in res && res.url) window.location.href = res.url
-    else if ('error' in res) {
+    else if ('error' in res && res.error) {
       setStatus('error')
       setMessage(res.error)
     }
