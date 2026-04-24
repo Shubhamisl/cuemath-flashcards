@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(extract-text \"User assets/Architecture of Next.docx\")",
+      "Bash(pandoc \"User assets/Architecture of Next.docx\" -o /tmp/research.md)",
+      "Read(//tmp/**)",
+      "Bash(python -c \"import docx\")",
+      "Bash(pip install *)",
+      "Bash(python -c ' *)",
+      "Bash(pnpm --version)",
+      "Bash(npm --version)",
+      "Bash(git --version)",
+      "Bash(docker --version)",
+      "Bash(supabase --version)",
+      "Bash(npm install *)",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(pnpm create *)",
+      "Bash(pnpm dlx *)",
+      "Bash(pnpm store *)",
+      "Bash(npx --yes create-next-app@latest . --typescript --tailwind --app --src-dir=false --eslint --import-alias \"@/*\" --use-pnpm --no-turbo --yes)",
+      "Bash(mkdir -p /tmp/flashcard-scaffold)",
+      "Bash(npx --yes create-next-app@latest flashcard --typescript --tailwind --app --src-dir=false --eslint --import-alias \"@/*\" --use-pnpm --no-turbo --yes)",
+      "Bash(rm -rf .git .next)",
+      "Bash(cp -r . /d/CUEMATH/Flashcard/)",
+      "Bash(xargs -r kill -9)",
+      "Bash(rm -rf node_modules pnpm-lock.yaml)",
+      "Bash(pnpm install *)"
+    ]
+  }
+}
