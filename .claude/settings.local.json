@@ -39,7 +39,8 @@
       "Bash(pnpm approve-builds *)",
       "Bash(pnpm rebuild *)",
       "Bash(npx --yes supabase@latest --version)",
-      "Bash(npx --yes supabase@latest init --yes)"
+      "Bash(npx --yes supabase@latest init --yes)",
+      "Bash(pnpm remove *)"
     ]
   }
 }
