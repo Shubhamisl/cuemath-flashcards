@@ -1,4 +1,6 @@
-import { claude, CLAUDE_MODEL } from './claude'
+import { anthropicChat, CLAUDE_MODEL } from './claude'
+import { openrouterChat } from './openrouter-chat'
+import type { LlmProvider } from './provider'
 import { extractionBatchSchema, type ExtractionBatch } from './types'
 import type { ParsedPage } from '../pdf/parse'
 
@@ -42,15 +44,20 @@ export function parseExtractionResponse(raw: string): ExtractionBatch {
   return extractionBatchSchema.parse(json)
 }
 
+export function getLlmProvider(): LlmProvider {
+  const providerEnv = process.env.LLM_PROVIDER ?? 'openrouter'
+  if (providerEnv === 'anthropic') {
+    return anthropicChat(process.env.LLM_MODEL ?? CLAUDE_MODEL)
+  }
+  return openrouterChat(process.env.LLM_MODEL ?? 'minimax/minimax-m2.5:free')
+}
+
 export async function extractCards(args: BuildArgs): Promise<ExtractionBatch> {
   const prompt = buildExtractionPrompt(args)
-  const res = await claude().messages.create({
-    model: CLAUDE_MODEL,
-    max_tokens: 4096,
+  const raw = await getLlmProvider().generate({
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
+    maxTokens: 4096,
   })
-  const block = res.content.find((b) => b.type === 'text')
-  if (!block || block.type !== 'text') throw new Error('No text block in Claude response')
-  return parseExtractionResponse(block.text)
+  return parseExtractionResponse(raw)
 }
