@@ -46,6 +46,26 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Cuemath brand tokens */
+  --color-cue-yellow: #FFBA07;
+  --color-ink-black: #000000;
+  --color-paper-white: #FFFFFF;
+  --color-soft-cream: #FFF1CC;
+  --color-mint-green: #D0FBE5;
+  --color-bubble-pink: #FFE0FD;
+  --color-trust-blue: #DBEAFE;
+  --color-alert-coral: #F97373;
+
+  --radius-input: 12px;
+  --radius-card: 24px;
+  --radius-panel: 32px;
+
+  --duration-tap: 120ms;
+  --duration-progress: 400ms;
+
+  --font-display: "Plus Jakarta Sans", "Sora", system-ui, sans-serif;
+  --font-body: "Nunito Sans", system-ui, sans-serif;
 }
 
 :root {
@@ -126,5 +146,17 @@
   }
   html {
     @apply font-sans;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--color-cue-yellow);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
