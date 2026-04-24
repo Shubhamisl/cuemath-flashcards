@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -21,6 +21,7 @@ export type Database = {
           created_at: string
           deck_id: string
           embedding: string | null
+          embedding_dim: number | null
           format: string
           front: Json
           fsrs_state: Json | null
@@ -36,6 +37,7 @@ export type Database = {
           created_at?: string
           deck_id: string
           embedding?: string | null
+          embedding_dim?: number | null
           format?: string
           front: Json
           fsrs_state?: Json | null
@@ -51,6 +53,7 @@ export type Database = {
           created_at?: string
           deck_id?: string
           embedding?: string | null
+          embedding_dim?: number | null
           format?: string
           front?: Json
           fsrs_state?: Json | null
