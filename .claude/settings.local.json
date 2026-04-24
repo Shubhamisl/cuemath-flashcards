@@ -25,7 +25,13 @@
       "Bash(cp -r . /d/CUEMATH/Flashcard/)",
       "Bash(xargs -r kill -9)",
       "Bash(rm -rf node_modules pnpm-lock.yaml)",
-      "Bash(pnpm install *)"
+      "Bash(pnpm install *)",
+      "Bash(pnpm add *)",
+      "Bash(npx --yes shadcn@latest init --yes --base-color neutral)",
+      "Bash(npx --yes shadcn@latest init --help)",
+      "Bash(npx --yes shadcn@latest init -d -y -f -b radix)",
+      "Bash(git -C D:/CUEMATH/Flashcard add -A)",
+      "Bash(git -C D:/CUEMATH/Flashcard commit -m \"chore: install core dependencies \\(Supabase, shadcn, testing\\)\")"
     ]
   }
 }
