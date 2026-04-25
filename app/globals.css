@@ -64,8 +64,8 @@
   --duration-tap: 120ms;
   --duration-progress: 400ms;
 
-  --font-display: "Plus Jakarta Sans", "Sora", system-ui, sans-serif;
-  --font-body: "Nunito Sans", system-ui, sans-serif;
+  --font-display: var(--font-display), 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: var(--font-body), 'Nunito Sans', system-ui, sans-serif;
 }
 
 :root {
