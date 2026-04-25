@@ -32,9 +32,17 @@ export function openrouterChat(model: string): LlmProvider {
       }
 
       const json = (await res.json()) as {
-        choices: { message: { content: string } }[]
+        choices?: { message: { content: string } }[]
+        error?: { message?: string; code?: number }
       }
-      return json.choices[0].message.content
+      if (json.error) {
+        throw new Error(`OpenRouter chat error: ${JSON.stringify(json.error).slice(0, 500)}`)
+      }
+      const content = json.choices?.[0]?.message?.content
+      if (!content) {
+        throw new Error(`OpenRouter chat malformed response: ${JSON.stringify(json).slice(0, 500)}`)
+      }
+      return content
     },
   }
 }

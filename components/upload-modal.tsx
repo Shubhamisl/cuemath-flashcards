@@ -54,7 +54,7 @@ export function UploadModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !pending && setOpen(false)}>
-      <CueCard className="w-full max-w-md space-y-4" onClick={(e) => e.stopPropagation()}>
+      <CueCard className="w-full max-w-md space-y-4 shadow-card-rest" onClick={(e) => e.stopPropagation()}>
         <h2 className="font-display text-xl font-bold">New deck</h2>
 
         <label

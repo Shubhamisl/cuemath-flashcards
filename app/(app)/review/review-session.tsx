@@ -126,7 +126,7 @@ export function ReviewSession({
 
   if (cards.length === 0) {
     return (
-      <CueCard className="text-center space-y-3">
+      <CueCard className="text-center space-y-3 shadow-card-rest">
         <h2 className="font-display text-xl font-bold">Nothing due right now</h2>
         <p className="text-sm opacity-70">Come back later or add more cards.</p>
         <CueButton onClick={() => router.push(`/deck/${deckId}`)}>Back to deck</CueButton>
@@ -137,7 +137,7 @@ export function ReviewSession({
   if (done) {
     const got = events.filter((e) => e.rating >= 3).length
     return (
-      <CueCard className="text-center space-y-4" style={{ background: 'var(--mint-green)' }}>
+      <CueCard className="text-center space-y-4 shadow-card-rest" style={{ background: 'var(--mint-green)' }}>
         <h2 className="font-display text-2xl font-bold">Nice sprint.</h2>
         <p className="text-base">{got} remembered out of {events.length}.</p>
         {timedOut && <p className="text-xs opacity-70">Timed out at 15 min — good focus.</p>}

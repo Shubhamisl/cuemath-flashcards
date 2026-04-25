@@ -8,7 +8,7 @@ export const atomicCardSchema = z.object({
 })
 
 export const extractionBatchSchema = z.object({
-  cards: z.array(atomicCardSchema).max(50),
+  cards: z.array(atomicCardSchema).max(200),
 })
 
 export type AtomicCard = z.infer<typeof atomicCardSchema>

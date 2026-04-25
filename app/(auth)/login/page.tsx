@@ -38,7 +38,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
-      <CueCard className="w-full max-w-md space-y-6">
+      <CueCard className="w-full max-w-md space-y-6 shadow-card-rest">
         <div className="space-y-2">
           <h1 className="font-display text-3xl font-bold">Welcome back</h1>
           <p className="text-sm opacity-80">Sign in to keep your SharpMind journey going.</p>
