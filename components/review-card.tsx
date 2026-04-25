@@ -58,7 +58,7 @@ function Face({
 }) {
   return (
     <div
-      className="absolute inset-0 rounded-card p-6 shadow-sm border border-ink-black/5 flex items-center justify-center text-center"
+      className={`absolute inset-0 rounded-card p-6 border border-ink-black/5 flex items-center justify-center text-center ${backSide ? 'shadow-card-flip' : 'shadow-card-rest'}`}
       style={{
         background: tint,
         backfaceVisibility: 'hidden',

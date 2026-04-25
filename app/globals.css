@@ -66,6 +66,9 @@
 
   --font-display: var(--font-display), 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-body: var(--font-body), 'Nunito Sans', system-ui, sans-serif;
+
+  --shadow-card-rest: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-card-flip: 0 12px 32px rgba(0, 0, 0, 0.18);
 }
 
 :root {

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { CueCard } from '@/lib/brand/primitives/card'
 import { patchProfile } from '../actions'
+import { OnboardingProgress } from '../_components/progress'
 
 const LEVELS = [
   { id: 'beginner', label: 'Beginner', hint: "I'm just starting out." },
@@ -16,6 +17,7 @@ export default function LevelPage() {
   const [pending, startTransition] = useTransition()
 
   function pick(level: string) {
+    if (pending) return
     startTransition(async () => {
       await patchProfile({ level })
       router.push('/onboarding/goal')
@@ -23,19 +25,29 @@ export default function LevelPage() {
   }
 
   return (
-    <div className="space-y-6" style={{ ['--onboarding-progress' as string]: '50%' } as React.CSSProperties}>
-      <h1 className="font-display text-3xl font-bold">What&apos;s your level?</h1>
+    <div className="space-y-8">
+      <OnboardingProgress step={2} />
+      <h1 className="font-display font-extrabold text-[36px] tracking-tight text-ink-black">
+        What&apos;s your level?
+      </h1>
       <div className="grid grid-cols-1 gap-3">
         {LEVELS.map((l) => (
-          <CueCard key={l.id}>
-            <button
-              disabled={pending}
-              onClick={() => pick(l.id)}
-              className="w-full text-left"
-            >
-              <div className="font-bold text-lg">{l.label}</div>
-              <div className="text-sm opacity-70">{l.hint}</div>
-            </button>
+          <CueCard
+            key={l.id}
+            role="button"
+            tabIndex={0}
+            aria-disabled={pending}
+            onClick={() => pick(l.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                pick(l.id)
+              }
+            }}
+            className="cursor-pointer shadow-card-rest border border-ink-black/10 transition relative overflow-hidden before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-cue-yellow before:opacity-0 hover:before:opacity-100 before:transition"
+          >
+            <div className="font-display font-semibold text-[22px] text-ink-black">{l.label}</div>
+            <p className="font-body text-sm text-ink-black/70 mt-1">{l.hint}</p>
           </CueCard>
         ))}
       </div>

@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/db/server'
 import { CueCard } from '@/lib/brand/primitives/card'
 import { CuePill } from '@/lib/brand/primitives/pill'
@@ -33,9 +34,13 @@ export default async function LibraryPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('display_name, daily_goal_cards')
+    .select('display_name, daily_goal_cards, onboarded_at')
     .eq('user_id', user!.id)
     .single()
+
+  if (!profile?.onboarded_at) {
+    redirect('/onboarding/subject')
+  }
 
   const { data: sessions } = await supabase
     .from('sessions')
@@ -88,7 +93,7 @@ export default async function LibraryPage() {
       <div><UploadModal /></div>
 
       {(!decks || decks.length === 0) && (
-        <CueCard className="text-center space-y-2">
+        <CueCard className="text-center space-y-2 shadow-card-rest">
           <h2 className="font-display text-xl font-bold">No decks yet</h2>
           <p className="text-sm opacity-80">Drop a PDF above to get started.</p>
         </CueCard>
