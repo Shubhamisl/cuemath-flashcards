@@ -26,12 +26,18 @@ export function ReviewCard({
 
   return (
     <div
-      className="relative w-full min-h-[240px]"
+      className="relative w-full"
       style={{ perspective: '1000px' }}
       aria-live="polite"
     >
+      {/*
+        Both faces share grid-area 1/1 and stack on top of each other. The
+        cell auto-sizes to whichever face has more content, so neither side
+        ever overflows the card box. preserve-3d keeps the rotateY flip
+        working through the wrapper.
+      */}
       <div
-        className="relative w-full h-full min-h-[240px] transition-transform motion-reduce:transition-none"
+        className="relative w-full transition-transform motion-reduce:transition-none grid"
         style={{
           transformStyle: 'preserve-3d',
           transitionDuration: '160ms',
@@ -58,8 +64,10 @@ function Face({
 }) {
   return (
     <div
-      className={`absolute inset-0 rounded-card p-6 border border-ink-black/5 flex items-center justify-center text-center ${backSide ? 'shadow-card-flip' : 'shadow-card-rest'}`}
+      className={`rounded-card p-6 border border-ink-black/5 flex items-center justify-center text-center ${backSide ? 'shadow-card-flip' : 'shadow-card-rest'}`}
       style={{
+        gridArea: '1 / 1',
+        minHeight: 240,
         background: tint,
         backfaceVisibility: 'hidden',
         transform: backSide ? 'rotateY(180deg)' : undefined,
@@ -67,7 +75,9 @@ function Face({
     >
       <div className="w-full">
         <div className="text-xs uppercase tracking-wide opacity-60 mb-3">{label}</div>
-        <div className="font-display text-xl font-semibold whitespace-pre-wrap">{text}</div>
+        <div className="font-display text-xl font-semibold whitespace-pre-wrap break-words">
+          {text}
+        </div>
       </div>
     </div>
   )
