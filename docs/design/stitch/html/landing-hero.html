@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=1440, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Nunito+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        cueYellow: "#FFBA07",
+                        inkBlack: "#000000",
+                        paperWhite: "#FFFFFF",
+                        softCream: "#FFF1CC",
+                        mintGreen: "#D0FBE5",
+                        bubblePink: "#FFE0FD",
+                        trustBlue: "#DBEAFE",
+                        alertCoral: "#F97373",
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "24px",
+                        "3xl": "32px",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Plus Jakarta Sans", "sans-serif"],
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                        body: ["Nunito Sans", "sans-serif"],
+                        label: ["Nunito Sans", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+    </style>
+</head>
+<body class="bg-paperWhite text-inkBlack antialiased">
+<!-- TopNavBar -->
+<nav class="bg-white dark:bg-black border-b border-black/5 dark:border-white/10 docked full-width top-0 z-50 h-20 flex items-center">
+<div class="flex justify-between items-center w-full px-8 max-w-[1440px] mx-auto">
+<div class="text-2xl font-extrabold tracking-tight text-black dark:text-white font-['Plus_Jakarta_Sans']">
+                Cuemath Flashcards
+            </div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-black/60 dark:text-white/60 font-medium hover:text-amber-500 dark:hover:text-amber-400 transition-colors duration-200" href="#">How it works</a>
+<a class="text-black/60 dark:text-white/60 font-medium hover:text-amber-500 dark:hover:text-amber-400 transition-colors duration-200" href="#">Flashcards</a>
+<a class="text-black/60 dark:text-white/60 font-medium hover:text-amber-500 dark:hover:text-amber-400 transition-colors duration-200" href="#">Pricing</a>
+<a class="text-black dark:text-white font-bold border-b-2 border-amber-500 pb-1 active:scale-95 transition-transform" href="#">Sign In</a>
+</div>
+</div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="pt-20 pb-24 px-6">
+<div class="max-w-[720px] mx-auto text-center flex flex-col items-center">
+<!-- Yellow Pill -->
+<div class="bg-softCream px-4 py-1.5 rounded-full mb-8">
+<span class="font-label text-[12px] uppercase tracking-wider font-bold text-inkBlack/60">
+                        SHARPMIND JOURNEY
+                    </span>
+</div>
+<!-- Headline -->
+<h1 class="font-display font-extrabold text-[64px] leading-[1.1] tracking-tight mb-6">
+                    PDF in.<br/>Memory forever.
+                </h1>
+<!-- Subhead -->
+<p class="font-body text-[18px] text-inkBlack/70 mb-10">
+                    AI-powered flashcards from your documents
+                </p>
+<!-- Primary CTA -->
+<button class="bg-cueYellow text-inkBlack font-bold text-lg px-12 h-[56px] min-w-[240px] rounded-[12px] active:scale-95 transition-transform hover:brightness-105 mb-10">
+                    Start my journey
+                </button>
+<!-- Trust Chips -->
+<div class="flex flex-wrap justify-center gap-3">
+<div class="bg-softCream px-5 py-2 rounded-full border border-black/5">
+<span class="font-body text-sm font-semibold text-inkBlack/80">Free to start</span>
+</div>
+<div class="bg-softCream px-5 py-2 rounded-full border border-black/5">
+<span class="font-body text-sm font-semibold text-inkBlack/80">PDF to cards in 60s</span>
+</div>
+<div class="bg-softCream px-5 py-2 rounded-full border border-black/5">
+<span class="font-body text-sm font-semibold text-inkBlack/80">Spaced repetition</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Visual Anchor: Bento Style Showcase -->
+<section class="max-w-[1120px] mx-auto px-6 mb-32">
+<div class="grid grid-cols-12 gap-6 h-[480px]">
+<div class="col-span-8 bg-trustBlue/20 rounded-3xl p-10 relative overflow-hidden flex flex-col justify-end">
+<img class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-40" data-alt="Close-up of a student studying with high-quality digital flashcards on a tablet device in a bright minimalist room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV22nko5XTgrw4LBZ_ljRDBZ_Y29hDZwXyj-ECFl3TCVzSGf2IQB2rIbzgCQx7nG2NdeK5teQZFE5nNU4v5L_qzCO4-UCKFLaHfVyVJZKomWiNpsdi5vbeEUc5RGUTxPiMl_0zuCfe8ywP3lCsMuaUxx2n2QkoqmY06PUNfKk1GP09ls8zzgInTpImaqYa6K_jTjtSzQIlz10eoXnB7vkeLox38x_o67qAaJwOtrAJCF88ClRe0ObVLJD7dKuOPkMsh57X3MdjZzE"/>
+<div class="relative z-10">
+<h3 class="font-display font-extrabold text-3xl mb-2">Intuitive Learning Canvas</h3>
+<p class="font-body text-lg text-inkBlack/60">Focus only on what matters. Our minimalist interface removes distractions so you can master subjects faster.</p>
+</div>
+</div>
+<div class="col-span-4 bg-bubblePink/30 rounded-3xl p-10 flex flex-col items-center justify-center text-center">
+<div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-6 border border-black/5">
+<span class="material-symbols-outlined text-4xl text-cueYellow" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<h3 class="font-display font-extrabold text-2xl mb-2">Smart Generation</h3>
+<p class="font-body text-inkBlack/60">Upload 50 pages, get 20 perfect cards.</p>
+</div>
+</div>
+</section>
+<!-- How it works Triad -->
+<section class="max-w-[1120px] mx-auto px-6 pb-32">
+<div class="grid md:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="bg-paperWhite border border-black/5 rounded-2xl p-8 h-[280px] flex flex-col justify-between hover:border-cueYellow/30 transition-colors">
+<div>
+<div class="w-10 h-10 bg-cueYellow rounded-full flex items-center justify-center mb-6 font-display font-extrabold text-inkBlack">
+                            1
+                        </div>
+<h3 class="font-display font-extrabold text-2xl mb-3">Drop a PDF</h3>
+<p class="font-body text-inkBlack/60 leading-relaxed">Upload any textbook chapter or notes.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-paperWhite border border-black/5 rounded-2xl p-8 h-[280px] flex flex-col justify-between hover:border-cueYellow/30 transition-colors">
+<div>
+<div class="w-10 h-10 bg-cueYellow rounded-full flex items-center justify-center mb-6 font-display font-extrabold text-inkBlack">
+                            2
+                        </div>
+<h3 class="font-display font-extrabold text-2xl mb-3">Get atomic cards</h3>
+<p class="font-body text-inkBlack/60 leading-relaxed">AI distills it into focused flashcards.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-paperWhite border border-black/5 rounded-2xl p-8 h-[280px] flex flex-col justify-between hover:border-cueYellow/30 transition-colors">
+<div>
+<div class="w-10 h-10 bg-cueYellow rounded-full flex items-center justify-center mb-6 font-display font-extrabold text-inkBlack">
+                            3
+                        </div>
+<h3 class="font-display font-extrabold text-2xl mb-3">Run short sprints</h3>
+<p class="font-body text-inkBlack/60 leading-relaxed">20-card sessions tuned to your memory.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats / Proof Section -->
+<section class="bg-stone-50 py-24 mb-32">
+<div class="max-w-[1120px] mx-auto px-6 grid md:grid-cols-4 gap-12 text-center">
+<div>
+<div class="font-display font-extrabold text-5xl text-cueYellow mb-2">94%</div>
+<p class="font-body font-bold text-inkBlack uppercase tracking-widest text-[10px] opacity-60">Retention Rate</p>
+</div>
+<div>
+<div class="font-display font-extrabold text-5xl text-cueYellow mb-2">2M+</div>
+<p class="font-body font-bold text-inkBlack uppercase tracking-widest text-[10px] opacity-60">Cards Created</p>
+</div>
+<div>
+<div class="font-display font-extrabold text-5xl text-cueYellow mb-2">12k</div>
+<p class="font-body font-bold text-inkBlack uppercase tracking-widest text-[10px] opacity-60">Active Learners</p>
+</div>
+<div>
+<div class="font-display font-extrabold text-5xl text-cueYellow mb-2">4.9/5</div>
+<p class="font-body font-bold text-inkBlack uppercase tracking-widest text-[10px] opacity-60">Student Rating</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-stone-50 dark:bg-neutral-900 border-t border-black/5 dark:border-white/10 py-12">
+<div class="flex flex-col md:flex-row justify-between items-center px-8 max-w-[1440px] mx-auto space-y-4 md:space-y-0">
+<div class="text-xl font-extrabold text-black dark:text-white font-['Plus_Jakarta_Sans']">
+                Cuemath Flashcards
+            </div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-['Nunito_Sans'] text-xs uppercase tracking-wider font-medium opacity-60 text-stone-500 dark:text-stone-400 hover:text-black dark:hover:text-white underline underline-offset-4 transition-opacity" href="#">How it works</a>
+<a class="font-['Nunito_Sans'] text-xs uppercase tracking-wider font-medium opacity-60 text-stone-500 dark:text-stone-400 hover:text-black dark:hover:text-white underline underline-offset-4 transition-opacity" href="#">Flashcards</a>
+<a class="font-['Nunito_Sans'] text-xs uppercase tracking-wider font-medium opacity-60 text-stone-500 dark:text-stone-400 hover:text-black dark:hover:text-white underline underline-offset-4 transition-opacity" href="#">Pricing</a>
+<a class="font-['Nunito_Sans'] text-xs uppercase tracking-wider font-medium opacity-60 text-stone-500 dark:text-stone-400 hover:text-black dark:hover:text-white underline underline-offset-4 transition-opacity" href="#">Support</a>
+<a class="font-['Nunito_Sans'] text-xs uppercase tracking-wider font-medium opacity-60 text-stone-500 dark:text-stone-400 hover:text-black dark:hover:text-white underline underline-offset-4 transition-opacity" href="#">Privacy</a>
+</div>
+<div class="font-['Nunito_Sans'] text-xs uppercase tracking-wider font-medium opacity-60 text-stone-500 dark:text-stone-400">
+                © 2024 Cuemath Flashcards. Friendly, confident learning.
+            </div>
+</div>
+</footer>
+</body></html>

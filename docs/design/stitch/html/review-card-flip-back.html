@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=1440, height=900, initial-scale=1.0" name="viewport"/>
+<title>Cuemath Flashcards - Review Session</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Nunito+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              cueYellow: "#FFBA07",
+              inkBlack: "#000000",
+              paperWhite: "#FFFFFF",
+              softCream: "#FFF1CC",
+              mintGreen: "#D0FBE5",
+              bubblePink: "#FFE0FD",
+              trustBlue: "#DBEAFE",
+              alertCoral: "#F97373",
+              "orange-custom": "#FB923C",
+            },
+            borderRadius: {
+              "DEFAULT": "0.5rem",
+              "lg": "1rem",
+              "xl": "1.5rem",
+              "2xl": "24px",
+              "3xl": "32px",
+              "full": "9999px"
+            },
+            fontFamily: {
+              headline: ["Plus Jakarta Sans", "sans-serif"],
+              display: ["Plus Jakarta Sans", "sans-serif"],
+              body: ["Nunito Sans", "sans-serif"],
+              label: ["Nunito Sans", "sans-serif"]
+            },
+            boxShadow: {
+              'deep': '0 12px 32px rgba(0,0,0,0.08)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      body {
+        font-family: 'Nunito Sans', sans-serif;
+        background-color: #FFFFFF;
+        color: #000000;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Lock viewport for desktop-first feel */
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .label-text {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    </style>
+</head>
+<body class="bg-paperWhite min-h-screen w-[1440px] h-[900px] flex flex-col items-center justify-center mx-auto overflow-hidden">
+<!-- Focus Session Header (Suppressed Nav - Brand Only) -->
+<header class="fixed top-0 left-0 w-full flex justify-between items-center px-12 py-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-cueYellow rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-inkBlack" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+<span class="text-xl font-black font-display tracking-tight text-inkBlack">Cuemath Flashcards</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex flex-col items-end">
+<span class="label-text">CURRENT DECK</span>
+<span class="font-bold text-inkBlack">Calculus: Derivatives</span>
+</div>
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors">
+<span class="material-symbols-outlined text-zinc-600">close</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex flex-col items-center justify-center w-full max-w-[720px]">
+<!-- Flashcard (Flip-Back State) -->
+<article class="bg-softCream rounded-2xl w-full max-w-[640px] h-[380px] shadow-deep border border-inkBlack/[0.05] p-10 flex flex-col relative transition-all duration-300">
+<!-- Label -->
+<div class="flex items-center gap-2">
+<span class="label-text uppercase">ANSWER</span>
+<div class="h-[1px] flex-grow bg-inkBlack/5"></div>
+</div>
+<!-- Body Text -->
+<div class="flex-grow flex items-center justify-center">
+<h1 class="font-display font-bold text-[64px] text-inkBlack tracking-tight">
+                    cos(x)
+                </h1>
+</div>
+<!-- Footer Meta (Subtle) -->
+<div class="flex justify-between items-center mt-auto opacity-40">
+<span class="label-text">12 CARDS REMAINING</span>
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+</div>
+</article>
+<!-- Rating Bar Area -->
+<section class="mt-8 w-full max-w-[640px]">
+<!-- Action Pills -->
+<div class="grid grid-cols-4 gap-2 h-14">
+<!-- Again -->
+<button class="bg-alertCoral rounded-full flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all">
+<span class="font-bold text-inkBlack text-lg font-body">Again</span>
+</button>
+<!-- Hard -->
+<button class="bg-orange-custom rounded-full flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all">
+<span class="font-bold text-inkBlack text-lg font-body">Hard</span>
+</button>
+<!-- Good -->
+<button class="bg-cueYellow rounded-full flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all">
+<span class="font-bold text-inkBlack text-lg font-body">Good</span>
+</button>
+<!-- Easy -->
+<button class="bg-mintGreen rounded-full flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all">
+<span class="font-bold text-inkBlack text-lg font-body">Easy</span>
+</button>
+</div>
+<!-- Keyboard Hints -->
+<div class="grid grid-cols-4 gap-2 mt-2">
+<div class="text-center">
+<span class="font-label text-[11pt] opacity-60 font-medium">1</span>
+</div>
+<div class="text-center">
+<span class="font-label text-[11pt] opacity-60 font-medium">2</span>
+</div>
+<div class="text-center">
+<span class="font-label text-[11pt] opacity-60 font-medium">3</span>
+</div>
+<div class="text-center">
+<span class="font-label text-[11pt] opacity-60 font-medium">4</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual Progress Tracker (Asymmetric Sidebar Element) -->
+<aside class="fixed right-12 top-1/2 -translate-y-1/2 flex flex-col gap-8 w-16 items-center">
+<div class="flex flex-col items-center gap-2">
+<div class="w-1.5 h-16 bg-zinc-100 rounded-full overflow-hidden">
+<div class="w-full bg-cueYellow rounded-full" style="height: 65%;"></div>
+</div>
+<span class="label-text rotate-90 mt-8 whitespace-nowrap">PROGRESS</span>
+</div>
+<div class="w-12 h-12 rounded-2xl bg-paperWhite border border-inkBlack/5 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-inkBlack" data-icon="query_stats">query_stats</span>
+</div>
+</aside>
+<!-- Visual Embellishment (Asymmetric background element) -->
+<div class="fixed -bottom-32 -left-32 w-96 h-96 bg-softCream rounded-full opacity-30 blur-3xl -z-10"></div>
+<div class="fixed top-20 right-40 w-48 h-48 bg-bubblePink rounded-full opacity-20 blur-2xl -z-10"></div>
+</body></html>
