@@ -123,3 +123,27 @@ Variant (2-col grid, not chosen): ![onboarding-subject-variant](screenshots/onbo
 - **Task 3 (onboarding wiring):** rebuild `app/(app)/onboarding/{subject,level,goal}/page.tsx` against the 3 mockups. Add `OnboardingProgress` composite, extend `subjectFamily` with `'other'`, add `CueCard` `tone?: 'highlight'` prop. No new primitives.
 - **Task 4 (review polish):** wire `cue-label` + the **two new shadow tokens** (`--shadow-card-rest`, `--shadow-card-flip`) into `components/review-card.tsx`; drop `CueCard`'s default `shadow-sm` and re-add at the ~3 affected call sites. Confirm `hardOrange` against brand kit before merging.
 - **Task 5 (deploy):** no UI work blocked here.
+
+---
+
+# Pass 2 mockups (post-deploy redesign)
+
+## library-grid
+
+See `library-grid.md` (and `library-grid-variant.md`). Stitch screens `e5281a754c0a44b78840c8bdf114c96c` (primary) + `ec51a8244ebf40daaab9edb56f1f9701` (variant). Desktop 1280px logical.
+
+## deck-detail
+
+See `deck-detail.md`. Stitch screen `075e922ad07242d4b5027509e9ccdcea`.
+
+## login-magic
+
+See `login-magic.md`. Stitch screen `f1d41cf0bb774e75a0f15ddd05746fd2`.
+
+## sprint-complete
+
+See `sprint-complete.md`. Stitch screen `8be6267e87a346bd9d078824b3f0fa6b`.
+
+## upload-modal
+
+See `upload-modal.md`. Stitch screen `728deac81c2345ec9f879f6d1280dd84`.

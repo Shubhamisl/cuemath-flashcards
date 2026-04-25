@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=1440, initial-scale=1.0" name="viewport"/>
+<title>Cuemath Flashcards - Upload PDF</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Nunito+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              cueYellow: "#FFBA07",
+              inkBlack: "#000000",
+              paperWhite: "#FFFFFF",
+              softCream: "#FFF1CC",
+              mintGreen: "#D0FBE5",
+              bubblePink: "#FFE0FD",
+              trustBlue: "#DBEAFE",
+              alertCoral: "#F97373",
+            },
+            borderRadius: {
+              "DEFAULT": "0.5rem",
+              "lg": "1rem",
+              "xl": "1.5rem",
+              "2xl": "2rem",
+              "panel": "32px",
+              "full": "9999px"
+            },
+            fontFamily: {
+              headline: ["Plus Jakarta Sans", "sans-serif"],
+              display: ["Plus Jakarta Sans", "sans-serif"],
+              body: ["Nunito Sans", "sans-serif"],
+              label: ["Nunito Sans", "sans-serif"],
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .modal-shadow {
+            box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+        }
+        .custom-dashed {
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%2300000033' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+            border-radius: 24px;
+        }
+    </style>
+</head>
+<body class="bg-paperWhite font-body overflow-hidden">
+<!-- Background Content (Simulated Library Page) -->
+<div class="fixed inset-0 z-0 flex flex-col">
+<!-- TopNavBar Mock -->
+<header class="bg-white border-b border-black/5 flex justify-between items-center w-full px-8 py-4 max-w-[1440px] mx-auto">
+<div class="text-2xl font-black text-[#FFBA07] tracking-tighter font-headline">Cuemath Flashcards</div>
+<nav class="flex gap-8">
+<span class="text-black/60 font-medium">Dashboard</span>
+<span class="text-black border-b-2 border-[#FFBA07] pb-1 font-bold">Library</span>
+<span class="text-black/60 font-medium">Practice</span>
+<span class="text-black/60 font-medium">Progress</span>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-black/60">notifications</span>
+<div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+<img alt="Tutor Profile" data-alt="Professional headshot of a friendly educator smiling warmly in a bright, modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBazQ5E-mIcexLttTsiysZR8JTAeOzj_JWq9VeODzuFxI7tfMd1f19Pc-HTohWZtOSBxBdFyZnX4UDv8LWUx2uKWXco12QnxKhZxsKTI5kEgk9JbRY0LSFwqwh0fcEiOs84ihJQ9Fgc4FAKqHWfu0WUuvIO1ps3klVlhVJ-d6xjB2iJOfGv-OUzaidNh7585Bkkrhrqvavf7WIBQt1-agmtXDY55fS9mTPGsR5I50RFJeIsOej5dQ9-7TyRqfsYNitbTYsmVOFJhIY"/>
+</div>
+</div>
+</header>
+<main class="flex-1 p-12 max-w-[1440px] mx-auto w-full">
+<h1 class="font-headline font-extrabold text-4xl mb-8 tracking-tight">Your Library</h1>
+<div class="grid grid-cols-3 gap-8">
+<!-- Mock Cards for background texture -->
+<div class="bg-softCream/30 border border-black/5 p-8 rounded-panel h-64"></div>
+<div class="bg-bubblePink/20 border border-black/5 p-8 rounded-panel h-64"></div>
+<div class="bg-mintGreen/20 border border-black/5 p-8 rounded-panel h-64"></div>
+</div>
+</main>
+</div>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 z-50 bg-inkBlack/40 backdrop-blur-[2px] flex items-center justify-center">
+<!-- Modal Card -->
+<div class="bg-paperWhite w-full max-w-[520px] rounded-panel modal-shadow overflow-hidden flex flex-col mx-4">
+<!-- Header -->
+<div class="px-8 pt-8 pb-6 flex justify-between items-start">
+<h2 class="font-headline font-extrabold text-[24pt] text-inkBlack leading-tight">Upload a PDF</h2>
+<button class="text-inkBlack/60 hover:text-inkBlack transition-colors">
+<span class="material-symbols-outlined text-3xl">close</span>
+</button>
+</div>
+<!-- Body -->
+<div class="px-8 flex flex-col gap-8">
+<!-- Drop Zone -->
+<div class="custom-dashed w-full h-[180px] bg-[#FFF1CC33] flex flex-col items-center justify-center group cursor-pointer hover:bg-softCream/40 transition-all">
+<div class="bg-paperWhite w-14 h-14 rounded-full flex items-center justify-center mb-4 modal-shadow">
+<span class="material-symbols-outlined text-cueYellow text-3xl" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
+</div>
+<p class="font-body font-semibold text-inkBlack/70 text-lg">Drop a PDF here, or <span class="text-cueYellow underline">click to browse</span>.</p>
+<p class="font-body text-inkBlack/40 text-sm mt-1">Up to 20MB</p>
+</div>
+<!-- Subject Chooser -->
+<div class="flex flex-col gap-4">
+<label class="font-display font-semibold text-sm text-inkBlack uppercase tracking-wider opacity-60">What is this about?</label>
+<div class="flex flex-wrap gap-2">
+<!-- Math (Selected) -->
+<button class="px-6 py-2 rounded-full bg-softCream border-2 border-inkBlack font-bold text-inkBlack transition-transform active:scale-95">
+                            Math
+                        </button>
+<!-- Language -->
+<button class="px-6 py-2 rounded-full bg-bubblePink border-2 border-transparent hover:border-black/10 font-bold text-inkBlack transition-transform active:scale-95">
+                            Language
+                        </button>
+<!-- Science -->
+<button class="px-6 py-2 rounded-full bg-mintGreen border-2 border-transparent hover:border-black/10 font-bold text-inkBlack transition-transform active:scale-95">
+                            Science
+                        </button>
+<!-- Humanities -->
+<button class="px-6 py-2 rounded-full bg-trustBlue border-2 border-transparent hover:border-black/10 font-bold text-inkBlack transition-transform active:scale-95">
+                            Humanities
+                        </button>
+<!-- Other -->
+<button class="px-6 py-2 rounded-full bg-paperWhite border-2 border-black/10 hover:border-black/20 font-bold text-inkBlack transition-transform active:scale-95">
+                            Other
+                        </button>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<div class="p-8 mt-4 flex justify-end items-center gap-6">
+<button class="font-body font-bold text-inkBlack hover:text-inkBlack/70 transition-colors">
+                    Cancel
+                </button>
+<button class="bg-[#E5E5E5] text-inkBlack/30 px-10 py-3 rounded-xl font-headline font-extrabold text-lg min-h-[48px] cursor-not-allowed">
+                    Upload
+                </button>
+</div>
+</div>
+</div>
+<!-- SideNavBar (Hidden on Mobile, but defined for completeness in desktop view as per JSON) -->
+<div class="hidden md:flex fixed left-0 top-0 h-full w-64 bg-white border-r border-black/5 flex-col p-4 z-10 opacity-30 pointer-events-none">
+<div class="flex items-center gap-3 px-4 py-6">
+<div class="w-8 h-8 bg-cueYellow rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+<div>
+<div class="text-xl font-extrabold text-black font-headline">Cuemath</div>
+<div class="text-xs text-black/40 font-body">Learning Portal</div>
+</div>
+</div>
+<nav class="flex-1 mt-4 space-y-1">
+<div class="flex items-center gap-3 px-4 py-3 text-black/60 font-medium">
+<span class="material-symbols-outlined">home</span> Home
+            </div>
+<div class="flex items-center gap-3 px-4 py-3 bg-softCream text-black rounded-xl font-bold">
+<span class="material-symbols-outlined">style</span> Flashcards
+            </div>
+<div class="flex items-center gap-3 px-4 py-3 text-black/60 font-medium">
+<span class="material-symbols-outlined">menu_book</span> Subjects
+            </div>
+<div class="flex items-center gap-3 px-4 py-3 text-black/60 font-medium">
+<span class="material-symbols-outlined">analytics</span> Reports
+            </div>
+<div class="flex items-center gap-3 px-4 py-3 text-black/60 font-medium">
+<span class="material-symbols-outlined">settings</span> Settings
+            </div>
+</nav>
+<div class="p-4 bg-cueYellow/10 rounded-2xl mb-4">
+<p class="text-xs font-bold text-cueYellow uppercase mb-2">Pro Access</p>
+<p class="text-sm font-medium text-black/70 mb-4">Unlock unlimited flashcard sets.</p>
+<button class="w-full py-2 bg-cueYellow text-white font-bold rounded-lg text-sm">Upgrade Pro</button>
+</div>
+</div>
+</body></html>

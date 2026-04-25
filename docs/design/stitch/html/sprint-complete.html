@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cuemath Flashcards - Sprint Complete</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Nunito+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        cueYellow: "#FFBA07",
+                        inkBlack: "#000000",
+                        paperWhite: "#FFFFFF",
+                        softCream: "#FFF1CC",
+                        mintGreen: "#D0FBE5",
+                        bubblePink: "#FFE0FD",
+                        trustBlue: "#DBEAFE",
+                        alertCoral: "#F97373",
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "panel": "32px",
+                        "card": "24px",
+                        "input": "12px",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Plus Jakarta Sans", "sans-serif"],
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                        body: ["Nunito Sans", "sans-serif"],
+                        label: ["Nunito Sans", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-paperWhite text-inkBlack min-h-screen flex flex-col items-center overflow-x-hidden">
+<!-- TopNavBar from Shared Components -->
+<header class="bg-white dark:bg-black border-b border-black/5 dark:border-white/10 flex justify-between items-center px-10 h-20 w-full max-w-[1440px] mx-auto fixed top-0 left-0 right-0 z-50">
+<div class="text-2xl font-black text-black dark:text-white tracking-tighter font-display">
+            Cuemath Flashcards
+        </div>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-amber-500 dark:text-amber-400 border-b-2 border-amber-500 pb-1 font-body font-medium" href="#">Dashboard</a>
+<a class="text-black/60 dark:text-white/60 font-medium font-body hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-200" href="#">Library</a>
+<a class="text-black/60 dark:text-white/60 font-medium font-body hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-200" href="#">Progress</a>
+</nav>
+<div class="flex items-center space-x-6">
+<div class="flex items-center space-x-4">
+<button class="material-symbols-outlined text-black/60 dark:text-white/60 hover:text-amber-500 transition-colors">notifications</button>
+<button class="material-symbols-outlined text-black/60 dark:text-white/60 hover:text-amber-500 transition-colors">settings</button>
+</div>
+<button class="bg-cueYellow hover:bg-amber-600 text-inkBlack px-5 py-2.5 rounded-input font-bold text-sm scale-95 active:scale-90 transition-transform">
+                New Session
+            </button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-black/5">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Close-up professional portrait of a smiling person with warm lighting and a soft neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQpuggVnxBXx5JjoXGyYInrvn87dVOY08vQNVOqViCALm1-ctBNwOF7YaUwIg90B4y4k9ghmezQws2W9ly5aZSO65Yke6JulCfho3Af8NrcI0BDClN0adhORczuxjXZjar3Fzw2s3CdDQE8V_VUOTN5iO8HuaIElotDWHWjYlx5ED5JDmWtvk371O_1ik5tjlf13QvRqDC4tkLz40ltaLFRnJrijAkGDe_88mKc00T8w4bHD7cczeaGmoiKzzSQHGaWwemQPwxryc"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 w-full max-w-[1440px] flex flex-col items-center justify-center py-20 px-6">
+<!-- Result Content Container -->
+<div class="flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+<!-- Mood Line -->
+<p class="font-headline font-semibold text-inkBlack/70 text-lg mb-8 tracking-tight">
+                You're on Day 7.
+            </p>
+<!-- Centerpiece Panel -->
+<div class="w-[440px] h-[360px] bg-mintGreen rounded-panel flex flex-col items-center justify-center text-center p-8 relative overflow-hidden">
+<!-- Subtle Background Texture -->
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 100%);"></div>
+<!-- Confetti Illustration Substitute (Emoji) -->
+<div class="text-4xl mb-4 relative z-10">
+                    🎉
+                </div>
+<h1 class="font-headline font-extrabold text-inkBlack text-[32pt] leading-tight mb-6 relative z-10">
+                    Nice sprint.
+                </h1>
+<!-- Stats Row -->
+<div class="flex flex-col items-center relative z-10">
+<div class="flex items-baseline gap-1">
+<span class="font-headline font-extrabold text-[64pt] text-cueYellow leading-none">8</span>
+<span class="font-headline font-extrabold text-[24pt] text-inkBlack">/ 10</span>
+</div>
+<span class="font-body font-medium text-inkBlack text-lg -mt-1">remembered</span>
+</div>
+<!-- Footer Label -->
+<div class="mt-10 relative z-10">
+<span class="font-label uppercase text-[12pt] tracking-widest text-inkBlack/60 font-medium">
+                        TIME 4m 32s
+                    </span>
+</div>
+</div>
+<!-- Actions -->
+<div class="mt-10 flex flex-col items-center space-y-4 w-full">
+<button class="w-[440px] h-12 bg-cueYellow hover:bg-amber-600 text-inkBlack font-headline font-extrabold text-base rounded-input transition-all active:scale-95">
+                    Another sprint
+                </button>
+<button class="font-body font-medium text-inkBlack hover:underline transition-all py-2 opacity-80 hover:opacity-100">
+                    Done for today
+                </button>
+</div>
+</div>
+</main>
+<!-- Success Decoration (Asymmetric Layout Elements) -->
+<div class="fixed top-1/4 left-[10%] -z-10 opacity-40 hidden xl:block">
+<div class="w-24 h-24 bg-bubblePink rounded-full blur-3xl"></div>
+</div>
+<div class="fixed bottom-1/4 right-[10%] -z-10 opacity-40 hidden xl:block">
+<div class="w-32 h-32 bg-trustBlue rounded-full blur-3xl"></div>
+</div>
+<!-- Small Progress Visual (Floating Chip) -->
+<div class="fixed bottom-12 right-12 hidden lg:flex items-center gap-3 bg-white border border-inkBlack/5 p-4 rounded-card shadow-sm">
+<div class="w-10 h-10 rounded-full bg-softCream flex items-center justify-center">
+<span class="material-symbols-outlined text-cueYellow" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div>
+<p class="text-xs font-label uppercase opacity-60 tracking-wider font-bold">Current Streak</p>
+<p class="font-headline font-extrabold text-lg">7 Days</p>
+</div>
+</div>
+</body></html>
