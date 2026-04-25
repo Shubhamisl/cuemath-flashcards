@@ -38,7 +38,7 @@ export default function Home() {
       <section className="px-6 py-16 max-w-5xl mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {STEPS.map((s, i) => (
-            <CueCard key={s.title} className="space-y-2">
+            <CueCard key={s.title} className="space-y-2 shadow-card-rest">
               <div className="text-xs font-semibold opacity-60">0{i + 1}</div>
               <h3 className="font-display text-xl font-bold">{s.title}</h3>
               <p className="text-sm opacity-80">{s.body}</p>
