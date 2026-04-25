@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cuemath Onboarding - Step 3</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Nunito+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'cueYellow': '#FFBA07',
+                        'inkBlack': '#000000',
+                        'paperWhite': '#FFFFFF',
+                        'softCream': '#FFF1CC',
+                        'mintGreen': '#D0FBE5',
+                        'bubblePink': '#FFE0FD',
+                        'trustBlue': '#DBEAFE',
+                        'alertCoral': '#F97373',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem', // 24px
+                        '2xl': '2rem', // 32px
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Plus Jakarta Sans', 'sans-serif'],
+                        'display': ['Plus Jakarta Sans', 'sans-serif'],
+                        'body': ['Nunito Sans', 'sans-serif'],
+                        'label': ['Nunito Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background-color: #FFFFFF;
+        }
+        .headline-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: -0.02em;
+        }
+        .label-text {
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 12pt;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body class="bg-paperWhite text-inkBlack min-h-screen flex flex-col">
+<!-- TopNavBar from Shared Components -->
+<header class="bg-white dark:bg-zinc-950 border-b border-black/5 dark:border-white/10 sticky top-0 z-50">
+<nav class="flex justify-between items-center h-16 px-8 max-w-[1440px] mx-auto w-full">
+<div class="text-2xl font-black text-black dark:text-white tracking-tight headline-text">
+                Cuemath
+            </div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-zinc-500 dark:text-zinc-400 font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors" href="#">Progress</a>
+<a class="text-zinc-500 dark:text-zinc-400 font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors" href="#">Help</a>
+<button class="text-amber-500 dark:text-amber-400 font-bold hover:text-amber-600 dark:hover:text-amber-300 transition-all active:opacity-80 active:scale-95">
+                    Finish
+                </button>
+</div>
+</nav>
+</header>
+<!-- Progress Bar (Step 3 of 3) -->
+<div class="w-full h-1.5 bg-black/5">
+<div class="h-full bg-cueYellow w-full transition-all duration-500"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex items-center justify-center px-6 py-12">
+<div class="max-w-[520px] w-full text-center">
+<!-- Header Section -->
+<h1 class="headline-text text-[36pt] font-extrabold text-inkBlack leading-tight mb-3">
+                How many cards per day?
+            </h1>
+<p class="text-inkBlack/70 text-lg font-body mb-12">
+                You can change this anytime.
+            </p>
+<!-- Card Selection Grid -->
+<div class="grid grid-cols-3 gap-4 mb-8">
+<!-- Option 10 -->
+<button class="group bg-cueYellow rounded-xl py-8 px-4 flex flex-col items-center justify-center border border-transparent hover:ring-4 hover:ring-cueYellow/20 transition-all active:scale-95">
+<span class="headline-text text-[48pt] font-extrabold text-inkBlack leading-none mb-2">10</span>
+<span class="font-body text-[14pt] text-inkBlack/70">cards / day</span>
+</button>
+<!-- Option 20 (Selected State Implicitly Highlighted) -->
+<button class="group bg-cueYellow rounded-xl py-8 px-4 flex flex-col items-center justify-center border-2 border-inkBlack shadow-lg hover:ring-4 hover:ring-cueYellow/20 transition-all active:scale-95">
+<span class="headline-text text-[48pt] font-extrabold text-inkBlack leading-none mb-2">20</span>
+<span class="font-body text-[14pt] text-inkBlack/70">cards / day</span>
+</button>
+<!-- Option 40 -->
+<button class="group bg-cueYellow rounded-xl py-8 px-4 flex flex-col items-center justify-center border border-transparent hover:ring-4 hover:ring-cueYellow/20 transition-all active:scale-95">
+<span class="headline-text text-[48pt] font-extrabold text-inkBlack leading-none mb-2">40</span>
+<span class="font-body text-[14pt] text-inkBlack/70">cards / day</span>
+</button>
+</div>
+<!-- Decorative Visual Anchor -->
+<div class="relative w-full h-48 mb-8 overflow-hidden rounded-2xl bg-softCream flex items-center justify-center">
+<img alt="Education concept" class="w-full h-full object-cover opacity-80" data-alt="Modern minimalist study space with a single bright yellow notebook on a clean white desk, soft natural lighting morning vibe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiHR3xlcYNxpCYqW1xBzPv5pt9t9mjWK8A4huKgTSvtvNGPi7QbowdEl8ztNgdd8hmvG1_jmWyvYanXW3zjtqPMPixIn8iBtCY-V8D4FAI-g0y0y_SRtsVGczL4msTmHuunNfTqiSeJSVlIlt24SaNC44iabVa5jxJZUub6vkYKm6tmn3sm0csEDMiiA83iIUPDTxIsTK8f3JdztuR_rX1nvObuG5yphxJanc64sZCgBDhPD9qwoppZE6jbYznrLoaucW8uEFQRN8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-softCream via-transparent to-transparent"></div>
+</div>
+<!-- Footer Action -->
+<div class="flex flex-col items-center gap-6">
+<button class="headline-text text-[16pt] font-semibold text-inkBlack hover:underline decoration-2 underline-offset-4 transition-all">
+                    Continue
+                </button>
+<div class="flex items-center gap-2 opacity-40">
+<span class="label-text uppercase">Step 3 of 3</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Platform specific footer (Suppressed as per focused journey rule) -->
+</body></html>

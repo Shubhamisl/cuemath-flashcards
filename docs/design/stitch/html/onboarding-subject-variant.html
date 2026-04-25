@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cuemath Flashcards - Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800;900&amp;family=Nunito+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        cueYellow: "#FFBA07",
+                        inkBlack: "#000000",
+                        paperWhite: "#FFFFFF",
+                        softCream: "#FFF1CC",
+                        mintGreen: "#D0FBE5",
+                        bubblePink: "#FFE0FD",
+                        trustBlue: "#DBEAFE",
+                        alertCoral: "#F97373"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "1.5rem",
+                        "3xl": "2rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Plus Jakarta Sans", "sans-serif"],
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                        body: ["Nunito Sans", "sans-serif"],
+                        label: ["Nunito Sans", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style type="text/tailwindcss">
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+        .headline-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: -0.02em;
+        }.subject-card {
+            height: 180px;
+        }
+    </style>
+</head>
+<body class="bg-paperWhite min-h-screen flex flex-col items-center">
+<div class="w-full max-w-[1440px] min-h-screen flex flex-col mx-auto bg-paperWhite relative overflow-hidden">
+<header class="bg-white border-b border-zinc-100 h-20 flex justify-between items-center px-10 w-full">
+<div class="text-2xl font-black text-inkBlack headline-text tracking-tight">
+                Cuemath Flashcards
+            </div>
+<div class="flex items-center gap-6">
+<button class="text-zinc-400 hover:bg-zinc-50 transition-colors p-2 rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="text-zinc-400 hover:bg-zinc-50 transition-colors p-2 rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</header>
+<div class="w-full h-2 bg-inkBlack/10">
+<div class="h-full bg-cueYellow transition-all duration-500" style="width: 33.33%;"></div>
+</div>
+<main class="flex-grow flex flex-col items-center justify-start pt-20 pb-24 px-6">
+<div class="w-full max-w-[840px]">
+<div class="text-center mb-16">
+<h1 class="headline-text text-[48px] font-extrabold leading-tight text-inkBlack mb-4">
+                        What are you studying?
+                    </h1>
+<p class="text-[20px] font-medium text-inkBlack/70 font-body">
+                        We'll tune colors and defaults to fit.
+                    </p>
+</div>
+<div class="grid grid-cols-2 gap-6 mb-16">
+<button class="subject-card group relative text-left bg-softCream p-8 rounded-[24px] border-2 border-transparent hover:border-inkBlack transition-all duration-200 active:scale-[0.98]">
+<div class="absolute top-8 right-8">
+<span class="material-symbols-outlined text-[28px] text-inkBlack/60 group-hover:text-inkBlack transition-colors">functions</span>
+</div>
+<span class="absolute bottom-8 left-8 headline-text text-[22px] font-semibold text-inkBlack">Math</span>
+</button>
+<button class="subject-card group relative text-left bg-mintGreen p-8 rounded-[24px] border-2 border-transparent hover:border-inkBlack transition-all duration-200 active:scale-[0.98]">
+<div class="absolute top-8 right-8">
+<span class="material-symbols-outlined text-[28px] text-inkBlack/60 group-hover:text-inkBlack transition-colors">biotech</span>
+</div>
+<span class="absolute bottom-8 left-8 headline-text text-[22px] font-semibold text-inkBlack">Science</span>
+</button>
+<button class="subject-card group relative text-left bg-bubblePink p-8 rounded-[24px] border-2 border-transparent hover:border-inkBlack transition-all duration-200 active:scale-[0.98]">
+<div class="absolute top-8 right-8">
+<span class="material-symbols-outlined text-[28px] text-inkBlack/60 group-hover:text-inkBlack transition-colors">translate</span>
+</div>
+<span class="absolute bottom-8 left-8 headline-text text-[22px] font-semibold text-inkBlack">Language</span>
+</button>
+<button class="subject-card group relative text-left bg-trustBlue p-8 rounded-[24px] border-2 border-transparent hover:border-inkBlack transition-all duration-200 active:scale-[0.98]">
+<div class="absolute top-8 right-8">
+<span class="material-symbols-outlined text-[28px] text-inkBlack/60 group-hover:text-inkBlack transition-colors">history_edu</span>
+</div>
+<span class="absolute bottom-8 left-8 headline-text text-[22px] font-semibold text-inkBlack">Humanities</span>
+</button>
+<button class="subject-card group relative text-left bg-softCream p-8 rounded-[24px] border-2 border-transparent hover:border-inkBlack transition-all duration-200 active:scale-[0.98] col-span-2 md:col-span-1">
+<div class="absolute top-8 right-8">
+<span class="material-symbols-outlined text-[28px] text-inkBlack/60 group-hover:text-inkBlack transition-colors">grid_view</span>
+</div>
+<span class="absolute bottom-8 left-8 headline-text text-[22px] font-semibold text-inkBlack">Other</span>
+</button>
+</div>
+<div class="text-center">
+<span class="font-label text-[12px] uppercase font-bold tracking-[0.2em] text-inkBlack/40">
+                        Step 1 of 3
+                    </span>
+</div>
+</div>
+</main>
+<div class="fixed top-1/2 -left-32 w-80 h-80 bg-cueYellow/5 rounded-full blur-[100px] -z-10"></div>
+<div class="fixed bottom-0 -right-32 w-80 h-80 bg-mintGreen/10 rounded-full blur-[100px] -z-10"></div>
+</div>
+
+</body></html>
