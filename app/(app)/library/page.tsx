@@ -1,32 +1,11 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/db/server'
-import { CuePill } from '@/lib/brand/primitives/pill'
 import { UploadModal } from '@/components/upload-modal'
 import { DeckCard } from '@/components/deck-card'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
+import { computeStreak } from '@/lib/progress/streak'
 import type { subjectFamily } from '@/lib/brand/tokens'
-
-function computeStreak(sessionDates: string[], today: Date): number {
-  if (sessionDates.length === 0) return 0
-  const days = new Set(
-    sessionDates.map((d) => new Date(d).toISOString().slice(0, 10)),
-  )
-  const cursor = new Date(Date.UTC(
-    today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(),
-  ))
-  // Allow today OR yesterday to seed the streak (user hasn't reviewed yet today).
-  if (!days.has(cursor.toISOString().slice(0, 10))) {
-    cursor.setUTCDate(cursor.getUTCDate() - 1)
-    if (!days.has(cursor.toISOString().slice(0, 10))) return 0
-  }
-  let streak = 0
-  while (days.has(cursor.toISOString().slice(0, 10))) {
-    streak += 1
-    cursor.setUTCDate(cursor.getUTCDate() - 1)
-  }
-  return streak
-}
+import { TopNav } from '../_components/top-nav'
 
 export default async function LibraryPage() {
   const supabase = await createClient()
@@ -80,24 +59,10 @@ export default async function LibraryPage() {
 
   const fullName = profile?.display_name ?? 'there'
   const name = fullName.split(' ')[0] ?? 'there'
-  const initial = (name[0] ?? '?').toUpperCase()
 
   return (
     <main className="min-h-screen">
-      <nav className="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-5">
-        <Link href="/library" className="font-display font-extrabold tracking-tight text-xl">
-          SharpMind
-        </Link>
-        <div className="flex items-center gap-3">
-          <CuePill tone="neutral">{streak > 0 ? `Day ${streak}` : `Day 1`}</CuePill>
-          <div
-            aria-label={fullName}
-            className="size-9 rounded-full bg-soft-cream flex items-center justify-center font-display font-bold text-sm"
-          >
-            {initial}
-          </div>
-        </div>
-      </nav>
+      <TopNav name={name} streak={streak} />
 
       <div className="max-w-[1100px] mx-auto px-6 py-10 space-y-10">
         <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">

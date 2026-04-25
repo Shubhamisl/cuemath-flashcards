@@ -147,3 +147,18 @@ See `sprint-complete.md`. Stitch screen `8be6267e87a346bd9d078824b3f0fa6b`.
 ## upload-modal
 
 See `upload-modal.md`. Stitch screen `728deac81c2345ec9f879f6d1280dd84`.
+
+---
+
+# Pass 3 mockups (account surface)
+
+## profile-settings
+
+![profile-settings](screenshots/profile-settings.png)
+
+- Mapping: [`profile-settings.md`](./profile-settings.md)
+- HTML: [`html/profile-settings.html`](./html/profile-settings.html)
+- Stitch screen: `5266e2fc0e81412f80b6f125b4439f50`
+- **Primitives covered:** `CueCard tone="paper"` ×2, `CueButton variant="primary"` (Save), `CueButton variant="ghost"` (Sign out), `CuePill` (streak — top nav).
+- **Net-new:** `app/(app)/_components/top-nav.tsx` (shared client nav with avatar dropdown), `app/(app)/profile/profile-form.tsx` (controlled form + inline saved-toast). Pill buttons in the form are inline `<button>` with `subjectTint()` for the subject row, soft-cream-on-select for level, cue-yellow tint for daily-goal. Destructive zone: `border-l-4 border-alert-coral bg-alert-coral/10` panel.
+- **Companion (no mockup):** delete-deck inline confirm on `/deck/[id]`, logout from library nav avatar.

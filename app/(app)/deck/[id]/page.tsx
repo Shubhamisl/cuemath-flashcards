@@ -7,6 +7,7 @@ import { CuePill } from '@/lib/brand/primitives/pill'
 import { MasteryRing } from '@/components/mastery-ring'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
 import { tierToTone } from '@/lib/progress/tier-tone'
+import { DeleteDeckButton } from './delete-deck-button'
 
 function StatTile({ value, label }: { value: string | number; label: string }) {
   return (
@@ -100,6 +101,8 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
                 : `Nothing due right now. Check back later.`}
             </p>
           </div>
+
+          <DeleteDeckButton deckId={deck.id} deckTitle={deck.title} />
         </div>
       </div>
     </main>
