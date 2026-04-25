@@ -3,11 +3,13 @@ export function MasteryRing({
   size = 40,
   stroke = 4,
   label,
+  showLabel = true,
 }: {
   pct: number
   size?: number
   stroke?: number
   label?: string
+  showLabel?: boolean
 }) {
   const clamped = Math.max(0, Math.min(100, pct))
   const radius = (size - stroke) / 2
@@ -38,7 +40,7 @@ export function MasteryRing({
           style={{ transition: 'stroke-dashoffset 400ms ease' }}
         />
       </svg>
-      <span className="text-xs font-semibold">{clamped}%</span>
+      {showLabel && <span className="text-xs font-semibold">{clamped}%</span>}
     </div>
   )
 }

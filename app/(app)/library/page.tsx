@@ -1,6 +1,6 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/db/server'
-import { CueCard } from '@/lib/brand/primitives/card'
 import { CuePill } from '@/lib/brand/primitives/pill'
 import { UploadModal } from '@/components/upload-modal'
 import { DeckCard } from '@/components/deck-card'
@@ -78,46 +78,67 @@ export default async function LibraryPage() {
     }
   }
 
-  const name = profile?.display_name?.split(' ')[0] ?? 'there'
+  const fullName = profile?.display_name ?? 'there'
+  const name = fullName.split(' ')[0] ?? 'there'
+  const initial = (name[0] ?? '?').toUpperCase()
 
   return (
-    <main className="max-w-2xl mx-auto p-6 space-y-8">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold">Hi, {name}</h1>
-          <p className="text-sm opacity-70">Goal: {profile?.daily_goal_cards ?? 20} cards today</p>
+    <main className="min-h-screen">
+      <nav className="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-5">
+        <Link href="/library" className="font-display font-extrabold tracking-tight text-xl">
+          SharpMind
+        </Link>
+        <div className="flex items-center gap-3">
+          <CuePill tone="neutral">{streak > 0 ? `Day ${streak}` : `Day 1`}</CuePill>
+          <div
+            aria-label={fullName}
+            className="size-9 rounded-full bg-soft-cream flex items-center justify-center font-display font-bold text-sm"
+          >
+            {initial}
+          </div>
         </div>
-        <CuePill tone="highlight">{streak > 0 ? `Day ${streak}` : `Day 1`}</CuePill>
-      </header>
+      </nav>
 
-      <div><UploadModal /></div>
+      <div className="max-w-[1100px] mx-auto px-6 py-10 space-y-10">
+        <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div className="space-y-2">
+            <h1 className="font-display font-extrabold text-4xl md:text-5xl tracking-tight">
+              Hi, {name}
+            </h1>
+            <p className="text-base text-ink-black/70">
+              Goal: {profile?.daily_goal_cards ?? 20} cards today
+            </p>
+          </div>
+          <div className="md:w-auto">
+            <UploadModal />
+          </div>
+        </header>
 
-      {(!decks || decks.length === 0) && (
-        <CueCard className="text-center space-y-2 shadow-card-rest">
-          <h2 className="font-display text-xl font-bold">No decks yet</h2>
-          <p className="text-sm opacity-80">Drop a PDF above to get started.</p>
-        </CueCard>
-      )}
-
-      {decks && decks.length > 0 && (
-        <div className="grid grid-cols-1 gap-4">
-          {decks.map((d) => {
-            const s = statsByDeck[d.id]
-            return (
-              <DeckCard
-                key={d.id}
-                id={d.id}
-                title={d.title}
-                subjectFamily={d.subject_family as subjectFamily}
-                status={d.status as 'ingesting' | 'ready' | 'failed'}
-                cardCount={d.card_count}
-                tier={s?.tier as import('@/lib/progress/deck-stats').Tier | undefined}
-                masteryPct={s?.masteryPct}
-              />
-            )
-          })}
-        </div>
-      )}
+        {(!decks || decks.length === 0) ? (
+          <div className="rounded-card border-2 border-dashed border-ink-black/20 p-12 text-center space-y-2">
+            <h2 className="font-display text-xl font-extrabold">No decks yet</h2>
+            <p className="text-sm text-ink-black/70">Drop a PDF above to get started.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {decks.map((d) => {
+              const s = statsByDeck[d.id]
+              return (
+                <DeckCard
+                  key={d.id}
+                  id={d.id}
+                  title={d.title}
+                  subjectFamily={d.subject_family as subjectFamily}
+                  status={d.status as 'ingesting' | 'ready' | 'failed'}
+                  cardCount={d.card_count}
+                  tier={s?.tier as import('@/lib/progress/deck-stats').Tier | undefined}
+                  masteryPct={s?.masteryPct}
+                />
+              )
+            })}
+          </div>
+        )}
+      </div>
     </main>
   )
 }

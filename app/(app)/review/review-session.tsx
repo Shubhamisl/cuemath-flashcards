@@ -136,18 +136,44 @@ export function ReviewSession({
 
   if (done) {
     const got = events.filter((e) => e.rating >= 3).length
+    const totalMs = Date.now() - new Date(startedAt.current).getTime()
+    const mins = Math.floor(totalMs / 60000)
+    const secs = Math.floor((totalMs % 60000) / 1000)
     return (
-      <CueCard className="text-center space-y-4 shadow-card-rest" style={{ background: 'var(--mint-green)' }}>
-        <h2 className="font-display text-2xl font-bold">Nice sprint.</h2>
-        <p className="text-base">{got} remembered out of {events.length}.</p>
-        {timedOut && <p className="text-xs opacity-70">Timed out at 15 min — good focus.</p>}
-        <div className="flex gap-2 justify-center">
-          <CueButton onClick={() => router.refresh()}>Another sprint</CueButton>
-          <CueButton variant="ghost" onClick={() => router.push(`/deck/${deckId}`)}>
-            Done for today
+      <div className="flex flex-col items-center gap-6 py-8">
+        <CueCard
+          tone="mint"
+          className="rounded-panel !shadow-none p-10 w-full max-w-[440px] text-center space-y-6"
+        >
+          <div className="text-4xl" aria-hidden="true">🎉</div>
+          <h2 className="font-display font-extrabold text-[32px] leading-tight">Nice sprint.</h2>
+          <div className="flex items-baseline justify-center gap-2">
+            <span className="text-[64px] font-display font-extrabold text-cue-yellow leading-none">
+              {got}
+            </span>
+            <span className="text-2xl text-ink-black">/ {events.length}</span>
+          </div>
+          <p className="text-base text-ink-black/70 -mt-3">remembered</p>
+          <div className="text-xs uppercase tracking-[0.08em] text-ink-black/60 pt-2">
+            Time {mins}m {secs.toString().padStart(2, '0')}s
+          </div>
+          {timedOut && (
+            <p className="text-xs text-ink-black/60">Timed out at 15 min — good focus.</p>
+          )}
+        </CueCard>
+
+        <div className="flex flex-col items-center gap-3 w-full max-w-[440px]">
+          <CueButton onClick={() => router.refresh()} className="w-full">
+            Another sprint
           </CueButton>
+          <button
+            onClick={() => router.push(`/deck/${deckId}`)}
+            className="text-ink-black hover:underline font-display font-semibold"
+          >
+            Done for today
+          </button>
         </div>
-      </CueCard>
+      </div>
     )
   }
 
