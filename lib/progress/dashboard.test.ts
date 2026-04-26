@@ -28,7 +28,17 @@ describe('progress/dashboard', () => {
       sessions7d: 0,
       avgResponseMs: null,
     })
+    expect(dashboard.weeklySummary).toEqual({
+      cardsReviewed: 0,
+      sessions: 0,
+      retentionPct: null,
+      avgResponseMs: null,
+      activeDays: 0,
+      strongestDayLabel: null,
+      cardsDeltaVsPreviousWeek: null,
+    })
     expect(dashboard.activity).toHaveLength(7)
+    expect(dashboard.heatmap).toHaveLength(84)
     expect(dashboard.weakConcepts).toEqual([])
     expect(dashboard.recentSessions).toEqual([])
   })
@@ -71,6 +81,10 @@ describe('progress/dashboard', () => {
     expect(dashboard.summary.cardsReviewed7d).toBe(8)
     expect(dashboard.summary.retentionPct).toBe(75)
     expect(dashboard.summary.dueNowCount).toBe(2)
+    expect(dashboard.weeklySummary.cardsReviewed).toBe(8)
+    expect(dashboard.weeklySummary.sessions).toBe(1)
+    expect(dashboard.weeklySummary.retentionPct).toBe(75)
+    expect(dashboard.weeklySummary.strongestDayLabel).toBe('Sun')
     expect(dashboard.weakConcepts).toEqual([
       { tag: 'algebra', lapses: 1, dueNowCount: 1 },
     ])
@@ -148,8 +162,14 @@ describe('progress/dashboard', () => {
     expect(dashboard.summary.cardsReviewed7d).toBe(27)
     expect(dashboard.summary.retentionPct).toBe(81)
     expect(dashboard.summary.avgResponseMs).toBe(3504)
+    expect(dashboard.weeklySummary.cardsReviewed).toBe(27)
+    expect(dashboard.weeklySummary.sessions).toBe(3)
+    expect(dashboard.weeklySummary.retentionPct).toBe(81)
+    expect(dashboard.weeklySummary.cardsDeltaVsPreviousWeek).toBeNull()
+    expect(dashboard.weeklySummary.activeDays).toBe(3)
     expect(dashboard.weakConcepts.map((item) => item.tag)).toEqual(['angles', 'cells'])
     expect(dashboard.deckSnapshots.map((deck) => deck.title)).toEqual(['Geometry', 'Biology'])
     expect(dashboard.activity.at(-1)?.cardsReviewed).toBe(10)
+    expect(dashboard.heatmap.at(-1)?.cardsReviewed).toBe(10)
   })
 })

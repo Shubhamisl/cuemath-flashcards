@@ -80,6 +80,7 @@ export default async function ProgressPage() {
 
   const name = (profile.display_name ?? 'there').split(' ')[0] ?? 'there'
   const maxActivity = Math.max(...dashboard.activity.map((day) => day.cardsReviewed), 1)
+  const heatTone = ['bg-ink-black/8', 'bg-cue-yellow/30', 'bg-cue-yellow/50', 'bg-cue-yellow/70', 'bg-cue-yellow']
 
   return (
     <main className="min-h-screen">
@@ -172,6 +173,83 @@ export default async function ProgressPage() {
           <CueCard tone="blue" className="shadow-card-rest space-y-4">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                Weekly summary
+              </p>
+              <h2 className="font-display font-bold text-2xl text-ink-black">How this week feels</h2>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-card bg-paper-white/70 px-4 py-4 space-y-1">
+                <div className="text-xs uppercase tracking-[0.08em] text-ink-black/60">Cards reviewed</div>
+                <div className="font-display font-extrabold text-3xl text-ink-black">
+                  {dashboard.weeklySummary.cardsReviewed}
+                </div>
+              </div>
+              <div className="rounded-card bg-paper-white/70 px-4 py-4 space-y-1">
+                <div className="text-xs uppercase tracking-[0.08em] text-ink-black/60">Active days</div>
+                <div className="font-display font-extrabold text-3xl text-ink-black">
+                  {dashboard.weeklySummary.activeDays}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-sm text-ink-black/75">
+              <p>
+                {dashboard.weeklySummary.sessions > 0
+                  ? `You studied across ${dashboard.weeklySummary.sessions} session${dashboard.weeklySummary.sessions === 1 ? '' : 's'} this week.`
+                  : 'No sessions logged yet this week.'}
+              </p>
+              <p>
+                {dashboard.weeklySummary.retentionPct === null
+                  ? 'Retention will appear once you have reviewed cards.'
+                  : `Retention is holding at ${dashboard.weeklySummary.retentionPct}%.`}
+              </p>
+              <p>
+                {dashboard.weeklySummary.strongestDayLabel
+                  ? `Your strongest day so far was ${dashboard.weeklySummary.strongestDayLabel}.`
+                  : 'No standout day yet this week.'}
+              </p>
+              <p>
+                {dashboard.weeklySummary.cardsDeltaVsPreviousWeek === null
+                  ? 'No previous week to compare yet.'
+                  : dashboard.weeklySummary.cardsDeltaVsPreviousWeek >= 0
+                    ? `${dashboard.weeklySummary.cardsDeltaVsPreviousWeek} more cards than last week.`
+                    : `${Math.abs(dashboard.weeklySummary.cardsDeltaVsPreviousWeek)} fewer cards than last week.`}
+              </p>
+            </div>
+          </CueCard>
+        </section>
+
+        <section className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.05fr] gap-6 items-start">
+          <CueCard tone="paper" className="shadow-card-rest space-y-4">
+            <div className="space-y-1">
+              <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                Last 12 weeks
+              </p>
+              <h2 className="font-display font-bold text-2xl text-ink-black">Activity grid</h2>
+            </div>
+
+            <div className="space-y-3">
+              <div className="grid grid-cols-12 gap-1">
+                {dashboard.heatmap.map((day) => (
+                  <div
+                    key={day.isoDate}
+                    className={`aspect-square rounded-[6px] ${heatTone[day.level]}`}
+                    title={`${day.isoDate}: ${day.cardsReviewed} cards in ${day.sessions} session${day.sessions === 1 ? '' : 's'}`}
+                    aria-label={`${day.isoDate}: ${day.cardsReviewed} cards reviewed`}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center justify-between text-xs text-ink-black/60">
+                <span>lighter = quieter weeks</span>
+                <span>brighter = heavier study days</span>
+              </div>
+            </div>
+          </CueCard>
+
+          <CueCard tone="paper" className="shadow-card-rest space-y-4">
+            <div className="space-y-1">
+              <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
                 Focus areas
               </p>
               <h2 className="font-display font-bold text-2xl text-ink-black">Weak concepts</h2>
@@ -186,7 +264,7 @@ export default async function ProgressPage() {
                 {dashboard.weakConcepts.map((concept) => (
                   <div
                     key={concept.tag}
-                    className="flex items-center justify-between gap-3 rounded-card bg-paper-white/70 px-4 py-3"
+                    className="flex items-center justify-between gap-3 rounded-card bg-soft-cream/60 px-4 py-3"
                   >
                     <div className="space-y-1 min-w-0">
                       <div className="font-display font-semibold text-ink-black">{concept.tag}</div>
@@ -219,58 +297,58 @@ export default async function ProgressPage() {
               </div>
             )}
           </CueCard>
-        </section>
 
-        <section className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.05fr] gap-6 items-start">
-          <CueCard tone="paper" className="shadow-card-rest space-y-4">
-            <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
-                Recent sessions
-              </p>
-              <h2 className="font-display font-bold text-2xl text-ink-black">Session history</h2>
-            </div>
+          <CueCard tone="paper" className="shadow-card-rest space-y-4 xl:col-span-2">
+            <div className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.05fr] gap-6 items-start">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                    Recent sessions
+                  </p>
+                  <h2 className="font-display font-bold text-2xl text-ink-black">Session history</h2>
+                </div>
 
-            {dashboard.recentSessions.length === 0 ? (
-              <p className="text-sm text-ink-black/70">
-                No sessions yet. Once you finish a sprint, the trail shows up here.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {dashboard.recentSessions.map((session) => (
-                  <div
-                    key={session.id}
-                    className="grid grid-cols-[auto_1fr_auto] gap-4 items-center rounded-card bg-soft-cream/60 px-4 py-3"
-                  >
-                    <CuePill tone={session.modeLabel === 'Quick 5' ? 'highlight' : 'neutral'}>
-                      {session.modeLabel}
-                    </CuePill>
-                    <div className="min-w-0">
-                      <div className="font-display font-semibold text-ink-black">
-                        {new Date(session.startedAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                        })}
+                {dashboard.recentSessions.length === 0 ? (
+                  <p className="text-sm text-ink-black/70">
+                    No sessions yet. Once you finish a sprint, the trail shows up here.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {dashboard.recentSessions.map((session) => (
+                      <div
+                        key={session.id}
+                        className="grid grid-cols-[auto_1fr_auto] gap-4 items-center rounded-card bg-soft-cream/60 px-4 py-3"
+                      >
+                        <CuePill tone={session.modeLabel === 'Quick 5' ? 'highlight' : 'neutral'}>
+                          {session.modeLabel}
+                        </CuePill>
+                        <div className="min-w-0">
+                          <div className="font-display font-semibold text-ink-black">
+                            {new Date(session.startedAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </div>
+                          <div className="text-xs text-ink-black/60">
+                            {session.cardsReviewed} cards reviewed
+                            {session.meanResponseMs !== null
+                              ? ` - ${Math.round(session.meanResponseMs / 100) / 10}s avg`
+                              : ''}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-display font-bold text-ink-black">
+                            {session.accuracyPct === null ? '-' : `${session.accuracyPct}%`}
+                          </div>
+                          <div className="text-xs text-ink-black/60">accuracy</div>
+                        </div>
                       </div>
-                      <div className="text-xs text-ink-black/60">
-                        {session.cardsReviewed} cards reviewed
-                        {session.meanResponseMs !== null
-                          ? ` - ${Math.round(session.meanResponseMs / 100) / 10}s avg`
-                          : ''}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-display font-bold text-ink-black">
-                        {session.accuracyPct === null ? '-' : `${session.accuracyPct}%`}
-                      </div>
-                      <div className="text-xs text-ink-black/60">accuracy</div>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            )}
-          </CueCard>
 
-          <CueCard tone="paper" className="shadow-card-rest space-y-4">
+              <div className="space-y-4">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
                 Decks
@@ -311,6 +389,8 @@ export default async function ProgressPage() {
                 ))}
               </div>
             )}
+              </div>
+            </div>
           </CueCard>
         </section>
       </div>

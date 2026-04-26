@@ -49,6 +49,23 @@ export type ProgressActivityDay = {
   sessions: number
 }
 
+export type ProgressHeatmapDay = {
+  isoDate: string
+  cardsReviewed: number
+  sessions: number
+  level: 0 | 1 | 2 | 3 | 4
+}
+
+export type WeeklySummary = {
+  cardsReviewed: number
+  sessions: number
+  retentionPct: number | null
+  avgResponseMs: number | null
+  activeDays: number
+  strongestDayLabel: string | null
+  cardsDeltaVsPreviousWeek: number | null
+}
+
 export type WeakConcept = {
   tag: string
   lapses: number
@@ -77,7 +94,9 @@ export type DeckSnapshot = {
 
 export type ProgressDashboard = {
   summary: ProgressSummary
+  weeklySummary: WeeklySummary
   activity: ProgressActivityDay[]
+  heatmap: ProgressHeatmapDay[]
   weakConcepts: WeakConcept[]
   recentSessions: RecentSession[]
   deckSnapshots: DeckSnapshot[]
@@ -101,6 +120,32 @@ function modeLabel(mode: string | null): string {
   return mode === 'quick' ? 'Quick 5' : 'Sprint'
 }
 
+function avgResponseForSessions(sessions: ProgressSession[]): number | null {
+  const denominator = sessions.reduce(
+    (sum, session) => sum + (session.cards_reviewed ?? 0),
+    0,
+  )
+  if (denominator === 0) return null
+  const numerator = sessions.reduce((sum, session) => {
+    if (session.mean_response_ms === null || session.cards_reviewed === null) return sum
+    return sum + session.mean_response_ms * session.cards_reviewed
+  }, 0)
+  return Math.round(numerator / denominator)
+}
+
+function retentionForSessions(sessions: ProgressSession[]): number | null {
+  const denominator = sessions.reduce(
+    (sum, session) => sum + (session.cards_reviewed ?? 0),
+    0,
+  )
+  if (denominator === 0) return null
+  const numerator = sessions.reduce((sum, session) => {
+    if (session.mean_accuracy === null || session.cards_reviewed === null) return sum
+    return sum + session.mean_accuracy * session.cards_reviewed
+  }, 0)
+  return Math.round((numerator / denominator) * 100)
+}
+
 export function computeProgressDashboard(args: {
   cards: ProgressCard[]
   decks: ProgressDeck[]
@@ -120,35 +165,34 @@ export function computeProgressDashboard(args: {
 
   const sevenDayStart = startOfUtcDay(now)
   sevenDayStart.setUTCDate(sevenDayStart.getUTCDate() - 6)
+  const currentWeekStart = startOfUtcDay(now)
+  const dayOfWeek = currentWeekStart.getUTCDay()
+  const mondayOffset = (dayOfWeek + 6) % 7
+  currentWeekStart.setUTCDate(currentWeekStart.getUTCDate() - mondayOffset)
+  const previousWeekStart = new Date(currentWeekStart)
+  previousWeekStart.setUTCDate(previousWeekStart.getUTCDate() - 7)
+  const heatmapStart = new Date(currentWeekStart)
+  heatmapStart.setUTCDate(heatmapStart.getUTCDate() - 77)
 
   const sessions7d = sessions.filter(
     (session) => new Date(session.started_at).getTime() >= sevenDayStart.getTime(),
   )
+  const currentWeekSessions = sessions.filter((session) => {
+    const ts = new Date(session.started_at).getTime()
+    return ts >= currentWeekStart.getTime()
+  })
+  const previousWeekSessions = sessions.filter((session) => {
+    const ts = new Date(session.started_at).getTime()
+    return ts >= previousWeekStart.getTime() && ts < currentWeekStart.getTime()
+  })
 
   const cardsReviewed7d = sessions7d.reduce(
     (sum, session) => sum + (session.cards_reviewed ?? 0),
     0,
   )
 
-  const retentionNumerator = sessions.reduce((sum, session) => {
-    if (session.mean_accuracy === null || session.cards_reviewed === null) return sum
-    return sum + session.mean_accuracy * session.cards_reviewed
-  }, 0)
-  const retentionDenominator = sessions.reduce(
-    (sum, session) => sum + (session.cards_reviewed ?? 0),
-    0,
-  )
-  const retentionPct =
-    retentionDenominator > 0
-      ? Math.round((retentionNumerator / retentionDenominator) * 100)
-      : null
-
-  const responseNumerator = sessions.reduce((sum, session) => {
-    if (session.mean_response_ms === null || session.cards_reviewed === null) return sum
-    return sum + session.mean_response_ms * session.cards_reviewed
-  }, 0)
-  const avgResponseMs =
-    retentionDenominator > 0 ? Math.round(responseNumerator / retentionDenominator) : null
+  const retentionPct = retentionForSessions(sessions)
+  const avgResponseMs = avgResponseForSessions(sessions)
 
   const activityMap = new Map<string, ProgressActivityDay>()
   for (let i = 0; i <= 6; i += 1) {
@@ -170,6 +214,53 @@ export function computeProgressDashboard(args: {
     existing.cardsReviewed += session.cards_reviewed ?? 0
     existing.sessions += 1
   }
+
+  const heatmapMap = new Map<string, ProgressHeatmapDay>()
+  for (let i = 0; i < 84; i += 1) {
+    const day = new Date(heatmapStart)
+    day.setUTCDate(heatmapStart.getUTCDate() + i)
+    const key = isoDay(day)
+    heatmapMap.set(key, {
+      isoDate: key,
+      cardsReviewed: 0,
+      sessions: 0,
+      level: 0,
+    })
+  }
+  for (const session of sessions) {
+    const key = isoDay(new Date(session.started_at))
+    const existing = heatmapMap.get(key)
+    if (!existing) continue
+    existing.cardsReviewed += session.cards_reviewed ?? 0
+    existing.sessions += 1
+  }
+  const heatmapValues = Array.from(heatmapMap.values())
+  const maxHeat = Math.max(...heatmapValues.map((day) => day.cardsReviewed), 0)
+  for (const day of heatmapValues) {
+    if (day.cardsReviewed === 0 || maxHeat === 0) {
+      day.level = 0
+    } else {
+      const ratio = day.cardsReviewed / maxHeat
+      day.level =
+        ratio >= 0.75 ? 4 :
+        ratio >= 0.5 ? 3 :
+        ratio >= 0.25 ? 2 :
+        1
+    }
+  }
+
+  const currentWeekCards = currentWeekSessions.reduce(
+    (sum, session) => sum + (session.cards_reviewed ?? 0),
+    0,
+  )
+  const previousWeekCards = previousWeekSessions.reduce(
+    (sum, session) => sum + (session.cards_reviewed ?? 0),
+    0,
+  )
+  const strongestDay = [...activityMap.values()].sort((a, b) => {
+    if (b.cardsReviewed !== a.cardsReviewed) return b.cardsReviewed - a.cardsReviewed
+    return a.isoDate.localeCompare(b.isoDate)
+  })[0]
 
   const weakConceptMap = new Map<string, WeakConcept>()
   for (const card of activeApprovedCards) {
@@ -251,7 +342,18 @@ export function computeProgressDashboard(args: {
       sessions7d: sessions7d.length,
       avgResponseMs,
     },
+    weeklySummary: {
+      cardsReviewed: currentWeekCards,
+      sessions: currentWeekSessions.length,
+      retentionPct: retentionForSessions(currentWeekSessions),
+      avgResponseMs: avgResponseForSessions(currentWeekSessions),
+      activeDays: [...activityMap.values()].filter((day) => day.cardsReviewed > 0).length,
+      strongestDayLabel: strongestDay && strongestDay.cardsReviewed > 0 ? strongestDay.label : null,
+      cardsDeltaVsPreviousWeek:
+        previousWeekCards === 0 ? null : currentWeekCards - previousWeekCards,
+    },
     activity: Array.from(activityMap.values()),
+    heatmap: heatmapValues,
     weakConcepts: Array.from(weakConceptMap.values())
       .sort((a, b) => {
         if (b.lapses !== a.lapses) return b.lapses - a.lapses
