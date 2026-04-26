@@ -5,11 +5,18 @@ import { CueButton } from '@/lib/brand/primitives/button'
 import { CueCard } from '@/lib/brand/primitives/card'
 import { CuePill } from '@/lib/brand/primitives/pill'
 import { TrustChip } from '@/lib/brand/primitives/trust-chip'
-import { sendMagicLink, signInWithGoogle } from './actions'
+import {
+  sendMagicLink,
+  signInWithGoogle,
+  signInWithPassword,
+  signUpWithPassword,
+} from './actions'
 
 export default function LoginPage() {
+  const [mode, setMode] = useState<'magic' | 'password'>('magic')
   const [email, setEmail] = useState('')
-  const [status, setStatus] = useState<'idle' | 'sent' | 'error'>('idle')
+  const [password, setPassword] = useState('')
+  const [status, setStatus] = useState<'idle' | 'sent' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
   const [pending, startTransition] = useTransition()
 
@@ -21,6 +28,41 @@ export default function LoginPage() {
       if ('ok' in res) {
         setStatus('sent')
         setMessage('Check your email for a sign-in link.')
+      } else {
+        setStatus('error')
+        setMessage(res.error)
+      }
+    })
+  }
+
+  function handlePasswordSignIn(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startTransition(async () => {
+      const res = await signInWithPassword(formData)
+      if ('ok' in res) {
+        setStatus('success')
+        window.location.href = res.destination
+      } else {
+        setStatus('error')
+        setMessage(res.error)
+      }
+    })
+  }
+
+  function handlePasswordSignUp(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startTransition(async () => {
+      const res = await signUpWithPassword(formData)
+      if ('ok' in res) {
+        if (res.requiresConfirmation) {
+          setStatus('sent')
+          setMessage('Account created. Check your email to confirm it before signing in.')
+        } else if (res.destination) {
+          setStatus('success')
+          window.location.href = res.destination
+        }
       } else {
         setStatus('error')
         setMessage(res.error)
@@ -48,7 +90,31 @@ export default function LoginPage() {
             </h1>
           </div>
 
-          <form onSubmit={handleMagicLink} className="space-y-4">
+          <div className="grid grid-cols-2 gap-2 rounded-card bg-ink-black/5 p-1">
+            <button
+              type="button"
+              onClick={() => setMode('magic')}
+              className={`rounded-input px-4 py-2 text-sm font-display font-semibold ${
+                mode === 'magic' ? 'bg-paper-white text-ink-black shadow-sm' : 'text-ink-black/60'
+              }`}
+            >
+              Magic link
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('password')}
+              className={`rounded-input px-4 py-2 text-sm font-display font-semibold ${
+                mode === 'password' ? 'bg-paper-white text-ink-black shadow-sm' : 'text-ink-black/60'
+              }`}
+            >
+              Email + password
+            </button>
+          </div>
+
+          <form
+            onSubmit={mode === 'magic' ? handleMagicLink : handlePasswordSignIn}
+            className="space-y-4"
+          >
             <label className="block space-y-2">
               <span className="text-sm font-display font-semibold">Email</span>
               <input
@@ -61,9 +127,49 @@ export default function LoginPage() {
                 placeholder="you@example.com"
               />
             </label>
-            <CueButton type="submit" disabled={pending} className="w-full">
-              {pending ? 'Sending…' : 'Email me a sign-in link'}
-            </CueButton>
+
+            {mode === 'password' && (
+              <label className="block space-y-2">
+                <span className="text-sm font-display font-semibold">Password</span>
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-input border-2 border-ink-black bg-paper-white px-5 py-4 font-body placeholder:text-ink-black/40 focus:outline-none focus:ring-2 focus:ring-cue-yellow"
+                  placeholder="At least 8 characters"
+                />
+              </label>
+            )}
+
+            {mode === 'magic' ? (
+              <CueButton type="submit" disabled={pending} className="w-full">
+                {pending ? 'Sending...' : 'Email me a sign-in link'}
+              </CueButton>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <CueButton type="submit" disabled={pending} className="w-full">
+                  {pending ? 'Signing in...' : 'Sign in'}
+                </CueButton>
+                <CueButton
+                  type="button"
+                  variant="ghost"
+                  disabled={pending}
+                  className="w-full"
+                  onClick={(e) => {
+                    const form = e.currentTarget.form
+                    if (!form) return
+                    handlePasswordSignUp({
+                      preventDefault() {},
+                      currentTarget: form,
+                    } as React.FormEvent<HTMLFormElement>)
+                  }}
+                >
+                  {pending ? 'Creating...' : 'Create account'}
+                </CueButton>
+              </div>
+            )}
           </form>
 
           <div className="relative text-center text-sm text-ink-black/60">
@@ -79,7 +185,7 @@ export default function LoginPage() {
           </CueButton>
 
           {status !== 'idle' && (
-            <p className={status === 'sent' ? 'text-sm text-green-700' : 'text-sm text-red-700'}>
+            <p className={status === 'error' ? 'text-sm text-red-700' : 'text-sm text-green-700'}>
               {message}
             </p>
           )}

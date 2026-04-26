@@ -17,7 +17,7 @@ test.describe('app smoke', () => {
 
     await page.goto('/progress')
     await expect(page.getByText('Due now')).toBeVisible()
-    await expect(page.getByText('Recent sessions')).toBeVisible()
+    await expect(page.getByText('Recent sessions', { exact: true })).toBeVisible()
   })
 
   test('ready deck supports review entry points', async ({ page }) => {
@@ -48,6 +48,6 @@ test.describe('app smoke', () => {
     await page.locator('input[type="file"]').setInputFiles(uploadPdfPath)
     await page.getByRole('button', { name: 'Upload' }).click()
 
-    await expect(page.getByText(/Generating cards|Processing|Draft|Failed/i)).toBeVisible()
+    await expect(page.locator('a[href^="/deck/"]').first()).toBeVisible()
   })
 })
