@@ -95,6 +95,7 @@ describe('review-session', () => {
     expect(screen.getByText('Hint')).toBeInTheDocument()
     expect(screen.getByText('Starts with 2 - 2 characters')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Got it/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Try typing it' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Show answer (Space)' })).toBeInTheDocument()
   })
 
@@ -220,6 +221,59 @@ describe('review-session', () => {
     expect(fetchEasyCardsSpy).not.toHaveBeenCalled()
     expect(await screen.findByText('Nice sprint.')).toBeInTheDocument()
     expect(screen.queryByText('Easy check-in')).not.toBeInTheDocument()
+  })
+
+  it('lets the learner type an answer before rating', async () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
+    observeSpy.mockReset()
+    observeSpy.mockReturnValue({ action: 'continue' })
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([])
+    resetPreviewMock()
+    const user = userEvent.setup()
+
+    render(
+      <ReviewSession
+        cards={[card({ back: { text: '2x' } })]}
+        deckId="deck-1"
+        startedAt="2026-04-26T00:00:00.000Z"
+        mode="quick"
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Try typing it' }))
+    await user.type(screen.getByPlaceholderText('Type your answer'), '2 x{enter}')
+
+    expect(screen.getByText('Your attempt')).toBeInTheDocument()
+    expect(screen.getByText('Nice - that matches. Now rate how well it came back.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Got it (press 3)' })).toBeInTheDocument()
+  })
+
+  it('allows skipping the typing challenge without flipping the card', async () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
+    observeSpy.mockReset()
+    observeSpy.mockReturnValue({ action: 'continue' })
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([])
+    resetPreviewMock()
+    const user = userEvent.setup()
+
+    render(
+      <ReviewSession
+        cards={[card()]}
+        deckId="deck-1"
+        startedAt="2026-04-26T00:00:00.000Z"
+        mode="quick"
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Try typing it' }))
+    await user.click(screen.getByRole('button', { name: 'Skip typing' }))
+
+    expect(screen.getByRole('button', { name: 'Show answer (Space)' })).toBeInTheDocument()
+    expect(screen.queryByText('Your attempt')).not.toBeInTheDocument()
   })
 
   it('does not offer another session when nothing is due right now', async () => {

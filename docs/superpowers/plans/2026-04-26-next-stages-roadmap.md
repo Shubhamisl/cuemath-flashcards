@@ -10,6 +10,11 @@
 
 **Important stale gap-analysis corrections:** Deck rename/edit, basic deck search/sort, and individual card edit/delete are no longer missing. They should be treated as foundations to extend, not as net-new work.
 
+## Active Leftovers Tracker
+
+- **Stage 1 still open:** page-range upload, source page/chunk visibility in card review, single-card regenerate from source chunk, and clearer scanned/low-text PDF warning states.
+- **Stage 2 remaining policy gap:** changing FSRS scheduling based on `hint_used`. We already persist hint usage, but any mastery penalty should be treated as a data-backed scheduling policy decision, not a casual FSRS rewrite.
+
 ---
 
 ## Stage 0: Planning Hygiene

@@ -15,6 +15,7 @@ import type { FsrsRating } from '@/lib/srs/schedule'
 import type { subjectFamily } from '@/lib/brand/tokens'
 import { labelForMode, type ReviewMode } from '@/lib/review/mode'
 import type { SessionPreview } from '@/lib/review/session-preview'
+import { checkTypedAnswer, supportsTypingChallenge, type TypedAnswerCheck } from '@/lib/review/typing'
 
 const SPRINT_MS_CAP = 15 * 60 * 1000
 type SessionEvent = ReviewEvent & { hintUsed: boolean }
@@ -40,6 +41,9 @@ export function ReviewSession({
   const [completedWeakLoop, setCompletedWeakLoop] = useState(false)
   const [flipped, setFlipped] = useState(false)
   const [hintShown, setHintShown] = useState(false)
+  const [typingOpen, setTypingOpen] = useState(false)
+  const [typedAnswer, setTypedAnswer] = useState('')
+  const [typedCheck, setTypedCheck] = useState<TypedAnswerCheck | null>(null)
   const [events, setEvents] = useState<SessionEvent[]>([])
   const [weakCards, setWeakCards] = useState<SprintCard[]>([])
   const [preview, setPreview] = useState<SessionPreview | null>(null)
@@ -56,6 +60,7 @@ export function ReviewSession({
   const finalized = useRef(false)
 
   const current = cards[index]
+  const typingSupported = supportsTypingChallenge(current?.back.text ?? '')
   const completedPass = index >= cards.length
   const showWeakLoopPrompt = !timedOut && phase === 'main' && completedPass && weakCards.length > 0
   const done = timedOut || phase === 'done'
@@ -110,6 +115,9 @@ export function ReviewSession({
     shownAt.current = Date.now()
     setFlipped(false)
     setHintShown(false)
+    setTypingOpen(false)
+    setTypedAnswer('')
+    setTypedCheck(null)
     setIndex(nextIndex)
   }
 
@@ -141,6 +149,13 @@ export function ReviewSession({
       params.set('run', String(Date.now()))
     }
     return `/review?${params.toString()}`
+  }
+
+  function submitTypedChallenge() {
+    if (!current || flipped) return
+    setTypedCheck(checkTypedAnswer(current.back.text, typedAnswer))
+    setTypingOpen(false)
+    setFlipped(true)
   }
 
   function rate(rating: FsrsRating) {
@@ -220,6 +235,9 @@ export function ReviewSession({
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (done) return
+      const target = e.target
+      const typingFieldFocused =
+        target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement
       if (e.key === 'Escape') {
         e.preventDefault()
         finishSession()
@@ -227,6 +245,12 @@ export function ReviewSession({
       }
       if (showWeakLoopPrompt) return
       if (showBreak) return
+      if (!flipped && typingOpen && e.key === 'Enter') {
+        e.preventDefault()
+        submitTypedChallenge()
+        return
+      }
+      if (typingFieldFocused) return
       if (e.key === ' ') {
         e.preventDefault()
         setFlipped((f) => !f)
@@ -245,7 +269,7 @@ export function ReviewSession({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [flipped, done, showBreak, cards.length, pending, current?.hint]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [flipped, done, showBreak, cards.length, pending, current?.hint, typingOpen, typedAnswer]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (cards.length === 0) {
     return (
@@ -488,12 +512,83 @@ export function ReviewSession({
                   )}
                 </>
               )}
+              {typingSupported && typingOpen && (
+                <CueCard tone="cream" className="shadow-card-rest px-5 py-4 space-y-3">
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                      Typing challenge
+                    </p>
+                    <p className="text-sm text-ink-black/70">
+                      Try recalling the answer before you peek.
+                    </p>
+                  </div>
+                  <input
+                    value={typedAnswer}
+                    onChange={(e) => setTypedAnswer(e.target.value)}
+                    placeholder="Type your answer"
+                    autoFocus
+                    className="w-full rounded-card border border-ink-black/15 bg-white/80 px-4 py-3 text-sm text-ink-black outline-none focus:border-cue-yellow focus:ring-2 focus:ring-cue-yellow/30"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <CueButton
+                      onClick={submitTypedChallenge}
+                      disabled={typedAnswer.trim().length === 0}
+                      className="w-full"
+                    >
+                      Check answer (Enter)
+                    </CueButton>
+                    <CueButton
+                      variant="ghost"
+                      className="w-full"
+                      onClick={() => {
+                        setTypingOpen(false)
+                        setTypedAnswer('')
+                        setTypedCheck(null)
+                      }}
+                    >
+                      Skip typing
+                    </CueButton>
+                  </div>
+                </CueCard>
+              )}
+              {typingSupported && !typingOpen && (
+                <CueButton
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setTypingOpen(true)}
+                >
+                  Try typing it
+                </CueButton>
+              )}
               <CueButton className="w-full" onClick={() => setFlipped(true)}>
                 Show answer (Space)
               </CueButton>
             </div>
           )}
-          {flipped && <RatingBar disabled={pending} onRate={rate} />}
+          {flipped && (
+            <div className="space-y-3">
+              {typedCheck && (
+                <CueCard tone={typedCheck.exact ? 'mint' : typedCheck.close ? 'blue' : 'cream'} className="shadow-card-rest px-5 py-4 space-y-2">
+                  <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                    Your attempt
+                  </p>
+                  <p className="text-sm text-ink-black/75">
+                    {typedAnswer.trim() || 'No answer entered'}
+                  </p>
+                  <p className="text-sm text-ink-black/70">
+                    {typedCheck.exact
+                      ? 'Nice - that matches. Now rate how well it came back.'
+                      : typedCheck.close
+                        ? 'Close enough to count as a solid recall attempt. Check the answer, then rate it honestly.'
+                        : typedCheck.empty
+                          ? 'No attempt recorded. Check the answer, then rate it honestly.'
+                          : 'Not an exact match. Check the answer, then rate it honestly.'}
+                  </p>
+                </CueCard>
+              )}
+              <RatingBar disabled={pending} onRate={rate} />
+            </div>
+          )}
 
           {lastInterval !== null && (
             <p className="text-xs text-center text-ink-black/50">
@@ -514,7 +609,13 @@ export function ReviewSession({
       )}
       {error && <p className="text-sm text-red-700">{error}</p>}
       <p className="text-xs text-center opacity-50">
-        {current?.hint ? 'H for hint, Space for answer, Esc to end early' : 'Space for answer, Esc to end early'}
+        {typingSupported
+          ? current?.hint
+            ? 'H for hint, Enter to check typed answer, Space for answer, Esc to end early'
+            : 'Enter to check typed answer, Space for answer, Esc to end early'
+          : current?.hint
+            ? 'H for hint, Space for answer, Esc to end early'
+            : 'Space for answer, Esc to end early'}
       </p>
     </div>
   )
