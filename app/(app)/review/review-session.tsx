@@ -132,8 +132,15 @@ export function ReviewSession({
     setLastInterval(null)
   }
 
-  function reviewHref(nextMode: ReviewMode): string {
-    return nextMode === 'quick' ? `/review?deck=${deckId}&mode=quick` : `/review?deck=${deckId}`
+  function reviewHref(nextMode: ReviewMode, fresh = false): string {
+    const params = new URLSearchParams({ deck: deckId })
+    if (nextMode === 'quick') {
+      params.set('mode', 'quick')
+    }
+    if (fresh) {
+      params.set('run', String(Date.now()))
+    }
+    return `/review?${params.toString()}`
   }
 
   function rate(rating: FsrsRating) {
@@ -375,7 +382,7 @@ export function ReviewSession({
         <div className="flex flex-col items-center gap-3 w-full max-w-[440px]">
           {preview && (
             <CueButton
-              onClick={() => router.push(reviewHref(preview.suggestedMode))}
+              onClick={() => router.push(reviewHref(preview.suggestedMode, true))}
               className="w-full"
             >
               Start {labelForMode(preview.suggestedMode)}
@@ -384,10 +391,10 @@ export function ReviewSession({
           <CueButton
             onClick={() => {
               if (preview && preview.suggestedMode === mode) {
-                router.push(reviewHref(replayMode))
+                router.push(reviewHref(replayMode, true))
                 return
               }
-              router.refresh()
+              router.push(reviewHref(mode, true))
             }}
             className="w-full"
           >

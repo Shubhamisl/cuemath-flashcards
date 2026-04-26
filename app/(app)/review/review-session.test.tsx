@@ -6,10 +6,13 @@ import { describe, expect, it, vi } from 'vitest'
 import { ReviewSession } from './review-session'
 import type { SprintCard } from '@/lib/queue/types'
 
+const pushSpy = vi.fn()
+const refreshSpy = vi.fn()
+
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: vi.fn(),
-    refresh: vi.fn(),
+    push: pushSpy,
+    refresh: refreshSpy,
   }),
 }))
 
@@ -52,6 +55,8 @@ function card(overrides: Partial<SprintCard> = {}): SprintCard {
 
 describe('review-session', () => {
   it('reveals a hint before the answer', async () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
     const user = userEvent.setup()
 
     render(
@@ -75,6 +80,8 @@ describe('review-session', () => {
   })
 
   it('ends the session from escape before the card is flipped', async () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
     const user = userEvent.setup()
 
     render(
@@ -96,6 +103,8 @@ describe('review-session', () => {
   })
 
   it('offers a weak-card retry pass after a low rating in the main sprint', async () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
     const user = userEvent.setup()
 
     render(
@@ -117,5 +126,27 @@ describe('review-session', () => {
 
     expect(screen.getByRole('button', { name: 'Show answer (Space)' })).toBeInTheDocument()
     expect(screen.getByText('What is the derivative of x^2?')).toBeInTheDocument()
+  })
+
+  it('starts a fresh quick session from the done screen', async () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
+    const user = userEvent.setup()
+
+    render(
+      <ReviewSession
+        cards={[card()]}
+        deckId="deck-1"
+        startedAt="2026-04-26T00:00:00.000Z"
+        mode="quick"
+      />,
+    )
+
+    await user.keyboard('{Escape}')
+    await screen.findByText('Suggested next: Quick 5')
+    await user.click(screen.getByRole('button', { name: 'Start Quick 5' }))
+
+    expect(pushSpy).toHaveBeenCalledTimes(1)
+    expect(pushSpy.mock.calls[0][0]).toMatch(/^\/review\?deck=deck-1&mode=quick&run=/)
   })
 })
