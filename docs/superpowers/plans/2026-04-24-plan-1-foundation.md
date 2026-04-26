@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Historical note:** This plan was written for an older implementation stage and contains `middleware.ts` / `middleware` instructions. Current and future work on this Next.js 16 app should use root `proxy.ts` and `proxy` conventions instead.
+
 **Goal:** Set up a deployable Next.js 15 + Supabase app with Cuemath-branded primitives, full DB schema with RLS, and a working auth + onboarding flow that lands the user on an empty deck library.
 
 **Architecture:** Next.js 15 App Router with TypeScript. Supabase handles Postgres, Auth, and Storage. Design tokens driven by Tailwind theme extensions and CSS variables. Auth via Supabase with magic link + Google. All user-scoped data protected by Postgres RLS. Onboarding collects subject family, level, and daily goal into a `profiles` row before landing on the library.
@@ -29,7 +31,7 @@ Per project memory, UI work on this project uses **Stitch by Google** and **Clau
 
 **For primitives (Tasks 6–7):** code is fully specified by tests — no generator needed. Implement directly.
 
-**For schema / auth / middleware tasks:** no UI, no generator needed.
+**For schema / auth / proxy tasks:** no UI, no generator needed.
 
 The generator is a *starting point*, not a substitute for token discipline. The final committed code must reference tokens, not one-off hex/px.
 
@@ -85,7 +87,7 @@ D:\CUEMATH\Flashcard\
 │   └── profile/
 │       ├── upsert.ts                       # Ensures profile row exists after login
 │       └── upsert.test.ts
-├── middleware.ts                           # Next.js middleware: refresh session + gate /app
+├── proxy.ts                                # Next.js Proxy: refresh session + gate /app
 ├── supabase/
 │   ├── config.toml
 │   └── migrations/
@@ -1318,10 +1320,12 @@ git commit -m "feat(db): typed Supabase clients (browser + server)"
 
 ---
 
-## Task 13: Session-refresh middleware
+## Task 13: Session-refresh proxy
 
 **Files:**
-- Create: `middleware.ts`, `lib/auth/middleware.ts`
+- Create: `proxy.ts`, `lib/auth/middleware.ts`
+
+> **Current Next.js 16 note:** The original version of this task used the deprecated root `middleware.ts` convention. Use root `proxy.ts` and export `proxy()` for current and future work. The local helper file `lib/auth/middleware.ts` is not a Next.js file convention.
 
 - [ ] **Step 1: Write middleware helper**
 
@@ -1378,14 +1382,14 @@ export async function updateSession(request: NextRequest) {
 }
 ```
 
-- [ ] **Step 2: Wire root middleware**
+- [ ] **Step 2: Wire root proxy**
 
-Create `middleware.ts` at project root:
+Create `proxy.ts` at project root:
 ```ts
 import { updateSession } from '@/lib/auth/middleware'
 import type { NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return await updateSession(request)
 }
 
@@ -1397,8 +1401,8 @@ export const config = {
 - [ ] **Step 3: Commit**
 
 ```bash
-git add middleware.ts lib/auth/
-git commit -m "feat(auth): session-refresh middleware with route gating"
+git add proxy.ts lib/auth/
+git commit -m "feat(auth): session-refresh proxy with route gating"
 ```
 
 ---
