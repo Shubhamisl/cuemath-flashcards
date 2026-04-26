@@ -7,8 +7,10 @@ import { CuePill } from '@/lib/brand/primitives/pill'
 import { MasteryRing } from '@/components/mastery-ring'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
 import { tierToTone } from '@/lib/progress/tier-tone'
+import { canMarkDeckReady, summarizeReviewGate } from '@/lib/decks/review-gate'
 import { DeleteDeckButton } from './delete-deck-button'
 import { RenameDeckForm } from './rename-deck-form'
+import { ReviewReadyButton } from './review-ready-button'
 
 function StatTile({ value, label }: { value: string | number; label: string }) {
   return (
@@ -19,10 +21,19 @@ function StatTile({ value, label }: { value: string | number; label: string }) {
   )
 }
 
-export default async function DeckPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function DeckPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ review?: string }>
+}) {
   const { id } = await params
+  const { review } = await searchParams
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase
@@ -42,22 +53,36 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
 
   const { data: cards } = await supabase
     .from('cards')
-    .select('fsrs_state, suspended')
+    .select('fsrs_state, suspended, approved')
     .eq('deck_id', id)
     .eq('user_id', user.id)
 
-  const stats = computeDeckStats((cards ?? []) as StatCard[], new Date())
+  const cardRows = (cards ?? []) as Array<
+    StatCard & {
+      approved: boolean
+      suspended: boolean
+    }
+  >
+  const gateSummary = summarizeReviewGate(
+    cardRows.map((card) => ({ approved: card.approved, suspended: card.suspended })),
+  )
+  const stats = computeDeckStats(
+    cardRows
+      .filter((card) => card.approved)
+      .map((card) => ({ fsrs_state: card.fsrs_state, suspended: card.suspended })),
+    new Date(),
+  )
+  const canReady = canMarkDeckReady(deck.status, gateSummary)
 
-  // Query reviewed cards for weak tags + upcoming schedule
   const { data: reviewedCards } = await supabase
     .from('cards')
     .select('concept_tag, fsrs_state')
     .eq('deck_id', id)
     .eq('user_id', user.id)
+    .eq('approved', true)
     .not('fsrs_state', 'is', null)
     .eq('suspended', false)
 
-  // Aggregate lapses per concept tag
   const tagLapses: Record<string, { lapses: number; count: number }> = {}
   for (const rc of reviewedCards ?? []) {
     const tag = rc.concept_tag
@@ -69,15 +94,12 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
     tagLapses[tag].count += 1
   }
 
-  // Top 3 tags by total lapses (descending)
   const weakTags = Object.entries(tagLapses)
     .sort(([, a], [, b]) => b.lapses - a.lapses)
     .slice(0, 3)
     .map(([tag]) => tag)
 
-  // Upcoming schedule buckets
   const now = new Date()
-
   const todayEnd = new Date(now)
   todayEnd.setHours(23, 59, 59, 999)
 
@@ -118,7 +140,7 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
           href="/library"
           className="inline-block text-sm font-body text-ink-black/60 hover:text-ink-black"
         >
-          ← Library
+          {'<-'} Library
         </Link>
       </div>
 
@@ -141,34 +163,82 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-3">
               <CuePill tone={tierToTone(stats.tier)}>{stats.tier}</CuePill>
+              {deck.status === 'draft' && <CuePill tone="warning">Draft</CuePill>}
+              {deck.status === 'ingesting' && <CuePill tone="info">Processing</CuePill>}
+              {deck.status === 'failed' && <CuePill tone="warning">Failed</CuePill>}
             </div>
             <RenameDeckForm deckId={deck.id} initialTitle={deck.title} />
           </div>
 
           <div className="grid grid-cols-3 gap-4 max-w-[600px]">
             <StatTile value={deck.card_count ?? 0} label="Total" />
-            <StatTile value={stats.dueCount} label="Due" />
+            <StatTile value={gateSummary.approvedCount} label="Approved" />
             <StatTile value={`${stats.masteryPct}%`} label="Mastery" />
           </div>
 
+          {deck.status === 'draft' && (
+            <div className="max-w-[520px] rounded-card border border-amber-200 bg-amber-50 px-5 py-4 space-y-2">
+              <p className="font-display font-semibold text-sm text-ink-black">Review gate</p>
+              <p className="text-sm text-ink-black/70">
+                {gateSummary.reviewableCount === 0
+                  ? 'This deck does not have any reviewable cards yet.'
+                  : `${gateSummary.approvedCount} of ${gateSummary.reviewableCount} reviewable cards are approved.`}
+                {gateSummary.reviewableCount > 0 && gateSummary.pendingCount > 0
+                  ? ` Approve ${gateSummary.pendingCount} more card(s) before study starts.`
+                  : gateSummary.reviewableCount > 0
+                    ? ' All reviewable cards are approved. Mark the deck ready to unlock review.'
+                    : ''}
+              </p>
+              {review === 'blocked' && (
+                <p className="text-sm text-amber-800">
+                  Finish approving this deck before starting a sprint.
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="space-y-3">
-            <Link href={`/review?deck=${deck.id}`} className="inline-block w-full max-w-[480px]">
-              <CueButton size="lg" className="w-full" disabled={stats.dueCount === 0}>
-                {stats.dueCount > 0 ? 'Start sprint' : 'All caught up'}
-              </CueButton>
-            </Link>
-            <p className="text-sm text-ink-black/70 max-w-[480px]">
-              {stats.dueCount > 0
-                ? `Up to 20 cards ready — keep your edge.`
-                : `Nothing due right now. Check back later.`}
-            </p>
+            {deck.status === 'ready' ? (
+              <>
+                <Link href={`/review?deck=${deck.id}`} className="inline-block w-full max-w-[480px]">
+                  <CueButton size="lg" className="w-full" disabled={stats.dueCount === 0}>
+                    {stats.dueCount > 0 ? 'Start sprint' : 'All caught up'}
+                  </CueButton>
+                </Link>
+                <p className="text-sm text-ink-black/70 max-w-[480px]">
+                  {stats.dueCount > 0
+                    ? 'Up to 20 approved cards ready for review.'
+                    : 'Nothing due right now. Check back later.'}
+                </p>
+              </>
+            ) : deck.status === 'draft' ? (
+              <>
+                <Link href={`/deck/${deck.id}/cards`} className="inline-block w-full max-w-[480px]">
+                  <CueButton size="lg" className="w-full">
+                    Review generated cards
+                  </CueButton>
+                </Link>
+                <p className="text-sm text-ink-black/70 max-w-[480px]">
+                  Approve, edit, or delete cards until the deck feels trustworthy.
+                </p>
+                <ReviewReadyButton deckId={deck.id} disabled={!canReady} />
+              </>
+            ) : deck.status === 'ingesting' ? (
+              <p className="text-sm text-ink-black/70 max-w-[480px]">
+                We are still generating cards for this deck.
+              </p>
+            ) : (
+              <p className="text-sm text-ink-black/70 max-w-[480px]">
+                This deck is not ready for review yet.
+              </p>
+            )}
           </div>
 
           <Link
             href={`/deck/${deck.id}/cards`}
             className="inline-flex items-center gap-1.5 text-sm font-display font-semibold text-ink-black/60 hover:text-ink-black"
           >
-            Browse {deck.card_count ?? 0} cards →
+            Browse {deck.card_count ?? 0} cards {'->'}
           </Link>
 
           {weakTags.length > 0 && (

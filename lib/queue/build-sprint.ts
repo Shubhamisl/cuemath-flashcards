@@ -3,6 +3,7 @@ import { createClient } from '@/lib/db/server'
 
 function isDue(c: SprintCard, now: Date): boolean {
   if (c.suspended) return false
+  if (!c.approved) return false
   if (!c.fsrs_state) return true
   return new Date(c.fsrs_state.due).getTime() <= now.getTime()
 }
@@ -49,10 +50,11 @@ export async function buildSprint(args: {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('cards')
-    .select('id, deck_id, concept_tag, front, back, fsrs_state, suspended')
+    .select('id, deck_id, concept_tag, front, back, fsrs_state, suspended, approved')
     .eq('user_id', args.userId)
     .eq('deck_id', args.deckId)
     .eq('suspended', false)
+    .eq('approved', true)
     .limit(500)
   if (error) throw error
   return buildSprintFromCards((data ?? []) as SprintCard[], now, args.size)

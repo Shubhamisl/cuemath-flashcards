@@ -71,6 +71,7 @@ export async function runIngest(args: {
     const rows = allCards.map((c, i) => ({
       deck_id: deckId,
       user_id: userId,
+      approved: false,
       format: 'qa',
       front: { text: c.front },
       back: { text: c.back },
@@ -84,7 +85,7 @@ export async function runIngest(args: {
     if (insErr) throw insErr
 
     // --- done ---
-    await setDeckStatus(deckId, 'ready', allCards.length)
+    await setDeckStatus(deckId, 'draft', allCards.length)
     await updateJob(jobId, {
       stage: 'ready',
       progress_pct: 100,

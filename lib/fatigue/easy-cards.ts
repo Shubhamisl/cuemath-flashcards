@@ -16,10 +16,11 @@ export async function fetchEasyCards(args: {
 
   const { data, error } = await supabase
     .from('cards')
-    .select('id, deck_id, concept_tag, front, back, fsrs_state, suspended')
+    .select('id, deck_id, concept_tag, front, back, fsrs_state, suspended, approved')
     .eq('user_id', user.id)
     .eq('deck_id', deckId)
     .eq('suspended', false)
+    .eq('approved', true)
     .not('fsrs_state', 'is', null)
     .limit(200)
   if (error || !data) return []

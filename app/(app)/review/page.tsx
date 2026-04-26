@@ -20,11 +20,12 @@ export default async function ReviewPage({
 
   const { data: deck } = await supabase
     .from('decks')
-    .select('id, title, subject_family')
+    .select('id, title, subject_family, status')
     .eq('id', deckId)
     .eq('user_id', user.id)
     .single()
   if (!deck) redirect('/library')
+  if (deck.status !== 'ready') redirect(`/deck/${deckId}?review=blocked`)
 
   const cards = await buildSprint({ userId: user.id, deckId, size: 20 })
 

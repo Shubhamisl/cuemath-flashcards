@@ -155,7 +155,7 @@ export default async function LibraryPage({
                   id={d.id}
                   title={d.title}
                   subjectFamily={d.subject_family as subjectFamily}
-                  status={d.status as 'ingesting' | 'ready' | 'failed'}
+                  status={d.status as 'ingesting' | 'draft' | 'ready' | 'failed'}
                   cardCount={d.card_count}
                   tier={s?.tier as import('@/lib/progress/deck-stats').Tier | undefined}
                   masteryPct={s?.masteryPct}

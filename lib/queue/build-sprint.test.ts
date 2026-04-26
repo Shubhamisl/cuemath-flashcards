@@ -14,6 +14,7 @@ function card(id: string, overrides: Partial<SprintCard> = {}): SprintCard {
     back: { text: `A${id}` },
     fsrs_state: null,
     suspended: false,
+    approved: true,
     ...overrides,
   }
 }
@@ -36,6 +37,11 @@ function dueState(daysAgo: number, stability = 10): SprintCard['fsrs_state'] {
 describe('queue/build-sprint', () => {
   it('drops suspended cards', () => {
     const out = buildSprintFromCards([card('1', { suspended: true }), card('2')], now, 10)
+    expect(out.map((c) => c.id)).toEqual(['2'])
+  })
+
+  it('drops unapproved cards', () => {
+    const out = buildSprintFromCards([card('1', { approved: false }), card('2')], now, 10)
     expect(out.map((c) => c.id)).toEqual(['2'])
   })
 

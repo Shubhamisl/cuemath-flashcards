@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       cards: {
         Row: {
+          approved: boolean
           back: Json
           concept_tag: string | null
           created_at: string
@@ -32,6 +33,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          approved?: boolean
           back: Json
           concept_tag?: string | null
           created_at?: string
@@ -48,6 +50,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          approved?: boolean
           back?: Json
           concept_tag?: string | null
           created_at?: string
@@ -340,7 +343,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      mark_deck_ready_if_reviewed: {
+        Args: { p_deck_id: string }
+        Returns: boolean
+      }
+      sync_deck_review_gate: {
+        Args: { p_deck_id: string }
+        Returns: {
+          card_count: number
+          status: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
