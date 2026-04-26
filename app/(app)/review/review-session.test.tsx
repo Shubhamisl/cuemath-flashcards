@@ -308,4 +308,48 @@ describe('review-session', () => {
     expect(screen.queryByRole('button', { name: 'Start Quick 5' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Start Sprint' })).not.toBeInTheDocument()
   })
+
+  it('uses the library back label for an empty global queue', () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
+    observeSpy.mockReset()
+    fetchEasyCardsSpy.mockReset()
+    getSessionPreviewSpy.mockReset()
+
+    render(
+      <ReviewSession
+        cards={[]}
+        backHref="/library"
+        startedAt="2026-04-26T00:00:00.000Z"
+        mode="standard"
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Back to library' })).toBeInTheDocument()
+  })
+
+  it('shows a next-session preview for global review sessions', async () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
+    observeSpy.mockReset()
+    observeSpy.mockReturnValue({ action: 'continue' })
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([])
+    resetPreviewMock()
+    const user = userEvent.setup()
+
+    render(
+      <ReviewSession
+        cards={[card()]}
+        backHref="/library"
+        startedAt="2026-04-26T00:00:00.000Z"
+        mode="quick"
+      />,
+    )
+
+    await user.keyboard('{Escape}')
+
+    expect(await screen.findByText('Suggested next: Quick 5')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Start Quick 5' })).toBeInTheDocument()
+  })
 })

@@ -1,9 +1,11 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/db/server'
 import { UploadModal } from '@/components/upload-modal'
 import { DeckCard } from '@/components/deck-card'
 import { SearchSortBar } from '@/components/search-sort-bar'
+import { CueButton } from '@/lib/brand/primitives/button'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
 import { computeStreak } from '@/lib/progress/streak'
 import type { subjectFamily } from '@/lib/brand/tokens'
@@ -78,6 +80,10 @@ export default async function LibraryPage({
       statsByDeck[id] = { tier: s.tier, masteryPct: s.masteryPct, dueCount: s.dueCount }
     }
   }
+  const globalDueNowCount = readyIds.reduce(
+    (sum, id) => sum + (statsByDeck[id]?.dueCount ?? 0),
+    0,
+  )
 
   const fullName = profile?.display_name ?? 'there'
   const name = fullName.split(' ')[0] ?? 'there'
@@ -126,8 +132,22 @@ export default async function LibraryPage({
               </p>
             </div>
           </div>
-          <div className="md:w-auto">
+          <div className="md:w-auto flex flex-col gap-3 md:items-end">
             <UploadModal />
+            {globalDueNowCount > 0 && (
+              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <Link href="/review" className="inline-block">
+                  <CueButton size="lg" className="w-full sm:w-auto">
+                    Review all due
+                  </CueButton>
+                </Link>
+                <Link href="/review?mode=quick" className="inline-block">
+                  <CueButton variant="ghost" size="lg" className="w-full sm:w-auto">
+                    Quick 5
+                  </CueButton>
+                </Link>
+              </div>
+            )}
           </div>
         </header>
 

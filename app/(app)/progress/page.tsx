@@ -101,11 +101,27 @@ export default async function ProgressPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <MasteryRing pct={dashboard.summary.masteryPct} size={96} stroke={8} />
-            <div className="space-y-1">
-              <div className="text-sm text-ink-black/60">Overall mastery</div>
-              <div className="font-display font-extrabold text-4xl text-ink-black">
-                {dashboard.summary.masteryPct}%
+            {dashboard.summary.dueNowCount > 0 && (
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link href="/review">
+                  <CueButton size="lg" className="w-full sm:w-auto">
+                    Review all due
+                  </CueButton>
+                </Link>
+                <Link href="/review?mode=quick">
+                  <CueButton variant="ghost" size="lg" className="w-full sm:w-auto">
+                    Quick 5
+                  </CueButton>
+                </Link>
+              </div>
+            )}
+            <div className="flex items-center gap-4">
+              <MasteryRing pct={dashboard.summary.masteryPct} size={96} stroke={8} />
+              <div className="space-y-1">
+                <div className="text-sm text-ink-black/60">Overall mastery</div>
+                <div className="font-display font-extrabold text-4xl text-ink-black">
+                  {dashboard.summary.masteryPct}%
+                </div>
               </div>
             </div>
           </div>

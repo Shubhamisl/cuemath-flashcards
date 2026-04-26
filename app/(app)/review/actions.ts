@@ -106,20 +106,43 @@ export async function finalizeSession(args: {
   return { ok: true }
 }
 
-export async function getSessionPreview(
-  deckId: string,
-): Promise<SessionPreview | { error: string }> {
+export async function getSessionPreview(args?: {
+  deckId?: string
+  conceptTag?: string
+}): Promise<SessionPreview | { error: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not signed in' }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('cards')
     .select('concept_tag, fsrs_state')
-    .eq('deck_id', deckId)
     .eq('user_id', user.id)
     .eq('approved', true)
     .eq('suspended', false)
+
+  if (args?.deckId) {
+    query = query.eq('deck_id', args.deckId)
+  } else {
+    const { data: readyDecks, error: decksError } = await supabase
+      .from('decks')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('status', 'ready')
+
+    if (decksError) return { error: decksError.message }
+    const readyDeckIds = (readyDecks ?? []).map((deck) => deck.id as string)
+    if (readyDeckIds.length === 0) {
+      return computeSessionPreview([], new Date())
+    }
+    query = query.in('deck_id', readyDeckIds)
+  }
+
+  if (args?.conceptTag) {
+    query = query.eq('concept_tag', args.conceptTag)
+  }
+
+  const { data, error } = await query
 
   if (error) return { error: error.message }
   return computeSessionPreview((data ?? []) as Array<{ concept_tag: string | null; fsrs_state: { due?: string; lapses?: number } | null }>, new Date())

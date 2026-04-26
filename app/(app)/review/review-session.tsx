@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { CueCard } from '@/lib/brand/primitives/card'
 import { CueButton } from '@/lib/brand/primitives/button'
@@ -26,6 +26,7 @@ export function ReviewSession({
   subject,
   deckId,
   conceptTag,
+  previewScope,
   backHref = '/library',
   startedAt,
   mode,
@@ -34,6 +35,10 @@ export function ReviewSession({
   subject?: subjectFamily
   deckId?: string
   conceptTag?: string
+  previewScope?: {
+    deckId?: string
+    conceptTag?: string
+  }
   backHref?: string
   startedAt: string
   mode: ReviewMode
@@ -74,6 +79,18 @@ export function ReviewSession({
         ? 'standard'
         : 'quick'
       : mode
+  const backLabel =
+    backHref === '/progress'
+      ? 'Back to progress'
+      : backHref === '/library'
+        ? 'Back to library'
+        : 'Back to deck'
+  const resolvedPreviewScope = useMemo(() => (
+    previewScope ??
+    (deckId || conceptTag || backHref === '/library' || backHref === '/progress'
+      ? { deckId, conceptTag }
+      : undefined)
+  ), [previewScope, deckId, conceptTag, backHref])
 
   useEffect(() => {
     shownAt.current = Date.now()
@@ -102,10 +119,10 @@ export function ReviewSession({
   }, [done, events, cards.length, breakPromptedAt, endedAt, startedAt, mode])
 
   useEffect(() => {
-    if (!done || preview || !deckId) return
+    if (!done || preview || !resolvedPreviewScope) return
     let cancelled = false
 
-    void getSessionPreview(deckId).then((result) => {
+    void getSessionPreview(resolvedPreviewScope).then((result) => {
       if (cancelled || 'error' in result) return
       setPreview(result)
     })
@@ -113,7 +130,7 @@ export function ReviewSession({
     return () => {
       cancelled = true
     }
-  }, [done, preview, deckId])
+  }, [done, preview, resolvedPreviewScope])
 
   function moveToIndex(nextIndex: number) {
     shownAt.current = Date.now()
@@ -291,7 +308,7 @@ export function ReviewSession({
         <h2 className="font-display text-xl font-bold">Nothing due right now</h2>
         <p className="text-sm opacity-70">Come back later or add more cards.</p>
         <CueButton onClick={() => router.push(backHref)}>
-          {conceptTag ? 'Back to progress' : 'Back to deck'}
+          {backLabel}
         </CueButton>
       </CueCard>
     )

@@ -14,7 +14,6 @@ export default async function ReviewPage({
 }) {
   const { deck: deckId, mode: rawMode, run, concept: rawConcept } = await searchParams
   const conceptTag = rawConcept?.trim() || undefined
-  if (!deckId && !conceptTag) redirect('/library')
   const mode = parseReviewMode(rawMode)
 
   const supabase = await createClient()
@@ -25,6 +24,12 @@ export default async function ReviewPage({
   let subject: subjectFamily | undefined
   let backHref = '/library'
   let sessionDeckId: string | undefined = deckId
+  let previewScope:
+    | {
+        deckId?: string
+        conceptTag?: string
+      }
+    | undefined
   let cards = [] as Awaited<ReturnType<typeof buildSprint>>
 
   if (deckId) {
@@ -40,6 +45,7 @@ export default async function ReviewPage({
     title = conceptTag ? `${deck.title}: ${conceptTag}` : deck.title
     subject = deck.subject_family as subjectFamily
     backHref = `/deck/${deckId}`
+    previewScope = { deckId, conceptTag }
     cards = await buildSprint({
       userId: user.id,
       deckId,
@@ -53,9 +59,10 @@ export default async function ReviewPage({
       .eq('user_id', user.id)
       .eq('status', 'ready')
     const readyDeckIds = (readyDecks ?? []).map((deck) => deck.id as string)
-    title = conceptTag ?? 'Focused drill'
-    backHref = '/progress'
+    title = conceptTag ?? 'All decks'
+    backHref = conceptTag ? '/progress' : '/library'
     sessionDeckId = undefined
+    previewScope = { conceptTag }
     cards = await buildSprint({
       userId: user.id,
       conceptTag,
@@ -81,6 +88,7 @@ export default async function ReviewPage({
         subject={subject}
         deckId={sessionDeckId}
         conceptTag={conceptTag}
+        previewScope={previewScope}
         backHref={backHref}
         startedAt={new Date().toISOString()}
         mode={mode}
