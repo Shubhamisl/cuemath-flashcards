@@ -4,6 +4,19 @@ Running list of knobs relaxed or swapped for demo/free-tier so Cuemath can see m
 
 ---
 
+## Shipped baseline updates
+
+These are no longer product gaps and should not be re-planned as net-new work:
+
+- Deck rename/delete is shipped from the deck detail surface.
+- Library search/sort and due badges are shipped.
+- The card browser is shipped at `/deck/[id]/cards`.
+- Individual card edit/delete is shipped in the card browser.
+- The Next.js request hook has migrated from deprecated root `middleware.ts` behavior to root `proxy.ts`.
+- A fresh Vercel deployment from `master` commit `7db9cdc` succeeded after the proxy migration.
+
+---
+
 ## 1. LLM provider — OpenRouter free models (not Anthropic Claude)
 
 - **Files:** `.env.local`, `lib/llm/extract-cards.ts` (`getLlmProvider`), `lib/llm/openrouter-chat.ts`
@@ -134,11 +147,17 @@ Running list of knobs relaxed or swapped for demo/free-tier so Cuemath can see m
 
 ---
 
+## Known production gaps
+
+The current production backlog is tracked in `docs/superpowers/plans/2026-04-26-next-stages-roadmap.md`. Use that roadmap before adding new work items here; it already accounts for shipped rename/delete, library search/sort, card browser, card edit/delete, and the Next proxy migration.
+
+---
+
 ## How to revert for prod
 
 A single PR can flip most of these:
 - Item 1, 2 → env vars only.
 - Items 4, 5, 6, 7, 8 → one-line code changes.
-- Items 9–16 → new tasks in Plan 5+ backlog.
+- Items 9–17 → new tasks in the next-stages roadmap.
 
 Keep this file updated as more deviations accrue.
