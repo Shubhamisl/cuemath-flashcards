@@ -89,8 +89,10 @@ describe('review-session', () => {
     await user.keyboard('{Escape}')
 
     expect(screen.getByText('Nice sprint.')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Another Quick 5' })).toBeInTheDocument()
     expect(await screen.findByText('Suggested next: Quick 5')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Start Quick 5' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Start Sprint' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Another Quick 5' })).not.toBeInTheDocument()
   })
 
   it('offers a weak-card retry pass after a low rating in the main sprint', async () => {

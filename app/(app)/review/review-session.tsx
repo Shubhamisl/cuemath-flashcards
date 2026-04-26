@@ -59,6 +59,12 @@ export function ReviewSession({
   const completedPass = index >= cards.length
   const showWeakLoopPrompt = !timedOut && phase === 'main' && completedPass && weakCards.length > 0
   const done = timedOut || phase === 'done'
+  const replayMode: ReviewMode =
+    preview && preview.suggestedMode === mode
+      ? mode === 'quick'
+        ? 'standard'
+        : 'quick'
+      : mode
 
   useEffect(() => {
     shownAt.current = Date.now()
@@ -124,6 +130,10 @@ export function ReviewSession({
     setHintShown(false)
     setShowBreak(false)
     setLastInterval(null)
+  }
+
+  function reviewHref(nextMode: ReviewMode): string {
+    return nextMode === 'quick' ? `/review?deck=${deckId}&mode=quick` : `/review?deck=${deckId}`
   }
 
   function rate(rating: FsrsRating) {
@@ -365,14 +375,27 @@ export function ReviewSession({
         <div className="flex flex-col items-center gap-3 w-full max-w-[440px]">
           {preview && (
             <CueButton
-              onClick={() => router.push(`/review?deck=${deckId}${preview.suggestedMode === 'quick' ? '&mode=quick' : ''}`)}
+              onClick={() => router.push(reviewHref(preview.suggestedMode))}
               className="w-full"
             >
               Start {labelForMode(preview.suggestedMode)}
             </CueButton>
           )}
-          <CueButton onClick={() => router.refresh()} className="w-full">
-            {mode === 'quick' ? 'Another Quick 5' : 'Another sprint'}
+          <CueButton
+            onClick={() => {
+              if (preview && preview.suggestedMode === mode) {
+                router.push(reviewHref(replayMode))
+                return
+              }
+              router.refresh()
+            }}
+            className="w-full"
+          >
+            {preview && preview.suggestedMode === mode
+              ? `Start ${labelForMode(replayMode)}`
+              : mode === 'quick'
+                ? 'Another Quick 5'
+                : 'Another sprint'}
           </CueButton>
           <button
             onClick={() => router.push(`/deck/${deckId}`)}
