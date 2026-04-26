@@ -9,10 +9,10 @@ export function BreakPrompt({ onDismiss }: { onDismiss: () => void }) {
       style={{ background: 'var(--mint-green)' }}
       role="status"
     >
-      <p className="font-display text-base font-semibold">You've been going hard.</p>
+      <p className="font-display text-base font-semibold">You&apos;ve been going hard.</p>
       <p className="text-sm opacity-80">Stretch for 60 seconds?</p>
       <CueButton variant="ghost" onClick={onDismiss} className="w-full">
-        I'm good, keep going
+        I&apos;m good, keep going
       </CueButton>
     </div>
   )

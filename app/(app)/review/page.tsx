@@ -34,7 +34,12 @@ export default async function ReviewPage({
         <h1 className="font-display text-lg font-bold truncate">{deck.title}</h1>
         <span className="text-sm opacity-60">{cards.length} cards</span>
       </header>
-      <ReviewSession cards={cards} subject={deck.subject_family as subjectFamily} deckId={deckId} />
+      <ReviewSession
+        cards={cards}
+        subject={deck.subject_family as subjectFamily}
+        deckId={deckId}
+        startedAt={new Date().toISOString()}
+      />
     </main>
   )
 }

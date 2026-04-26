@@ -18,14 +18,16 @@ export default async function ProfilePage() {
 
   if (!profile?.onboarded_at) redirect('/onboarding/subject')
 
+  const now = new Date()
+  const fortyDaysAgo = new Date(now.getTime() - 40 * 86400000)
   const { data: sessions } = await supabase
     .from('sessions')
     .select('started_at')
     .eq('user_id', user.id)
-    .gte('started_at', new Date(Date.now() - 40 * 86400000).toISOString())
+    .gte('started_at', fortyDaysAgo.toISOString())
   const streak = computeStreak(
     (sessions ?? []).map((s) => s.started_at as string),
-    new Date(),
+    now,
   )
 
   const fullName = profile.display_name ?? ''

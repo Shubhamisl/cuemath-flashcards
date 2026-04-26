@@ -74,6 +74,35 @@ export async function createDeckFromUpload(formData: FormData): Promise<
   return { ok: true, deckId: deck.id, jobId: job.id }
 }
 
+export async function deleteDeckFromLibrary(
+  deckId: string,
+): Promise<{ ok: true } | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: deck } = await supabase
+    .from('decks')
+    .select('source_pdf_path')
+    .eq('id', deckId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (deck?.source_pdf_path) {
+    await supabase.storage.from('pdfs').remove([deck.source_pdf_path])
+  }
+
+  const { error } = await supabase
+    .from('decks')
+    .delete()
+    .eq('id', deckId)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/library')
+  return { ok: true }
+}
+
 export async function retryIngest(deckId: string): Promise<{ ok: true; jobId: string } | { error: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

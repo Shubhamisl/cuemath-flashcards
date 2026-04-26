@@ -20,10 +20,12 @@ export function ReviewSession({
   cards: initialCards,
   subject,
   deckId,
+  startedAt,
 }: {
   cards: SprintCard[]
   subject?: subjectFamily
   deckId: string
+  startedAt: string
 }) {
   const router = useRouter()
   const [cards, setCards] = useState<SprintCard[]>(initialCards)
@@ -36,42 +38,62 @@ export function ReviewSession({
   const [easyNote, setEasyNote] = useState<string | null>(null)
   const [flags, setFlags] = useState({ injectedEasy: false, promptedBreak: false })
   const [breakPromptedAt, setBreakPromptedAt] = useState<string | null>(null)
-  const shownAt = useRef<number>(Date.now())
-  const startedAt = useRef<string>(new Date().toISOString())
+  const [lastInterval, setLastInterval] = useState<number | null>(null)
+  const [timedOut, setTimedOut] = useState(false)
+  const [endedAt, setEndedAt] = useState<string | null>(null)
+  const shownAt = useRef<number | null>(null)
   const finalized = useRef(false)
 
   const current = cards[index]
-  const timedOut = Date.now() - new Date(startedAt.current).getTime() >= SPRINT_MS_CAP
   const done = index >= cards.length || timedOut
 
   useEffect(() => {
     shownAt.current = Date.now()
-    setFlipped(false)
-  }, [index])
+    const timer = window.setTimeout(() => {
+      setEndedAt(new Date().toISOString())
+      setTimedOut(true)
+    }, SPRINT_MS_CAP)
+    return () => window.clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     if (!done || finalized.current || cards.length === 0) return
     finalized.current = true
     const ratings = events.map((e) => ({ rating: e.rating, elapsedMs: e.elapsedMs }))
     void finalizeSession({
-      startedAt: startedAt.current,
-      endedAt: new Date().toISOString(),
+      startedAt,
+      endedAt: endedAt ?? new Date().toISOString(),
       ratings,
       breakPromptedAt,
     })
-  }, [done, events, cards.length, breakPromptedAt])
+  }, [done, events, cards.length, breakPromptedAt, endedAt, startedAt])
+
+  function moveToIndex(nextIndex: number) {
+    shownAt.current = Date.now()
+    setFlipped(false)
+    if (nextIndex >= cards.length && endedAt === null) {
+      setEndedAt(new Date().toISOString())
+    }
+    setIndex(nextIndex)
+  }
 
   function rate(rating: FsrsRating) {
     if (!current || pending || showBreak) return
-    const elapsedMs = Date.now() - shownAt.current
+    const now = Date.now()
+    const elapsedMs = now - (shownAt.current ?? now)
+
     startTransition(async () => {
       const res = await submitRating({ cardId: current.id, rating, elapsedMs })
       if ('error' in res) {
         setError(res.error)
         return
       }
+
       setError(null)
-      const nextEvents = [...events, { rating, elapsedMs, timestamp: Date.now() }]
+      setLastInterval(res.intervalDays)
+      window.setTimeout(() => setLastInterval(null), 2000)
+
+      const nextEvents = [...events, { rating, elapsedMs, timestamp: now }]
       setEvents(nextEvents)
 
       const decision = observe(nextEvents, flags)
@@ -86,10 +108,10 @@ export function ReviewSession({
             copy.splice(index + 1, 0, ...extras)
             return copy
           })
-          setEasyNote(`Here's an easy one — keep your rhythm.`)
-          setTimeout(() => setEasyNote(null), 2500)
+          setEasyNote("Here's an easy one - keep your rhythm.")
+          window.setTimeout(() => setEasyNote(null), 2500)
         }
-        setIndex((i) => i + 1)
+        moveToIndex(index + 1)
         return
       }
 
@@ -97,11 +119,11 @@ export function ReviewSession({
         setFlags((f) => ({ ...f, promptedBreak: true }))
         setBreakPromptedAt(new Date().toISOString())
         setShowBreak(true)
-        setIndex((i) => i + 1)
+        moveToIndex(index + 1)
         return
       }
 
-      setIndex((i) => i + 1)
+      moveToIndex(index + 1)
     })
   }
 
@@ -118,7 +140,7 @@ export function ReviewSession({
       else if (e.key === '2') rate(2)
       else if (e.key === '3' || e.key === 'Enter') rate(3)
       else if (e.key === '4') rate(4)
-      else if (e.key === 'Escape') setIndex(cards.length)
+      else if (e.key === 'Escape') moveToIndex(cards.length)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -136,16 +158,19 @@ export function ReviewSession({
 
   if (done) {
     const got = events.filter((e) => e.rating >= 3).length
-    const totalMs = Date.now() - new Date(startedAt.current).getTime()
+    const startMs = new Date(startedAt).getTime()
+    const endMs = endedAt ? new Date(endedAt).getTime() : startMs
+    const totalMs = Math.max(0, endMs - startMs)
     const mins = Math.floor(totalMs / 60000)
     const secs = Math.floor((totalMs % 60000) / 1000)
+
     return (
       <div className="flex flex-col items-center gap-6 py-8">
         <CueCard
           tone="mint"
           className="rounded-panel !shadow-none p-10 w-full max-w-[440px] text-center space-y-6"
         >
-          <div className="text-4xl" aria-hidden="true">🎉</div>
+          <div className="text-4xl" aria-hidden="true">Done</div>
           <h2 className="font-display font-extrabold text-[32px] leading-tight">Nice sprint.</h2>
           <div className="flex items-baseline justify-center gap-2">
             <span className="text-[64px] font-display font-extrabold text-cue-yellow leading-none">
@@ -158,7 +183,7 @@ export function ReviewSession({
             Time {mins}m {secs.toString().padStart(2, '0')}s
           </div>
           {timedOut && (
-            <p className="text-xs text-ink-black/60">Timed out at 15 min — good focus.</p>
+            <p className="text-xs text-ink-black/60">Timed out at 15 min - good focus.</p>
           )}
         </CueCard>
 
@@ -205,6 +230,14 @@ export function ReviewSession({
         <BreakPrompt onDismiss={() => setShowBreak(false)} />
       ) : (
         <>
+          {current.fsrs_state === null && (
+            <div className="flex justify-center">
+              <span className="text-xs font-display font-semibold uppercase tracking-[0.08em] bg-cue-yellow/30 text-ink-black px-3 py-1 rounded-full">
+                New
+              </span>
+            </div>
+          )}
+
           <ReviewCard
             front={current.front.text}
             back={current.back.text}
@@ -217,12 +250,22 @@ export function ReviewSession({
             </CueButton>
           )}
           {flipped && <RatingBar disabled={pending} onRate={rate} />}
+
+          {lastInterval !== null && (
+            <p className="text-xs text-center text-ink-black/50">
+              {lastInterval === 0
+                ? 'See you again shortly'
+                : lastInterval === 1
+                  ? 'Next review: tomorrow'
+                  : `Next review: in ${lastInterval} days`}
+            </p>
+          )}
         </>
       )}
 
       {easyNote && (
         <p className="text-sm text-center" style={{ color: 'var(--ink-black)' }}>
-          ✨ {easyNote}
+          {easyNote}
         </p>
       )}
       {error && <p className="text-sm text-red-700">{error}</p>}

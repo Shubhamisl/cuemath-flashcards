@@ -8,6 +8,7 @@ import { MasteryRing } from '@/components/mastery-ring'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
 import { tierToTone } from '@/lib/progress/tier-tone'
 import { DeleteDeckButton } from './delete-deck-button'
+import { RenameDeckForm } from './rename-deck-form'
 
 function StatTile({ value, label }: { value: string | number; label: string }) {
   return (
@@ -47,6 +48,69 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
 
   const stats = computeDeckStats((cards ?? []) as StatCard[], new Date())
 
+  // Query reviewed cards for weak tags + upcoming schedule
+  const { data: reviewedCards } = await supabase
+    .from('cards')
+    .select('concept_tag, fsrs_state')
+    .eq('deck_id', id)
+    .eq('user_id', user.id)
+    .not('fsrs_state', 'is', null)
+    .eq('suspended', false)
+
+  // Aggregate lapses per concept tag
+  const tagLapses: Record<string, { lapses: number; count: number }> = {}
+  for (const rc of reviewedCards ?? []) {
+    const tag = rc.concept_tag
+    if (!tag) continue
+    const lapses = (rc.fsrs_state as { lapses?: number } | null)?.lapses ?? 0
+    if (lapses === 0) continue
+    tagLapses[tag] ??= { lapses: 0, count: 0 }
+    tagLapses[tag].lapses += lapses
+    tagLapses[tag].count += 1
+  }
+
+  // Top 3 tags by total lapses (descending)
+  const weakTags = Object.entries(tagLapses)
+    .sort(([, a], [, b]) => b.lapses - a.lapses)
+    .slice(0, 3)
+    .map(([tag]) => tag)
+
+  // Upcoming schedule buckets
+  const now = new Date()
+
+  const todayEnd = new Date(now)
+  todayEnd.setHours(23, 59, 59, 999)
+
+  const tomorrowEnd = new Date(now)
+  tomorrowEnd.setDate(tomorrowEnd.getDate() + 1)
+  tomorrowEnd.setHours(23, 59, 59, 999)
+
+  const weekEnd = new Date(now)
+  weekEnd.setDate(weekEnd.getDate() + 7)
+  weekEnd.setHours(23, 59, 59, 999)
+
+  let dueLaterToday = 0
+  let dueTomorrow = 0
+  let dueThisWeek = 0
+
+  for (const card of reviewedCards ?? []) {
+    const state = card.fsrs_state as { due?: string } | null
+    if (!state?.due) continue
+    const due = new Date(state.due)
+    if (isNaN(due.getTime())) continue
+    if (due <= now) continue
+
+    if (due <= todayEnd) {
+      dueLaterToday++
+    } else if (due <= tomorrowEnd) {
+      dueTomorrow++
+    } else if (due <= weekEnd) {
+      dueThisWeek++
+    }
+  }
+
+  const hasUpcoming = dueLaterToday > 0 || dueTomorrow > 0 || dueThisWeek > 0
+
   return (
     <main className="min-h-screen">
       <div className="max-w-[1100px] mx-auto px-6 py-8">
@@ -78,9 +142,7 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
             <div className="flex flex-wrap items-center gap-3">
               <CuePill tone={tierToTone(stats.tier)}>{stats.tier}</CuePill>
             </div>
-            <h1 className="font-display font-extrabold text-4xl md:text-5xl tracking-tight leading-tight">
-              {deck.title}
-            </h1>
+            <RenameDeckForm deckId={deck.id} initialTitle={deck.title} />
           </div>
 
           <div className="grid grid-cols-3 gap-4 max-w-[600px]">
@@ -101,6 +163,51 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
                 : `Nothing due right now. Check back later.`}
             </p>
           </div>
+
+          <Link
+            href={`/deck/${deck.id}/cards`}
+            className="inline-flex items-center gap-1.5 text-sm font-display font-semibold text-ink-black/60 hover:text-ink-black"
+          >
+            Browse {deck.card_count ?? 0} cards →
+          </Link>
+
+          {weakTags.length > 0 && (
+            <div className="space-y-2 max-w-[480px]">
+              <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                Focus areas
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {weakTags.map((tag) => (
+                  <CuePill key={tag} tone="warning">{tag}</CuePill>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {hasUpcoming && (
+            <div className="space-y-2 max-w-[480px]">
+              <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                Upcoming
+              </p>
+              <div className="flex flex-wrap gap-3 text-sm text-ink-black/70">
+                {dueLaterToday > 0 && (
+                  <span>
+                    <span className="font-display font-bold text-ink-black">{dueLaterToday}</span> later today
+                  </span>
+                )}
+                {dueTomorrow > 0 && (
+                  <span>
+                    <span className="font-display font-bold text-ink-black">{dueTomorrow}</span> tomorrow
+                  </span>
+                )}
+                {dueThisWeek > 0 && (
+                  <span>
+                    <span className="font-display font-bold text-ink-black">{dueThisWeek}</span> this week
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
           <DeleteDeckButton deckId={deck.id} deckTitle={deck.title} />
         </div>

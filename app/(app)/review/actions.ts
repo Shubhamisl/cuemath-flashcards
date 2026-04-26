@@ -10,7 +10,7 @@ export async function submitRating(args: {
   cardId: string
   rating: FsrsRating
   elapsedMs: number
-}): Promise<{ ok: true } | { error: string }> {
+}): Promise<{ ok: true; intervalDays: number } | { error: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not signed in' }
@@ -25,7 +25,7 @@ export async function submitRating(args: {
 
   const before: FsrsCardState = (card.fsrs_state as FsrsCardState | null) ?? initialState()
   const now = new Date()
-  const { nextState } = schedule(before, args.rating, now)
+  const { nextState, intervalDays } = schedule(before, args.rating, now)
 
   const scheduledDaysBefore = before.scheduled_days
 
@@ -53,7 +53,7 @@ export async function submitRating(args: {
     .eq('user_id', user.id)
   if (upErr) return { error: upErr.message }
 
-  return { ok: true }
+  return { ok: true, intervalDays }
 }
 
 export async function finalizeSession(args: {
