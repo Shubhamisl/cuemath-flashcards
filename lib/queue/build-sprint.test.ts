@@ -96,4 +96,36 @@ describe('queue/build-sprint', () => {
     const out = buildSprintFromCardsWithFilter(input, now, 10, { conceptTag: 'B' })
     expect(out.map((c) => c.id)).toEqual(['b1', 'b2'])
   })
+
+  it('respects a global new-card budget and backfills with due reviews', () => {
+    const input = [
+      card('new-a'),
+      card('new-b'),
+      card('old-a', { fsrs_state: dueState(2) }),
+      card('old-b', { fsrs_state: dueState(1) }),
+    ]
+    const out = buildSprintFromCardsWithFilter(input, now, 4, {
+      newCardBudget: {
+        remainingGlobal: 1,
+        remainingByDeck: { deck1: 1 },
+      },
+    })
+    expect(out.map((c) => c.id)).toEqual(['new-a', 'old-a', 'old-b'])
+  })
+
+  it('respects per-deck new-card budgets across decks', () => {
+    const input = [
+      card('deck1-new-1', { deck_id: 'deck1' }),
+      card('deck1-new-2', { deck_id: 'deck1' }),
+      card('deck2-new-1', { deck_id: 'deck2' }),
+      card('deck2-old', { deck_id: 'deck2', fsrs_state: dueState(1) }),
+    ]
+    const out = buildSprintFromCardsWithFilter(input, now, 10, {
+      newCardBudget: {
+        remainingGlobal: 3,
+        remainingByDeck: { deck1: 1, deck2: 1 },
+      },
+    })
+    expect(out.map((c) => c.id)).toEqual(['deck1-new-1', 'deck2-new-1', 'deck2-old'])
+  })
 })

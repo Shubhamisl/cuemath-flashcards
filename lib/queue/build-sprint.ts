@@ -2,6 +2,14 @@ import type { SprintCard } from './types'
 import { createClient } from '@/lib/db/server'
 import { buildHintFromBack } from '@/lib/cards/hints'
 
+const DEFAULT_GLOBAL_NEW_CARD_CAP = 10
+const DEFAULT_PER_DECK_NEW_CARD_CAP = 5
+
+type NewCardBudget = {
+  remainingGlobal: number
+  remainingByDeck: Record<string, number>
+}
+
 function isDue(c: SprintCard, now: Date): boolean {
   if (c.suspended) return false
   if (!c.approved) return false
@@ -30,6 +38,16 @@ function interleave(cards: SprintCard[]): SprintCard[] {
   return out
 }
 
+function computeGlobalNewCardCap(dailyGoalCards: number): number {
+  return Math.max(1, Math.min(dailyGoalCards, DEFAULT_GLOBAL_NEW_CARD_CAP))
+}
+
+function isInitialFsrsState(value: unknown): boolean {
+  if (!value || typeof value !== 'object') return false
+  const state = value as { state?: number; reps?: number }
+  return state.state === 0 && state.reps === 0
+}
+
 export function buildSprintFromCards(cards: SprintCard[], now: Date, size: number): SprintCard[] {
   return buildSprintFromCardsWithFilter(cards, now, size)
 }
@@ -38,7 +56,10 @@ export function buildSprintFromCardsWithFilter(
   cards: SprintCard[],
   now: Date,
   size: number,
-  options?: { conceptTag?: string },
+  options?: {
+    conceptTag?: string
+    newCardBudget?: NewCardBudget
+  },
 ): SprintCard[] {
   const eligible = cards.filter((c) => {
     if (!isDue(c, now)) return false
@@ -51,7 +72,30 @@ export function buildSprintFromCardsWithFilter(
     if (pb !== pa) return pb - pa
     return a.id.localeCompare(b.id)
   })
-  return interleave(eligible.slice(0, size))
+  const budget = options?.newCardBudget
+    ? {
+        remainingGlobal: options.newCardBudget.remainingGlobal,
+        remainingByDeck: { ...options.newCardBudget.remainingByDeck },
+      }
+    : null
+
+  const selected: SprintCard[] = []
+  for (const card of eligible) {
+    if (selected.length >= size) break
+    if (card.fsrs_state !== null || !budget) {
+      selected.push(card)
+      continue
+    }
+    const remainingForDeck = budget.remainingByDeck[card.deck_id] ?? 0
+    if (budget.remainingGlobal <= 0 || remainingForDeck <= 0) {
+      continue
+    }
+    budget.remainingGlobal -= 1
+    budget.remainingByDeck[card.deck_id] = remainingForDeck - 1
+    selected.push(card)
+  }
+
+  return interleave(selected)
 }
 
 export async function buildSprint(args: {
@@ -67,6 +111,8 @@ export async function buildSprint(args: {
     return []
   }
   const supabase = await createClient()
+  const todayStart = new Date(now)
+  todayStart.setHours(0, 0, 0, 0)
   let query = supabase
     .from('cards')
     .select('id, deck_id, concept_tag, front, back, fsrs_state, suspended, approved')
@@ -82,13 +128,47 @@ export async function buildSprint(args: {
   if (args.conceptTag) {
     query = query.eq('concept_tag', args.conceptTag)
   }
-  const { data, error } = await query
+  const [{ data, error }, { data: profile }, { data: todayReviews, error: reviewsError }] = await Promise.all([
+    query,
+    supabase
+      .from('profiles')
+      .select('daily_goal_cards')
+      .eq('user_id', args.userId)
+      .single(),
+    supabase
+      .from('reviews')
+      .select('card_id, fsrs_state_before')
+      .eq('user_id', args.userId)
+      .gte('rated_at', todayStart.toISOString()),
+  ])
   if (error) throw error
+  if (reviewsError) throw reviewsError
   const rows = ((data ?? []) as Array<Omit<SprintCard, 'hint'>>).map((card) => ({
     ...card,
     hint: buildHintFromBack(card.back.text),
   }))
+  const globalCap = computeGlobalNewCardCap(profile?.daily_goal_cards ?? 20)
+  const reviewedNewIds = new Set(
+    (todayReviews ?? [])
+      .filter((review) => isInitialFsrsState(review.fsrs_state_before))
+      .map((review) => review.card_id as string),
+  )
+  const remainingByDeck: Record<string, number> = {}
+  for (const row of rows) {
+    if (!(row.deck_id in remainingByDeck)) {
+      remainingByDeck[row.deck_id] = Math.min(DEFAULT_PER_DECK_NEW_CARD_CAP, globalCap)
+    }
+  }
+  for (const row of rows) {
+    if (!reviewedNewIds.has(row.id)) continue
+    remainingByDeck[row.deck_id] = Math.max(0, (remainingByDeck[row.deck_id] ?? 0) - 1)
+  }
+
   return buildSprintFromCardsWithFilter(rows, now, args.size, {
     conceptTag: args.conceptTag,
+    newCardBudget: {
+      remainingGlobal: Math.max(0, globalCap - reviewedNewIds.size),
+      remainingByDeck,
+    },
   })
 }
