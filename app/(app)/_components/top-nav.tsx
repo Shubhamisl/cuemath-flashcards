@@ -67,6 +67,14 @@ export function TopNav({ name, streak }: TopNavProps) {
             >
               <Link
                 role="menuitem"
+                href="/progress"
+                onClick={() => setOpen(false)}
+                className="block w-full rounded-input px-3 py-2 text-left font-body text-sm text-ink-black hover:bg-soft-cream"
+              >
+                Progress
+              </Link>
+              <Link
+                role="menuitem"
                 href="/profile"
                 onClick={() => setOpen(false)}
                 className="block w-full rounded-input px-3 py-2 text-left font-body text-sm text-ink-black hover:bg-soft-cream"
