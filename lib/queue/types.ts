@@ -8,4 +8,5 @@ export type SprintCard = {
   back: { text: string }
   fsrs_state: FsrsCardState | null  // null = never reviewed ("new")
   suspended: boolean
+  approved: boolean
 }

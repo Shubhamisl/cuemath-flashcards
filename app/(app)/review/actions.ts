@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/db/server'
 import { schedule, initialState, type FsrsCardState, type FsrsRating } from '@/lib/srs/schedule'
+import { getReviewBlockReason } from '@/lib/decks/review-gate'
 
 const LEECH_LAPSES = 6
 const LEECH_REPS = 10
@@ -17,11 +18,26 @@ export async function submitRating(args: {
 
   const { data: card, error: fetchErr } = await supabase
     .from('cards')
-    .select('fsrs_state')
+    .select('deck_id, fsrs_state, approved')
     .eq('id', args.cardId)
     .eq('user_id', user.id)
     .single()
   if (fetchErr || !card) return { error: 'Card not found' }
+  if (!card.approved) return { error: 'Approve this card before reviewing it.' }
+
+  const { data: deck } = await supabase
+    .from('decks')
+    .select('status')
+    .eq('id', card.deck_id)
+    .eq('user_id', user.id)
+    .single()
+  const reviewBlock = getReviewBlockReason({
+    deckStatus: deck?.status ?? 'missing',
+    approved: card.approved,
+  })
+  if (reviewBlock) {
+    return { error: reviewBlock }
+  }
 
   const before: FsrsCardState = (card.fsrs_state as FsrsCardState | null) ?? initialState()
   const now = new Date()

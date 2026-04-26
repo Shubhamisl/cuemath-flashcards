@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildExtractionPrompt, parseExtractionResponse } from './extract-cards'
+import { buildExtractionPrompt, parseExtractionResponse, shouldRetryExtractionWithFallback } from './extract-cards'
 
 describe('buildExtractionPrompt', () => {
   it('embeds page texts with page markers', () => {
@@ -47,5 +47,29 @@ describe('parseExtractionResponse', () => {
 
   it('throws on malformed JSON', () => {
     expect(() => parseExtractionResponse('not json')).toThrow()
+  })
+})
+
+describe('shouldRetryExtractionWithFallback', () => {
+  it('retries OpenRouter truncation errors', () => {
+    expect(
+      shouldRetryExtractionWithFallback(
+        new Error('OpenRouter chat truncated (finish_reason=length, content=null). The model exhausted its output budget.'),
+      ),
+    ).toBe(true)
+  })
+
+  it('retries malformed length-limited reasoning payloads', () => {
+    expect(
+      shouldRetryExtractionWithFallback(
+        new Error(
+          'OpenRouter chat malformed response: {"choices":[{"finish_reason":"length","message":{"content":null,"reasoning":"..."} }]}',
+        ),
+      ),
+    ).toBe(true)
+  })
+
+  it('does not retry unrelated provider failures', () => {
+    expect(shouldRetryExtractionWithFallback(new Error('OPENROUTER_API_KEY missing'))).toBe(false)
   })
 })

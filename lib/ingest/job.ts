@@ -19,7 +19,11 @@ export async function updateJob(
   if (error) throw error
 }
 
-export async function setDeckStatus(deckId: string, status: 'ingesting' | 'ready' | 'failed', cardCount?: number) {
+export async function setDeckStatus(
+  deckId: string,
+  status: 'ingesting' | 'draft' | 'ready' | 'failed' | 'archived',
+  cardCount?: number,
+) {
   const db = admin()
   const patch: { status: string; card_count?: number } = { status }
   if (cardCount !== undefined) patch.card_count = cardCount

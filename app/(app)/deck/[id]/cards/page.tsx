@@ -18,7 +18,7 @@ export default async function CardsPage({
 
   const { data: deck } = await supabase
     .from('decks')
-    .select('id, title')
+    .select('id, title, status')
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
@@ -26,7 +26,7 @@ export default async function CardsPage({
 
   const { data: cards } = await supabase
     .from('cards')
-    .select('id, front, back, concept_tag, suspended')
+    .select('id, front, back, concept_tag, suspended, approved, updated_at')
     .eq('deck_id', id)
     .eq('user_id', user.id)
     .order('created_at', { ascending: true })
@@ -37,7 +37,10 @@ export default async function CardsPage({
     back: { text: string }
     concept_tag: string | null
     suspended: boolean
+    approved: boolean
+    updated_at: string
   }>
+  const browserKey = `${deck.status}:${rows.map((card) => `${card.id}:${card.updated_at}`).join('|')}`
 
   return (
     <main className="min-h-screen">
@@ -59,7 +62,7 @@ export default async function CardsPage({
             <p className="text-sm text-ink-black/70">No cards yet.</p>
           </div>
         ) : (
-          <CardBrowser initialCards={rows} />
+          <CardBrowser key={browserKey} deckId={id} deckStatus={deck.status} initialCards={rows} />
         )}
       </div>
     </main>

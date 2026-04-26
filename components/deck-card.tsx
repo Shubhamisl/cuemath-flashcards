@@ -16,7 +16,7 @@ type Props = {
   id: string
   title: string
   subjectFamily: subjectFamily
-  status: 'ingesting' | 'ready' | 'failed'
+  status: 'ingesting' | 'draft' | 'ready' | 'failed'
   cardCount: number
   tier?: Tier
   masteryPct?: number
@@ -138,6 +138,7 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tier, ma
           <div className="size-16" />
         )}
         <div className="flex flex-col items-end gap-1.5">
+          {status === 'draft' && <CuePill tone="warning">Draft</CuePill>}
           {status === 'ready' && tier && (
             <CuePill tone={tierToTone(tier)}>{tier}</CuePill>
           )}
@@ -152,6 +153,9 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tier, ma
         <div className="font-display font-extrabold text-lg leading-tight truncate">{title}</div>
         {status === 'ready' && (
           <div className="text-sm text-ink-black/60">{cardCount} cards</div>
+        )}
+        {status === 'draft' && (
+          <div className="text-sm text-ink-black/60">{cardCount} cards - review before study</div>
         )}
         {active && (
           <div className="text-sm text-ink-black/60">
@@ -169,6 +173,12 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tier, ma
       {status === 'ready' && typeof masteryPct === 'number' && (
         <div className="mt-auto text-xs uppercase tracking-[0.08em] text-ink-black/60">
           {masteryPct}% mastered
+        </div>
+      )}
+
+      {status === 'draft' && (
+        <div className="mt-auto text-xs uppercase tracking-[0.08em] text-ink-black/60">
+          Review gate pending
         </div>
       )}
 
@@ -190,7 +200,7 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tier, ma
     </div>
   )
 
-  if (status === 'ready') {
+  if (status === 'ready' || status === 'draft') {
     return (
       <div className="relative group/card">
         {confirmDelete && deleteConfirmUI}
