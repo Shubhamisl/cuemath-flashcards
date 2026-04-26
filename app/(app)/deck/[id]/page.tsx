@@ -185,12 +185,22 @@ export default async function DeckPage({
                     ? 'Choose a full sprint or a shorter Quick 5 with hints available during review.'
                     : 'Nothing due right now. Check back later.'}
                 </p>
+                <a href={`/deck/${deck.id}/export`} className="inline-block w-full max-w-[480px]">
+                  <CueButton variant="ghost" size="lg" className="w-full">
+                    Export CSV
+                  </CueButton>
+                </a>
               </>
             ) : deck.status === 'archived' ? (
               <div className="space-y-3">
                 <p className="text-sm text-ink-black/70 max-w-[480px]">
                   This deck is archived, so it stays out of the default library and review queue until you restore it.
                 </p>
+                <a href={`/deck/${deck.id}/export`} className="inline-block w-full max-w-[480px]">
+                  <CueButton variant="ghost" size="lg" className="w-full">
+                    Export CSV
+                  </CueButton>
+                </a>
                 <ArchiveDeckButton deckId={deck.id} archived />
               </div>
             ) : deck.status === 'draft' ? (
@@ -203,6 +213,11 @@ export default async function DeckPage({
                 <p className="text-sm text-ink-black/70 max-w-[480px]">
                   Approve, edit, or delete cards until the deck feels trustworthy.
                 </p>
+                <a href={`/deck/${deck.id}/export`} className="inline-block w-full max-w-[480px]">
+                  <CueButton variant="ghost" size="lg" className="w-full">
+                    Export CSV
+                  </CueButton>
+                </a>
                 <ReviewReadyButton deckId={deck.id} disabled={!canReady} />
               </>
             ) : deck.status === 'ingesting' ? (
@@ -210,9 +225,16 @@ export default async function DeckPage({
                 We are still generating cards for this deck.
               </p>
             ) : (
-              <p className="text-sm text-ink-black/70 max-w-[480px]">
-                This deck is not ready for review yet.
-              </p>
+              <div className="space-y-3">
+                <p className="text-sm text-ink-black/70 max-w-[480px]">
+                  This deck is not ready for review yet.
+                </p>
+                <a href={`/deck/${deck.id}/export`} className="inline-block w-full max-w-[480px]">
+                  <CueButton variant="ghost" size="lg" className="w-full">
+                    Export CSV
+                  </CueButton>
+                </a>
+              </div>
             )}
           </div>
 
