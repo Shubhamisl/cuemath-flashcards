@@ -17,7 +17,7 @@
 - **Stage 3 baseline:** dashboard, weak-concept drill, weekly summary, and multi-week activity view are now shipped. A later UI/UX overhaul can revisit presentation polish without changing the underlying metrics model.
 - **Stage 4 baseline:** daily new-card caps, mature-card interval fuzz, the global review queue, and warm-up/cool-down queue structure are now shipped.
 - **Stage 5 baseline:** subject/status/mastery filters, ready-deck archive/restore, deck tags, deck-level CSV export, and Anki-friendly TSV export are now shipped. Stage 5 core portability is effectively in place.
-- **Stage 6 baseline:** deck/job-aware LLM call logging is now shipped for extraction and embeddings, including provider, model, latency, token counts when available, and error classification. UI-level ingest diagnostics and retry controls are also shipped on library cards and deck detail. Remaining Stage 6 work is RLS rechecks and end-to-end smoke coverage.
+- **Stage 6 baseline:** deck/job-aware LLM call logging is now shipped for extraction and embeddings, including provider, model, latency, token counts when available, and error classification. UI-level ingest diagnostics and retry controls are also shipped on library cards and deck detail. RLS drift is now guarded by an audit test, and Playwright smoke scaffolding is checked in for library, progress, deck, and upload flows. Remaining Stage 6 work is running and expanding the comprehensive smoke pass against a chosen environment.
 
 ---
 
