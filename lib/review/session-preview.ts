@@ -10,6 +10,8 @@ type ReviewedCardLike = {
 
 export type SessionPreview = {
   weakTags: string[]
+  dueNowCount: number
+  hasDueNow: boolean
   dueLaterToday: number
   dueTomorrow: number
   dueThisWeek: number
@@ -20,6 +22,7 @@ export type SessionPreview = {
 
 export function computeSessionPreview(cards: ReviewedCardLike[], now: Date): SessionPreview {
   const tagLapses: Record<string, number> = {}
+  let dueNowCount = 0
   let dueLaterToday = 0
   let dueTomorrow = 0
   let dueThisWeek = 0
@@ -43,9 +46,16 @@ export function computeSessionPreview(cards: ReviewedCardLike[], now: Date): Ses
       tagLapses[tag] = (tagLapses[tag] ?? 0) + lapses
     }
 
-    if (!state?.due) continue
+    if (!state?.due) {
+      dueNowCount++
+      continue
+    }
     const due = new Date(state.due)
-    if (isNaN(due.getTime()) || due <= now) continue
+    if (isNaN(due.getTime())) continue
+    if (due <= now) {
+      dueNowCount++
+      continue
+    }
 
     if (due <= todayEnd) {
       dueLaterToday++
@@ -74,6 +84,8 @@ export function computeSessionPreview(cards: ReviewedCardLike[], now: Date): Ses
 
   return {
     weakTags,
+    dueNowCount,
+    hasDueNow: dueNowCount > 0,
     dueLaterToday,
     dueTomorrow,
     dueThisWeek,

@@ -119,7 +119,6 @@ export async function getSessionPreview(
     .eq('deck_id', deckId)
     .eq('user_id', user.id)
     .eq('approved', true)
-    .not('fsrs_state', 'is', null)
     .eq('suspended', false)
 
   if (error) return { error: error.message }

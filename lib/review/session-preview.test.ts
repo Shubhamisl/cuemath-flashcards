@@ -24,6 +24,8 @@ describe('review/session-preview', () => {
     )
 
     expect(preview.weakTags).toEqual(['fractions', 'geometry'])
+    expect(preview.dueNowCount).toBe(0)
+    expect(preview.hasDueNow).toBe(false)
     expect(preview.dueLaterToday).toBe(1)
     expect(preview.dueTomorrow).toBe(1)
     expect(preview.dueThisWeek).toBe(1)
@@ -44,5 +46,20 @@ describe('review/session-preview', () => {
     )
 
     expect(preview.suggestedMode).toBe('standard')
+  })
+
+  it('counts unseen cards and already-due cards as startable now', () => {
+    const preview = computeSessionPreview(
+      [
+        { concept_tag: 'algebra', fsrs_state: null },
+        { concept_tag: 'algebra', fsrs_state: { due: '2026-04-26T08:00:00.000Z', lapses: 0 } },
+        { concept_tag: 'algebra', fsrs_state: { due: '2026-04-26T18:00:00.000Z', lapses: 0 } },
+      ],
+      now,
+    )
+
+    expect(preview.dueNowCount).toBe(2)
+    expect(preview.hasDueNow).toBe(true)
+    expect(preview.dueLaterToday).toBe(1)
   })
 })

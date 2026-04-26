@@ -6,9 +6,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { ReviewSession } from './review-session'
 import type { SprintCard } from '@/lib/queue/types'
 
-const { observeSpy, fetchEasyCardsSpy } = vi.hoisted(() => ({
+const { observeSpy, fetchEasyCardsSpy, getSessionPreviewSpy } = vi.hoisted(() => ({
   observeSpy: vi.fn(),
   fetchEasyCardsSpy: vi.fn(),
+  getSessionPreviewSpy: vi.fn(),
 }))
 
 const pushSpy = vi.fn()
@@ -24,15 +25,7 @@ vi.mock('next/navigation', () => ({
 vi.mock('./actions', () => ({
   submitRating: vi.fn(async () => ({ ok: true, intervalDays: 1 })),
   finalizeSession: vi.fn(async () => ({ ok: true })),
-  getSessionPreview: vi.fn(async () => ({
-    weakTags: ['algebra'],
-    dueLaterToday: 1,
-    dueTomorrow: 0,
-    dueThisWeek: 2,
-    hasUpcoming: true,
-    suggestedMode: 'quick',
-    suggestedReason: 'A short cleanup pass is the fastest way to revisit weak concepts.',
-  })),
+  getSessionPreview: getSessionPreviewSpy,
 }))
 
 vi.mock('@/lib/fatigue/easy-cards', () => ({
@@ -58,6 +51,22 @@ function card(overrides: Partial<SprintCard> = {}): SprintCard {
   }
 }
 
+function resetPreviewMock(overrides: Record<string, unknown> = {}) {
+  getSessionPreviewSpy.mockReset()
+  getSessionPreviewSpy.mockResolvedValue({
+    weakTags: ['algebra'],
+    dueNowCount: 1,
+    hasDueNow: true,
+    dueLaterToday: 1,
+    dueTomorrow: 0,
+    dueThisWeek: 2,
+    hasUpcoming: true,
+    suggestedMode: 'quick',
+    suggestedReason: 'A short cleanup pass is the fastest way to revisit weak concepts.',
+    ...overrides,
+  })
+}
+
 describe('review-session', () => {
   it('reveals a hint before the answer', async () => {
     pushSpy.mockReset()
@@ -66,6 +75,7 @@ describe('review-session', () => {
     observeSpy.mockReturnValue({ action: 'continue' })
     fetchEasyCardsSpy.mockReset()
     fetchEasyCardsSpy.mockResolvedValue([])
+    resetPreviewMock()
     const user = userEvent.setup()
 
     render(
@@ -95,6 +105,7 @@ describe('review-session', () => {
     observeSpy.mockReturnValue({ action: 'continue' })
     fetchEasyCardsSpy.mockReset()
     fetchEasyCardsSpy.mockResolvedValue([])
+    resetPreviewMock()
     const user = userEvent.setup()
 
     render(
@@ -122,6 +133,7 @@ describe('review-session', () => {
     observeSpy.mockReturnValue({ action: 'continue' })
     fetchEasyCardsSpy.mockReset()
     fetchEasyCardsSpy.mockResolvedValue([])
+    resetPreviewMock()
     const user = userEvent.setup()
 
     render(
@@ -152,6 +164,7 @@ describe('review-session', () => {
     observeSpy.mockReturnValue({ action: 'continue' })
     fetchEasyCardsSpy.mockReset()
     fetchEasyCardsSpy.mockResolvedValue([])
+    resetPreviewMock()
     const user = userEvent.setup()
 
     render(
@@ -179,6 +192,7 @@ describe('review-session', () => {
       .mockReturnValueOnce({ action: 'continue' })
       .mockReturnValueOnce({ action: 'inject_easy' })
     fetchEasyCardsSpy.mockReset()
+    resetPreviewMock()
     fetchEasyCardsSpy.mockResolvedValue([
       card({
         id: 'card-2',
@@ -206,5 +220,38 @@ describe('review-session', () => {
     expect(fetchEasyCardsSpy).not.toHaveBeenCalled()
     expect(await screen.findByText('Nice sprint.')).toBeInTheDocument()
     expect(screen.queryByText('Easy check-in')).not.toBeInTheDocument()
+  })
+
+  it('does not offer another session when nothing is due right now', async () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
+    observeSpy.mockReset()
+    observeSpy.mockReturnValue({ action: 'continue' })
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([])
+    resetPreviewMock({
+      dueNowCount: 0,
+      hasDueNow: false,
+      dueLaterToday: 2,
+      dueTomorrow: 3,
+      dueThisWeek: 4,
+    })
+    const user = userEvent.setup()
+
+    render(
+      <ReviewSession
+        cards={[card()]}
+        deckId="deck-1"
+        startedAt="2026-04-26T00:00:00.000Z"
+        mode="quick"
+      />,
+    )
+
+    await user.keyboard('{Escape}')
+
+    expect(await screen.findByText('Suggested next: Quick 5')).toBeInTheDocument()
+    expect(screen.getByText('Nothing else is due right now. Come back when the next cards unlock.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Start Quick 5' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Start Sprint' })).not.toBeInTheDocument()
   })
 })

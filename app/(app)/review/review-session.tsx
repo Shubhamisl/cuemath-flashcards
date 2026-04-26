@@ -377,11 +377,17 @@ export function ReviewSession({
                 </div>
               </div>
             )}
+
+            {!preview.hasDueNow && (
+              <p className="text-sm text-ink-black/70">
+                Nothing else is due right now. Come back when the next cards unlock.
+              </p>
+            )}
           </CueCard>
         )}
 
         <div className="flex flex-col items-center gap-3 w-full max-w-[440px]">
-          {preview && (
+          {preview?.hasDueNow && (
             <CueButton
               onClick={() => router.push(reviewHref(preview.suggestedMode, true))}
               className="w-full"
@@ -389,22 +395,24 @@ export function ReviewSession({
               Start {labelForMode(preview.suggestedMode)}
             </CueButton>
           )}
-          <CueButton
-            onClick={() => {
-              if (preview && preview.suggestedMode === mode) {
-                router.push(reviewHref(replayMode, true))
-                return
-              }
-              router.push(reviewHref(mode, true))
-            }}
-            className="w-full"
-          >
-            {preview && preview.suggestedMode === mode
-              ? `Start ${labelForMode(replayMode)}`
-              : mode === 'quick'
-                ? 'Another Quick 5'
-                : 'Another sprint'}
-          </CueButton>
+          {preview?.hasDueNow && (
+            <CueButton
+              onClick={() => {
+                if (preview && preview.suggestedMode === mode) {
+                  router.push(reviewHref(replayMode, true))
+                  return
+                }
+                router.push(reviewHref(mode, true))
+              }}
+              className="w-full"
+            >
+              {preview && preview.suggestedMode === mode
+                ? `Start ${labelForMode(replayMode)}`
+                : mode === 'quick'
+                  ? 'Another Quick 5'
+                  : 'Another sprint'}
+            </CueButton>
+          )}
           <button
             onClick={() => router.push(`/deck/${deckId}`)}
             className="text-ink-black hover:underline font-display font-semibold"
