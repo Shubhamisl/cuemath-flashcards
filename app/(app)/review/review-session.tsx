@@ -25,12 +25,16 @@ export function ReviewSession({
   cards: initialCards,
   subject,
   deckId,
+  conceptTag,
+  backHref = '/library',
   startedAt,
   mode,
 }: {
   cards: SprintCard[]
   subject?: subjectFamily
-  deckId: string
+  deckId?: string
+  conceptTag?: string
+  backHref?: string
   startedAt: string
   mode: ReviewMode
 }) {
@@ -98,7 +102,7 @@ export function ReviewSession({
   }, [done, events, cards.length, breakPromptedAt, endedAt, startedAt, mode])
 
   useEffect(() => {
-    if (!done || preview) return
+    if (!done || preview || !deckId) return
     let cancelled = false
 
     void getSessionPreview(deckId).then((result) => {
@@ -141,7 +145,13 @@ export function ReviewSession({
   }
 
   function reviewHref(nextMode: ReviewMode, fresh = false): string {
-    const params = new URLSearchParams({ deck: deckId })
+    const params = new URLSearchParams()
+    if (deckId) {
+      params.set('deck', deckId)
+    }
+    if (conceptTag) {
+      params.set('concept', conceptTag)
+    }
     if (nextMode === 'quick') {
       params.set('mode', 'quick')
     }
@@ -190,6 +200,10 @@ export function ReviewSession({
 
       if (decision.action === 'inject_easy') {
         setFlags((f) => ({ ...f, injectedEasy: true }))
+        if (!deckId) {
+          moveToIndex(index + 1)
+          return
+        }
         const excludeIds = cards.map((c) => c.id)
         const extras = await fetchEasyCards({ deckId, excludeIds, n: 2 })
         if (extras.length > 0) {
@@ -276,7 +290,9 @@ export function ReviewSession({
       <CueCard className="text-center space-y-3 shadow-card-rest">
         <h2 className="font-display text-xl font-bold">Nothing due right now</h2>
         <p className="text-sm opacity-70">Come back later or add more cards.</p>
-        <CueButton onClick={() => router.push(`/deck/${deckId}`)}>Back to deck</CueButton>
+        <CueButton onClick={() => router.push(backHref)}>
+          {conceptTag ? 'Back to progress' : 'Back to deck'}
+        </CueButton>
       </CueCard>
     )
   }
@@ -438,7 +454,7 @@ export function ReviewSession({
             </CueButton>
           )}
           <button
-            onClick={() => router.push(`/deck/${deckId}`)}
+            onClick={() => router.push(backHref)}
             className="text-ink-black hover:underline font-display font-semibold"
           >
             Done for today

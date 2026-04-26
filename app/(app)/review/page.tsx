@@ -10,43 +10,78 @@ export const dynamic = 'force-dynamic'
 export default async function ReviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deck?: string; mode?: string; run?: string }>
+  searchParams: Promise<{ deck?: string; mode?: string; run?: string; concept?: string }>
 }) {
-  const { deck: deckId, mode: rawMode, run } = await searchParams
-  if (!deckId) redirect('/library')
+  const { deck: deckId, mode: rawMode, run, concept: rawConcept } = await searchParams
+  const conceptTag = rawConcept?.trim() || undefined
+  if (!deckId && !conceptTag) redirect('/library')
   const mode = parseReviewMode(rawMode)
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: deck } = await supabase
-    .from('decks')
-    .select('id, title, subject_family, status')
-    .eq('id', deckId)
-    .eq('user_id', user.id)
-    .single()
-  if (!deck) redirect('/library')
-  if (deck.status !== 'ready') redirect(`/deck/${deckId}?review=blocked`)
+  let title = conceptTag ?? 'Review'
+  let subject: subjectFamily | undefined
+  let backHref = '/library'
+  let sessionDeckId: string | undefined = deckId
+  let cards = [] as Awaited<ReturnType<typeof buildSprint>>
 
-  const cards = await buildSprint({ userId: user.id, deckId, size: sprintSizeForMode(mode) })
+  if (deckId) {
+    const { data: deck } = await supabase
+      .from('decks')
+      .select('id, title, subject_family, status')
+      .eq('id', deckId)
+      .eq('user_id', user.id)
+      .single()
+    if (!deck) redirect('/library')
+    if (deck.status !== 'ready') redirect(`/deck/${deckId}?review=blocked`)
+
+    title = conceptTag ? `${deck.title}: ${conceptTag}` : deck.title
+    subject = deck.subject_family as subjectFamily
+    backHref = `/deck/${deckId}`
+    cards = await buildSprint({
+      userId: user.id,
+      deckId,
+      conceptTag,
+      size: sprintSizeForMode(mode),
+    })
+  } else {
+    const { data: readyDecks } = await supabase
+      .from('decks')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('status', 'ready')
+    const readyDeckIds = (readyDecks ?? []).map((deck) => deck.id as string)
+    title = conceptTag ?? 'Focused drill'
+    backHref = '/progress'
+    sessionDeckId = undefined
+    cards = await buildSprint({
+      userId: user.id,
+      conceptTag,
+      readyDeckIds,
+      size: sprintSizeForMode(mode),
+    })
+  }
 
   return (
     <main className="max-w-lg mx-auto p-6 space-y-6">
       <header className="flex items-center justify-between">
         <div className="space-y-1 min-w-0">
           <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
-            {labelForMode(mode)}
+            {conceptTag && !deckId ? `Focused drill - ${labelForMode(mode)}` : labelForMode(mode)}
           </p>
-          <h1 className="font-display text-lg font-bold truncate">{deck.title}</h1>
+          <h1 className="font-display text-lg font-bold truncate">{title}</h1>
         </div>
         <span className="text-sm opacity-60">{cards.length} cards</span>
       </header>
       <ReviewSession
-        key={`${deckId}:${mode}:${run ?? 'base'}`}
+        key={`${deckId ?? `concept:${conceptTag ?? 'all'}`}:${mode}:${run ?? 'base'}`}
         cards={cards}
-        subject={deck.subject_family as subjectFamily}
-        deckId={deckId}
+        subject={subject}
+        deckId={sessionDeckId}
+        conceptTag={conceptTag}
+        backHref={backHref}
         startedAt={new Date().toISOString()}
         mode={mode}
       />

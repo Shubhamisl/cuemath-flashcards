@@ -31,7 +31,20 @@ function interleave(cards: SprintCard[]): SprintCard[] {
 }
 
 export function buildSprintFromCards(cards: SprintCard[], now: Date, size: number): SprintCard[] {
-  const eligible = cards.filter((c) => isDue(c, now))
+  return buildSprintFromCardsWithFilter(cards, now, size)
+}
+
+export function buildSprintFromCardsWithFilter(
+  cards: SprintCard[],
+  now: Date,
+  size: number,
+  options?: { conceptTag?: string },
+): SprintCard[] {
+  const eligible = cards.filter((c) => {
+    if (!isDue(c, now)) return false
+    if (options?.conceptTag && c.concept_tag !== options.conceptTag) return false
+    return true
+  })
   eligible.sort((a, b) => {
     const pb = priority(b, now)
     const pa = priority(a, now)
@@ -43,24 +56,39 @@ export function buildSprintFromCards(cards: SprintCard[], now: Date, size: numbe
 
 export async function buildSprint(args: {
   userId: string
-  deckId: string
   size: number
+  deckId?: string
+  conceptTag?: string
+  readyDeckIds?: string[]
   now?: Date
 }): Promise<SprintCard[]> {
   const now = args.now ?? new Date()
+  if (!args.deckId && args.readyDeckIds && args.readyDeckIds.length === 0) {
+    return []
+  }
   const supabase = await createClient()
-  const { data, error } = await supabase
+  let query = supabase
     .from('cards')
     .select('id, deck_id, concept_tag, front, back, fsrs_state, suspended, approved')
     .eq('user_id', args.userId)
-    .eq('deck_id', args.deckId)
     .eq('suspended', false)
     .eq('approved', true)
     .limit(500)
+  if (args.deckId) {
+    query = query.eq('deck_id', args.deckId)
+  } else if (args.readyDeckIds) {
+    query = query.in('deck_id', args.readyDeckIds)
+  }
+  if (args.conceptTag) {
+    query = query.eq('concept_tag', args.conceptTag)
+  }
+  const { data, error } = await query
   if (error) throw error
   const rows = ((data ?? []) as Array<Omit<SprintCard, 'hint'>>).map((card) => ({
     ...card,
     hint: buildHintFromBack(card.back.text),
   }))
-  return buildSprintFromCards(rows, now, args.size)
+  return buildSprintFromCardsWithFilter(rows, now, args.size, {
+    conceptTag: args.conceptTag,
+  })
 }

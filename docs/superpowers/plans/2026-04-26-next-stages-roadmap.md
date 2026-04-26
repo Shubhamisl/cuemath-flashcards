@@ -14,7 +14,7 @@
 
 - **Stage 1 still open:** page-range upload, source page/chunk visibility in card review, single-card regenerate from source chunk, and clearer scanned/low-text PDF warning states.
 - **Stage 2 remaining policy gap:** changing FSRS scheduling based on `hint_used`. We already persist hint usage, but any mastery penalty should be treated as a data-backed scheduling policy decision, not a casual FSRS rewrite.
-- **Stage 3 still open after the dashboard slice:** targeted weak-concept drill entry points, a 90-day activity surface, and weekly learning summaries.
+- **Stage 3 still open after dashboard + drill slices:** a 90-day activity surface and weekly learning summaries.
 
 ---
 

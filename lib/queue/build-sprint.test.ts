@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildSprintFromCards } from './build-sprint'
+import { buildSprintFromCards, buildSprintFromCardsWithFilter } from './build-sprint'
 import type { SprintCard } from './types'
 
 const now = new Date('2026-04-24T12:00:00.000Z')
@@ -84,5 +84,16 @@ describe('queue/build-sprint', () => {
     const tags = out.map((c) => c.concept_tag)
     const adjacentSame = tags.filter((t, i) => i > 0 && t === tags[i - 1]).length
     expect(adjacentSame).toBeLessThan(3)
+  })
+
+  it('can focus the queue on a single concept tag', () => {
+    const input = [
+      card('a1', { concept_tag: 'A' }),
+      card('b1', { concept_tag: 'B' }),
+      card('a2', { concept_tag: 'A', fsrs_state: dueState(1) }),
+      card('b2', { concept_tag: 'B', fsrs_state: dueState(1) }),
+    ]
+    const out = buildSprintFromCardsWithFilter(input, now, 10, { conceptTag: 'B' })
+    expect(out.map((c) => c.id)).toEqual(['b1', 'b2'])
   })
 })

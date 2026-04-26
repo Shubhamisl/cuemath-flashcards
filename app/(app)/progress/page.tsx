@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/db/server'
 import { CueCard } from '@/lib/brand/primitives/card'
 import { CuePill } from '@/lib/brand/primitives/pill'
+import { CueButton } from '@/lib/brand/primitives/button'
 import { MasteryRing } from '@/components/mastery-ring'
 import { TopNav } from '../_components/top-nav'
 import { computeProgressDashboard } from '@/lib/progress/dashboard'
@@ -193,11 +194,26 @@ export default async function ProgressPage() {
                         {concept.lapses} lapse{concept.lapses === 1 ? '' : 's'}
                       </div>
                     </div>
-                    <CuePill tone={concept.dueNowCount > 0 ? 'highlight' : 'neutral'}>
-                      {concept.dueNowCount > 0
-                        ? `${concept.dueNowCount} due now`
-                        : 'Not due yet'}
-                    </CuePill>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <CuePill tone={concept.dueNowCount > 0 ? 'highlight' : 'neutral'}>
+                        {concept.dueNowCount > 0
+                          ? `${concept.dueNowCount} due now`
+                          : 'Not due yet'}
+                      </CuePill>
+                      {concept.dueNowCount > 0 && (
+                        <Link
+                          href={
+                            concept.dueNowCount <= 5
+                              ? `/review?concept=${encodeURIComponent(concept.tag)}&mode=quick`
+                              : `/review?concept=${encodeURIComponent(concept.tag)}`
+                          }
+                        >
+                          <CueButton variant="ghost" className="min-h-[40px] px-4">
+                            Drill now
+                          </CueButton>
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
