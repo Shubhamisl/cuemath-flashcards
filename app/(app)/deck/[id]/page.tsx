@@ -9,6 +9,7 @@ import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
 import { tierToTone } from '@/lib/progress/tier-tone'
 import { canMarkDeckReady, summarizeReviewGate } from '@/lib/decks/review-gate'
 import { labelForMode } from '@/lib/review/mode'
+import { computeSessionPreview } from '@/lib/review/session-preview'
 import { DeleteDeckButton } from './delete-deck-button'
 import { RenameDeckForm } from './rename-deck-form'
 import { ReviewReadyButton } from './review-ready-button'
@@ -84,55 +85,13 @@ export default async function DeckPage({
     .not('fsrs_state', 'is', null)
     .eq('suspended', false)
 
-  const tagLapses: Record<string, { lapses: number; count: number }> = {}
-  for (const rc of reviewedCards ?? []) {
-    const tag = rc.concept_tag
-    if (!tag) continue
-    const lapses = (rc.fsrs_state as { lapses?: number } | null)?.lapses ?? 0
-    if (lapses === 0) continue
-    tagLapses[tag] ??= { lapses: 0, count: 0 }
-    tagLapses[tag].lapses += lapses
-    tagLapses[tag].count += 1
-  }
-
-  const weakTags = Object.entries(tagLapses)
-    .sort(([, a], [, b]) => b.lapses - a.lapses)
-    .slice(0, 3)
-    .map(([tag]) => tag)
-
-  const now = new Date()
-  const todayEnd = new Date(now)
-  todayEnd.setHours(23, 59, 59, 999)
-
-  const tomorrowEnd = new Date(now)
-  tomorrowEnd.setDate(tomorrowEnd.getDate() + 1)
-  tomorrowEnd.setHours(23, 59, 59, 999)
-
-  const weekEnd = new Date(now)
-  weekEnd.setDate(weekEnd.getDate() + 7)
-  weekEnd.setHours(23, 59, 59, 999)
-
-  let dueLaterToday = 0
-  let dueTomorrow = 0
-  let dueThisWeek = 0
-
-  for (const card of reviewedCards ?? []) {
-    const state = card.fsrs_state as { due?: string } | null
-    if (!state?.due) continue
-    const due = new Date(state.due)
-    if (isNaN(due.getTime())) continue
-    if (due <= now) continue
-
-    if (due <= todayEnd) {
-      dueLaterToday++
-    } else if (due <= tomorrowEnd) {
-      dueTomorrow++
-    } else if (due <= weekEnd) {
-      dueThisWeek++
-    }
-  }
-
-  const hasUpcoming = dueLaterToday > 0 || dueTomorrow > 0 || dueThisWeek > 0
+  const preview = computeSessionPreview(
+    (reviewedCards ?? []) as Array<{
+      concept_tag: string | null
+      fsrs_state: { due?: string; lapses?: number } | null
+    }>,
+    new Date(),
+  )
 
   return (
     <main className="min-h-screen">
@@ -251,38 +210,38 @@ export default async function DeckPage({
             Browse {deck.card_count ?? 0} cards {'->'}
           </Link>
 
-          {weakTags.length > 0 && (
+          {preview.weakTags.length > 0 && (
             <div className="space-y-2 max-w-[480px]">
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
                 Focus areas
               </p>
               <div className="flex flex-wrap gap-2">
-                {weakTags.map((tag) => (
+                {preview.weakTags.map((tag) => (
                   <CuePill key={tag} tone="warning">{tag}</CuePill>
                 ))}
               </div>
             </div>
           )}
 
-          {hasUpcoming && (
+          {preview.hasUpcoming && (
             <div className="space-y-2 max-w-[480px]">
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
                 Upcoming
               </p>
               <div className="flex flex-wrap gap-3 text-sm text-ink-black/70">
-                {dueLaterToday > 0 && (
+                {preview.dueLaterToday > 0 && (
                   <span>
-                    <span className="font-display font-bold text-ink-black">{dueLaterToday}</span> later today
+                    <span className="font-display font-bold text-ink-black">{preview.dueLaterToday}</span> later today
                   </span>
                 )}
-                {dueTomorrow > 0 && (
+                {preview.dueTomorrow > 0 && (
                   <span>
-                    <span className="font-display font-bold text-ink-black">{dueTomorrow}</span> tomorrow
+                    <span className="font-display font-bold text-ink-black">{preview.dueTomorrow}</span> tomorrow
                   </span>
                 )}
-                {dueThisWeek > 0 && (
+                {preview.dueThisWeek > 0 && (
                   <span>
-                    <span className="font-display font-bold text-ink-black">{dueThisWeek}</span> this week
+                    <span className="font-display font-bold text-ink-black">{preview.dueThisWeek}</span> this week
                   </span>
                 )}
               </div>

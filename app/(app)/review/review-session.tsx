@@ -7,13 +7,14 @@ import { CueButton } from '@/lib/brand/primitives/button'
 import { ReviewCard } from '@/components/review-card'
 import { RatingBar } from '@/components/rating-bar'
 import { BreakPrompt } from '@/components/break-prompt'
-import { submitRating, finalizeSession } from './actions'
+import { submitRating, finalizeSession, getSessionPreview } from './actions'
 import { fetchEasyCards } from '@/lib/fatigue/easy-cards'
 import { observe, type ReviewEvent } from '@/lib/fatigue/observe'
 import type { SprintCard } from '@/lib/queue/types'
 import type { FsrsRating } from '@/lib/srs/schedule'
 import type { subjectFamily } from '@/lib/brand/tokens'
-import type { ReviewMode } from '@/lib/review/mode'
+import { labelForMode, type ReviewMode } from '@/lib/review/mode'
+import type { SessionPreview } from '@/lib/review/session-preview'
 
 const SPRINT_MS_CAP = 15 * 60 * 1000
 type SessionEvent = ReviewEvent & { hintUsed: boolean }
@@ -41,6 +42,7 @@ export function ReviewSession({
   const [hintShown, setHintShown] = useState(false)
   const [events, setEvents] = useState<SessionEvent[]>([])
   const [weakCards, setWeakCards] = useState<SprintCard[]>([])
+  const [preview, setPreview] = useState<SessionPreview | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
   const [showBreak, setShowBreak] = useState(false)
@@ -83,6 +85,20 @@ export function ReviewSession({
       mode,
     })
   }, [done, events, cards.length, breakPromptedAt, endedAt, startedAt, mode])
+
+  useEffect(() => {
+    if (!done || preview) return
+    let cancelled = false
+
+    void getSessionPreview(deckId).then((result) => {
+      if (cancelled || 'error' in result) return
+      setPreview(result)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [done, preview, deckId])
 
   function moveToIndex(nextIndex: number) {
     shownAt.current = Date.now()
@@ -289,7 +305,72 @@ export function ReviewSession({
           )}
         </CueCard>
 
+        {preview && (
+          <CueCard tone="blue" className="w-full max-w-[440px] shadow-card-rest space-y-4">
+            <div className="space-y-1">
+              <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                Next session
+              </p>
+              <p className="font-display text-lg font-bold text-ink-black">
+                Suggested next: {labelForMode(preview.suggestedMode)}
+              </p>
+              <p className="text-sm text-ink-black/70">{preview.suggestedReason}</p>
+            </div>
+
+            {preview.weakTags.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                  Focus areas
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {preview.weakTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-cue-yellow/30 px-3 py-1 text-xs font-display font-semibold text-ink-black"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {preview.hasUpcoming && (
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                  Upcoming
+                </p>
+                <div className="flex flex-wrap gap-3 text-sm text-ink-black/70">
+                  {preview.dueLaterToday > 0 && (
+                    <span>
+                      <span className="font-display font-bold text-ink-black">{preview.dueLaterToday}</span> later today
+                    </span>
+                  )}
+                  {preview.dueTomorrow > 0 && (
+                    <span>
+                      <span className="font-display font-bold text-ink-black">{preview.dueTomorrow}</span> tomorrow
+                    </span>
+                  )}
+                  {preview.dueThisWeek > 0 && (
+                    <span>
+                      <span className="font-display font-bold text-ink-black">{preview.dueThisWeek}</span> this week
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </CueCard>
+        )}
+
         <div className="flex flex-col items-center gap-3 w-full max-w-[440px]">
+          {preview && (
+            <CueButton
+              onClick={() => router.push(`/review?deck=${deckId}${preview.suggestedMode === 'quick' ? '&mode=quick' : ''}`)}
+              className="w-full"
+            >
+              Start {labelForMode(preview.suggestedMode)}
+            </CueButton>
+          )}
           <CueButton onClick={() => router.refresh()} className="w-full">
             {mode === 'quick' ? 'Another Quick 5' : 'Another sprint'}
           </CueButton>

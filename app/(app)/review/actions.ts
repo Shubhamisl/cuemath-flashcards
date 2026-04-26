@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/db/server'
 import { schedule, initialState, type FsrsCardState, type FsrsRating } from '@/lib/srs/schedule'
 import { getReviewBlockReason } from '@/lib/decks/review-gate'
+import { computeSessionPreview, type SessionPreview } from '@/lib/review/session-preview'
 
 const LEECH_LAPSES = 6
 const LEECH_REPS = 10
@@ -103,4 +104,24 @@ export async function finalizeSession(args: {
   })
   if (error) return { error: error.message }
   return { ok: true }
+}
+
+export async function getSessionPreview(
+  deckId: string,
+): Promise<SessionPreview | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not signed in' }
+
+  const { data, error } = await supabase
+    .from('cards')
+    .select('concept_tag, fsrs_state')
+    .eq('deck_id', deckId)
+    .eq('user_id', user.id)
+    .eq('approved', true)
+    .not('fsrs_state', 'is', null)
+    .eq('suspended', false)
+
+  if (error) return { error: error.message }
+  return computeSessionPreview((data ?? []) as Array<{ concept_tag: string | null; fsrs_state: { due?: string; lapses?: number } | null }>, new Date())
 }

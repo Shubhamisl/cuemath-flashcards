@@ -16,6 +16,15 @@ vi.mock('next/navigation', () => ({
 vi.mock('./actions', () => ({
   submitRating: vi.fn(async () => ({ ok: true, intervalDays: 1 })),
   finalizeSession: vi.fn(async () => ({ ok: true })),
+  getSessionPreview: vi.fn(async () => ({
+    weakTags: ['algebra'],
+    dueLaterToday: 1,
+    dueTomorrow: 0,
+    dueThisWeek: 2,
+    hasUpcoming: true,
+    suggestedMode: 'quick',
+    suggestedReason: 'A short cleanup pass is the fastest way to revisit weak concepts.',
+  })),
 }))
 
 vi.mock('@/lib/fatigue/easy-cards', () => ({
@@ -81,6 +90,7 @@ describe('review-session', () => {
 
     expect(screen.getByText('Nice sprint.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Another Quick 5' })).toBeInTheDocument()
+    expect(await screen.findByText('Suggested next: Quick 5')).toBeInTheDocument()
   })
 
   it('offers a weak-card retry pass after a low rating in the main sprint', async () => {
