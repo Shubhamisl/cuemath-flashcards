@@ -17,6 +17,7 @@ import type { ReviewMode } from '@/lib/review/mode'
 
 const SPRINT_MS_CAP = 15 * 60 * 1000
 type SessionEvent = ReviewEvent & { hintUsed: boolean }
+type SessionPhase = 'main' | 'weak' | 'done'
 
 export function ReviewSession({
   cards: initialCards,
@@ -34,9 +35,12 @@ export function ReviewSession({
   const router = useRouter()
   const [cards, setCards] = useState<SprintCard[]>(initialCards)
   const [index, setIndex] = useState(0)
+  const [phase, setPhase] = useState<SessionPhase>('main')
+  const [completedWeakLoop, setCompletedWeakLoop] = useState(false)
   const [flipped, setFlipped] = useState(false)
   const [hintShown, setHintShown] = useState(false)
   const [events, setEvents] = useState<SessionEvent[]>([])
+  const [weakCards, setWeakCards] = useState<SprintCard[]>([])
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
   const [showBreak, setShowBreak] = useState(false)
@@ -50,7 +54,9 @@ export function ReviewSession({
   const finalized = useRef(false)
 
   const current = cards[index]
-  const done = index >= cards.length || timedOut
+  const completedPass = index >= cards.length
+  const showWeakLoopPrompt = !timedOut && phase === 'main' && completedPass && weakCards.length > 0
+  const done = timedOut || phase === 'done'
 
   useEffect(() => {
     shownAt.current = Date.now()
@@ -82,10 +88,26 @@ export function ReviewSession({
     shownAt.current = Date.now()
     setFlipped(false)
     setHintShown(false)
-    if (nextIndex >= cards.length && endedAt === null) {
+    setIndex(nextIndex)
+  }
+
+  function finishSession() {
+    if (endedAt === null) {
       setEndedAt(new Date().toISOString())
     }
-    setIndex(nextIndex)
+    setPhase('done')
+  }
+
+  function beginWeakLoop() {
+    shownAt.current = Date.now()
+    setCards(weakCards)
+    setIndex(0)
+    setPhase('weak')
+    setCompletedWeakLoop(false)
+    setFlipped(false)
+    setHintShown(false)
+    setShowBreak(false)
+    setLastInterval(null)
   }
 
   function rate(rating: FsrsRating) {
@@ -103,6 +125,14 @@ export function ReviewSession({
       setError(null)
       setLastInterval(res.intervalDays)
       window.setTimeout(() => setLastInterval(null), 2000)
+
+      const nextWeakCards =
+        phase === 'main' && rating <= 2 && !weakCards.some((card) => card.id === current.id)
+          ? [...weakCards, current]
+          : weakCards
+      if (nextWeakCards !== weakCards) {
+        setWeakCards(nextWeakCards)
+      }
 
       const nextEvents = [...events, { rating, elapsedMs, timestamp: now, hintUsed: hintShown }]
       setEvents(nextEvents)
@@ -134,7 +164,22 @@ export function ReviewSession({
         return
       }
 
-      moveToIndex(index + 1)
+      const nextIndex = index + 1
+      if (nextIndex >= cards.length) {
+        if (phase === 'main') {
+          moveToIndex(nextIndex)
+          if (nextWeakCards.length === 0) {
+            finishSession()
+          }
+          return
+        }
+        setCompletedWeakLoop(true)
+        finishSession()
+        moveToIndex(nextIndex)
+        return
+      }
+
+      moveToIndex(nextIndex)
     })
   }
 
@@ -143,9 +188,10 @@ export function ReviewSession({
       if (done) return
       if (e.key === 'Escape') {
         e.preventDefault()
-        moveToIndex(cards.length)
+        finishSession()
         return
       }
+      if (showWeakLoopPrompt) return
       if (showBreak) return
       if (e.key === ' ') {
         e.preventDefault()
@@ -177,6 +223,36 @@ export function ReviewSession({
     )
   }
 
+  if (showWeakLoopPrompt) {
+    return (
+      <div className="flex flex-col items-center gap-6 py-8">
+        <CueCard
+          tone="cream"
+          className="rounded-panel !shadow-none p-8 w-full max-w-[440px] text-center space-y-4"
+        >
+          <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+            One more pass
+          </p>
+          <h2 className="font-display font-extrabold text-[28px] leading-tight">
+            Revisit the tricky ones?
+          </h2>
+          <p className="text-sm text-ink-black/70">
+            {weakCards.length} card{weakCards.length === 1 ? '' : 's'} felt shaky. A short cleanup pass can help lock them in.
+          </p>
+        </CueCard>
+
+        <div className="flex flex-col items-center gap-3 w-full max-w-[440px]">
+          <CueButton onClick={beginWeakLoop} className="w-full">
+            Retry weak cards
+          </CueButton>
+          <CueButton variant="ghost" onClick={finishSession} className="w-full">
+            Skip and finish
+          </CueButton>
+        </div>
+      </div>
+    )
+  }
+
   if (done) {
     const got = events.filter((e) => e.rating >= 3).length
     const startMs = new Date(startedAt).getTime()
@@ -203,6 +279,11 @@ export function ReviewSession({
           <div className="text-xs uppercase tracking-[0.08em] text-ink-black/60 pt-2">
             Time {mins}m {secs.toString().padStart(2, '0')}s
           </div>
+          {completedWeakLoop && (
+            <p className="text-xs text-ink-black/60">
+              Weak-card loop completed.
+            </p>
+          )}
           {timedOut && (
             <p className="text-xs text-ink-black/60">Timed out at 15 min - good focus.</p>
           )}

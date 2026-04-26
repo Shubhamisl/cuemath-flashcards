@@ -82,4 +82,28 @@ describe('review-session', () => {
     expect(screen.getByText('Nice sprint.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Another Quick 5' })).toBeInTheDocument()
   })
+
+  it('offers a weak-card retry pass after a low rating in the main sprint', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <ReviewSession
+        cards={[card()]}
+        deckId="deck-1"
+        startedAt="2026-04-26T00:00:00.000Z"
+        mode="quick"
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Show answer (Space)' }))
+    await user.click(screen.getByRole('button', { name: 'Forgot (press 1)' }))
+
+    expect(screen.getByText('Revisit the tricky ones?')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Retry weak cards' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Retry weak cards' }))
+
+    expect(screen.getByRole('button', { name: 'Show answer (Space)' })).toBeInTheDocument()
+    expect(screen.getByText('What is the derivative of x^2?')).toBeInTheDocument()
+  })
 })
