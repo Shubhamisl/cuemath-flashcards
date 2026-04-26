@@ -8,6 +8,7 @@ const baseDecks: LibraryDeck[] = [
     subjectFamily: 'math',
     status: 'ready',
     cardCount: 20,
+    tags: ['algebra', 'warmup'],
     tier: 'Curious',
     masteryPct: 12,
     dueCount: 5,
@@ -18,6 +19,7 @@ const baseDecks: LibraryDeck[] = [
     subjectFamily: 'science',
     status: 'ready',
     cardCount: 35,
+    tags: ['biology', 'systems'],
     tier: 'SharpMind',
     masteryPct: 82,
     dueCount: 1,
@@ -28,6 +30,7 @@ const baseDecks: LibraryDeck[] = [
     subjectFamily: 'language',
     status: 'draft',
     cardCount: 10,
+    tags: ['writing'],
     tier: 'Practicing',
     masteryPct: 0,
     dueCount: 0,
@@ -38,6 +41,7 @@ const baseDecks: LibraryDeck[] = [
     subjectFamily: 'math',
     status: 'archived',
     cardCount: 12,
+    tags: ['geometry'],
     tier: 'Confident',
     masteryPct: 64,
     dueCount: 2,
@@ -79,6 +83,18 @@ describe('library-view', () => {
     })
 
     expect(visible.map((deck) => deck.id)).toEqual(['ready-high'])
+  })
+
+  it('matches search queries against tags as well as titles', () => {
+    const visible = filterAndSortDecks(baseDecks, {
+      query: 'warmup',
+      sort: 'created',
+      subject: 'all',
+      status: 'active',
+      mastery: 'all',
+    })
+
+    expect(visible.map((deck) => deck.id)).toEqual(['ready-low'])
   })
 
   it('sorts by due count and then title fallback', () => {

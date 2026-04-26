@@ -16,7 +16,7 @@
 - **Stage 2 remaining policy gap:** changing FSRS scheduling based on `hint_used`. We already persist hint usage, but any mastery penalty should be treated as a data-backed scheduling policy decision, not a casual FSRS rewrite.
 - **Stage 3 baseline:** dashboard, weak-concept drill, weekly summary, and multi-week activity view are now shipped. A later UI/UX overhaul can revisit presentation polish without changing the underlying metrics model.
 - **Stage 4 baseline:** daily new-card caps, mature-card interval fuzz, the global review queue, and warm-up/cool-down queue structure are now shipped.
-- **Stage 5 baseline:** subject/status/mastery filters and ready-deck archive/restore are now shipped. Deck tags and export are the next scale/portability slices.
+- **Stage 5 baseline:** subject/status/mastery filters, ready-deck archive/restore, and deck tags are now shipped. Export is the next scale/portability slice.
 
 ---
 
@@ -223,7 +223,7 @@
 
 - Subject/status/mastery filters on the existing library controls are shipped.
 - Ready-deck archive/unarchive behavior is shipped.
-- Add deck tags.
+- Deck tags are shipped.
 - Add export:
   - CSV first
   - Anki-compatible text or package later

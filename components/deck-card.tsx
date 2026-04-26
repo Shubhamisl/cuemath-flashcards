@@ -18,6 +18,7 @@ type Props = {
   subjectFamily: subjectFamily
   status: 'ingesting' | 'draft' | 'ready' | 'failed' | 'archived'
   cardCount: number
+  tags?: string[]
   tier?: Tier
   masteryPct?: number
   dueCount?: number
@@ -34,7 +35,7 @@ const STAGE_LABEL: Record<string, string> = {
   failed: 'Failed',
 }
 
-export function DeckCard({ id, title, subjectFamily, status, cardCount, tier, masteryPct, dueCount }: Props) {
+export function DeckCard({ id, title, subjectFamily, status, cardCount, tags = [], tier, masteryPct, dueCount }: Props) {
   const [job, setJob] = useState<JobRow | null>(null)
   const [pending, startTransition] = useTransition()
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -170,6 +171,13 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tier, ma
         {status === 'failed' && (
           <div className="text-sm text-red-700">
             Failed{job?.error ? `: ${job.error.slice(0, 120)}` : ''}
+          </div>
+        )}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-2">
+            {tags.slice(0, 3).map((tag) => (
+              <CuePill key={tag} tone="neutral">{tag}</CuePill>
+            ))}
           </div>
         )}
       </div>

@@ -76,7 +76,7 @@ export default async function LibraryPage({
 
   const { data: decks } = await supabase
     .from('decks')
-    .select('id, title, subject_family, status, card_count')
+    .select('id, title, subject_family, status, card_count, tags')
     .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
 
@@ -117,6 +117,7 @@ export default async function LibraryPage({
       subjectFamily: deck.subject_family as subjectFamily,
       status: deck.status,
       cardCount: deck.card_count,
+      tags: (deck.tags ?? []) as string[],
       tier: statsByDeck[deck.id]?.tier as import('@/lib/progress/deck-stats').Tier | undefined,
       masteryPct: statsByDeck[deck.id]?.masteryPct,
       dueCount: statsByDeck[deck.id]?.dueCount,
@@ -204,6 +205,7 @@ export default async function LibraryPage({
                 subjectFamily={d.subjectFamily}
                 status={d.status as 'ingesting' | 'draft' | 'ready' | 'failed' | 'archived'}
                 cardCount={d.cardCount}
+                tags={d.tags}
                 tier={d.tier}
                 masteryPct={d.masteryPct}
                 dueCount={d.dueCount}

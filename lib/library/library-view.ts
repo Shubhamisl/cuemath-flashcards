@@ -18,6 +18,7 @@ export type LibraryDeck = {
   subjectFamily: subjectFamily
   status: string
   cardCount: number
+  tags: string[]
   tier?: Tier
   masteryPct?: number
   dueCount?: number
@@ -36,7 +37,13 @@ export function filterAndSortDecks(
   const query = filters.query.trim().toLowerCase()
 
   let visible = decks.filter((deck) => {
-    if (query && !deck.title.toLowerCase().includes(query)) return false
+    if (
+      query &&
+      !deck.title.toLowerCase().includes(query) &&
+      !deck.tags.some((tag) => tag.toLowerCase().includes(query))
+    ) {
+      return false
+    }
     if (filters.subject !== 'all' && deck.subjectFamily !== filters.subject) return false
     if (filters.status === 'active' && deck.status === 'archived') return false
     if (filters.status !== 'active' && deck.status !== filters.status) return false

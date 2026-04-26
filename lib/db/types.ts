@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -85,6 +85,7 @@ export type Database = {
           source_pdf_path: string | null
           status: string
           subject_family: string
+          tags: string[]
           title: string
           updated_at: string
           user_id: string
@@ -97,6 +98,7 @@ export type Database = {
           source_pdf_path?: string | null
           status?: string
           subject_family?: string
+          tags?: string[]
           title: string
           updated_at?: string
           user_id: string
@@ -109,6 +111,7 @@ export type Database = {
           source_pdf_path?: string | null
           status?: string
           subject_family?: string
+          tags?: string[]
           title?: string
           updated_at?: string
           user_id?: string

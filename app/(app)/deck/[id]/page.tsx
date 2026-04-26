@@ -12,6 +12,7 @@ import { canMarkDeckReady, summarizeReviewGate } from '@/lib/decks/review-gate'
 import { labelForMode } from '@/lib/review/mode'
 import { computeSessionPreview } from '@/lib/review/session-preview'
 import { ArchiveDeckButton } from './archive-deck-button'
+import { DeckTagsForm } from './deck-tags-form'
 import { DeleteDeckButton } from './delete-deck-button'
 import { RenameDeckForm } from './rename-deck-form'
 import { ReviewReadyButton } from './review-ready-button'
@@ -49,7 +50,7 @@ export default async function DeckPage({
 
   const { data: deck } = await supabase
     .from('decks')
-    .select('id, title, subject_family, card_count, status')
+    .select('id, title, subject_family, card_count, status, tags')
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
@@ -132,6 +133,7 @@ export default async function DeckPage({
               {deck.status === 'archived' && <CuePill tone="neutral">Archived</CuePill>}
             </div>
             <RenameDeckForm deckId={deck.id} initialTitle={deck.title} />
+            <DeckTagsForm deckId={deck.id} initialTags={(deck.tags ?? []) as string[]} />
           </div>
 
           <div className="grid grid-cols-3 gap-4 max-w-[600px]">
