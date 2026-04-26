@@ -195,35 +195,65 @@ export type Database = {
       llm_calls: {
         Row: {
           created_at: string
+          deck_id: string | null
+          error_class: string | null
+          error_message: string | null
           id: string
           input_tokens: number
+          job_id: string | null
           latency_ms: number | null
           model: string
           output_tokens: number
+          provider: string
           stage: string
           user_id: string | null
         }
         Insert: {
           created_at?: string
+          deck_id?: string | null
+          error_class?: string | null
+          error_message?: string | null
           id?: string
           input_tokens?: number
+          job_id?: string | null
           latency_ms?: number | null
           model: string
           output_tokens?: number
+          provider?: string
           stage: string
           user_id?: string | null
         }
         Update: {
           created_at?: string
+          deck_id?: string | null
+          error_class?: string | null
+          error_message?: string | null
           id?: string
           input_tokens?: number
+          job_id?: string | null
           latency_ms?: number | null
           model?: string
           output_tokens?: number
+          provider?: string
           stage?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "llm_calls_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "llm_calls_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "ingest_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

@@ -2,7 +2,8 @@ import { parsePdf } from '../pdf/parse'
 import { chunkPages } from '../pdf/chunk'
 import { extractCards } from '../llm/extract-cards'
 import { embed } from '../embeddings/openrouter'
-import { updateJob, setDeckStatus, adminDb } from './job'
+import { updateJob, setDeckStatus } from './job'
+import { adminDb } from '../db/admin'
 import type { AtomicCard } from '../llm/types'
 
 const CARD_CAP = 200
@@ -45,7 +46,13 @@ export async function runIngest(args: {
       const remaining = CARD_CAP - allCards.length
       const batch = batches[i]
       const result = await withRetry(
-        () => extractCards({ pages: batch.pages, alreadyCarded, remainingBudget: remaining }),
+        () =>
+          extractCards({
+            pages: batch.pages,
+            alreadyCarded,
+            remainingBudget: remaining,
+            metadata: { stage: 'extracting', userId, deckId, jobId },
+          }),
         `extract batch ${i}`,
       )
       for (const c of result.cards) {
@@ -62,7 +69,10 @@ export async function runIngest(args: {
     // --- embed ---
     await updateJob(jobId, { stage: 'embedding', progress_pct: 75 })
     const texts = allCards.map((c) => `${c.front}\n${c.back}`)
-    const { vectors, dim } = await withRetry(() => embed(texts), 'embed')
+    const { vectors, dim } = await withRetry(
+      () => embed(texts, { stage: 'embedding', userId, deckId, jobId }),
+      'embed',
+    )
     if (vectors.length !== allCards.length) {
       throw new Error(`embed count mismatch: ${vectors.length} vs ${allCards.length}`)
     }

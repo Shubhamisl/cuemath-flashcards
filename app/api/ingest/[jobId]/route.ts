@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { after } from 'next/server'
 import { runIngest } from '@/lib/ingest/pipeline'
-import { adminDb } from '@/lib/ingest/job'
+import { adminDb } from '@/lib/db/admin'
 
 export const runtime = 'nodejs'
 export const maxDuration = 300

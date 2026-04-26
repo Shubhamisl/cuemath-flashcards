@@ -19,6 +19,7 @@ type BuildArgs = {
   pages: ParsedPage[]
   alreadyCarded: string[]
   remainingBudget: number
+  metadata?: LlmCall['metadata']
 }
 
 export function buildExtractionPrompt({ pages, alreadyCarded, remainingBudget }: BuildArgs): string {
@@ -70,6 +71,7 @@ export async function extractCards(args: BuildArgs): Promise<ExtractionBatch> {
     system: SYSTEM,
     messages: [{ role: 'user', content: prompt }],
     maxTokens: 4096,
+    metadata: args.metadata,
   }
   const primary = getLlmProvider()
 
