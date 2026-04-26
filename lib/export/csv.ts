@@ -2,6 +2,10 @@ function csvCell(value: string): string {
   return `"${value.replaceAll('"', '""')}"`
 }
 
+function tsvCell(value: string): string {
+  return value.replaceAll(/\s+/g, ' ').trim()
+}
+
 export function cardTextFromContent(value: unknown): string {
   if (typeof value === 'string') return value
   if (
@@ -58,4 +62,21 @@ export function buildDeckCsv(args: {
   }
 
   return lines.join('\n')
+}
+
+export function buildDeckAnkiTsv(args: {
+  cards: Array<{
+    conceptTag: string | null
+    frontText: string
+    backText: string
+    tags: string[]
+  }>
+}): string {
+  return args.cards
+    .map((card) => [
+      tsvCell(card.frontText),
+      tsvCell(card.backText),
+      tsvCell([card.conceptTag ?? '', ...card.tags].filter(Boolean).join(' ')),
+    ].join('\t'))
+    .join('\n')
 }

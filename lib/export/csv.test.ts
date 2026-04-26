@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildDeckCsv, deckCsvFilename } from './csv'
+import { buildDeckCsv, buildDeckAnkiTsv, deckCsvFilename } from './csv'
 
 describe('deck csv export', () => {
   it('serializes deck cards into quoted csv rows', () => {
@@ -38,5 +38,35 @@ describe('deck csv export', () => {
 
   it('builds a filesystem-safe csv filename from the deck title', () => {
     expect(deckCsvFilename('Vectors / Matrices: Week 1')).toBe('vectors-matrices-week-1.csv')
+  })
+
+  it('serializes an Anki-friendly tab-separated note export', () => {
+    const tsv = buildDeckAnkiTsv({
+      cards: [
+        {
+          frontText: 'What is 2 + 2?',
+          backText: '4',
+          conceptTag: 'addition',
+          tags: ['math', 'easy'],
+        },
+      ],
+    })
+
+    expect(tsv.trim()).toBe('What is 2 + 2?\t4\taddition math easy')
+  })
+
+  it('sanitizes tabs and newlines for anki note exports', () => {
+    const tsv = buildDeckAnkiTsv({
+      cards: [
+        {
+          frontText: 'Line 1\nLine 2',
+          backText: 'Back\tfield',
+          conceptTag: null,
+          tags: ['science'],
+        },
+      ],
+    })
+
+    expect(tsv.trim()).toBe('Line 1 Line 2\tBack field\tscience')
   })
 })

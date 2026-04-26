@@ -190,6 +190,11 @@ export default async function DeckPage({
                     Export CSV
                   </CueButton>
                 </a>
+                <a href={`/deck/${deck.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
+                  <CueButton variant="ghost" size="lg" className="w-full">
+                    Export for Anki
+                  </CueButton>
+                </a>
               </>
             ) : deck.status === 'archived' ? (
               <div className="space-y-3">
@@ -199,6 +204,11 @@ export default async function DeckPage({
                 <a href={`/deck/${deck.id}/export`} className="inline-block w-full max-w-[480px]">
                   <CueButton variant="ghost" size="lg" className="w-full">
                     Export CSV
+                  </CueButton>
+                </a>
+                <a href={`/deck/${deck.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
+                  <CueButton variant="ghost" size="lg" className="w-full">
+                    Export for Anki
                   </CueButton>
                 </a>
                 <ArchiveDeckButton deckId={deck.id} archived />
@@ -218,6 +228,11 @@ export default async function DeckPage({
                     Export CSV
                   </CueButton>
                 </a>
+                <a href={`/deck/${deck.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
+                  <CueButton variant="ghost" size="lg" className="w-full">
+                    Export for Anki
+                  </CueButton>
+                </a>
                 <ReviewReadyButton deckId={deck.id} disabled={!canReady} />
               </>
             ) : deck.status === 'ingesting' ? (
@@ -232,6 +247,11 @@ export default async function DeckPage({
                 <a href={`/deck/${deck.id}/export`} className="inline-block w-full max-w-[480px]">
                   <CueButton variant="ghost" size="lg" className="w-full">
                     Export CSV
+                  </CueButton>
+                </a>
+                <a href={`/deck/${deck.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
+                  <CueButton variant="ghost" size="lg" className="w-full">
+                    Export for Anki
                   </CueButton>
                 </a>
               </div>

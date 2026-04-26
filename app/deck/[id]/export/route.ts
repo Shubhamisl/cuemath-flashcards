@@ -1,13 +1,19 @@
 import { createClient } from '@/lib/db/server'
-import { buildDeckCsv, cardTextFromContent, deckCsvFilename } from '@/lib/export/csv'
+import {
+  buildDeckAnkiTsv,
+  buildDeckCsv,
+  cardTextFromContent,
+  deckCsvFilename,
+} from '@/lib/export/csv'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params
+  const format = new URL(request.url).searchParams.get('format') === 'anki' ? 'anki' : 'csv'
   const supabase = await createClient()
   const {
     data: { user },
@@ -39,24 +45,49 @@ export async function GET(
     return new Response(error.message, { status: 500 })
   }
 
-  const csv = buildDeckCsv({
-    title: deck.title,
-    subjectFamily: deck.subject_family,
-    tags: (deck.tags ?? []) as string[],
-    cards: (cards ?? []).map((card) => ({
-      conceptTag: card.concept_tag,
-      frontText: cardTextFromContent(card.front),
-      backText: cardTextFromContent(card.back),
-      approved: card.approved,
-      suspended: card.suspended,
-    })),
-  })
+  const normalizedCards = (cards ?? []).map((card) => ({
+    conceptTag: card.concept_tag,
+    frontText: cardTextFromContent(card.front),
+    backText: cardTextFromContent(card.back),
+    approved: card.approved,
+    suspended: card.suspended,
+    tags: [
+      ...((deck.tags ?? []) as string[]),
+      ...(card.concept_tag ? [card.concept_tag] : []),
+    ],
+  }))
 
-  return new Response(csv, {
+  const body = format === 'anki'
+    ? buildDeckAnkiTsv({
+        cards: normalizedCards.map((card) => ({
+          conceptTag: card.conceptTag,
+          frontText: card.frontText,
+          backText: card.backText,
+          tags: card.tags,
+        })),
+      })
+    : buildDeckCsv({
+        title: deck.title,
+        subjectFamily: deck.subject_family,
+        tags: (deck.tags ?? []) as string[],
+        cards: normalizedCards.map((card) => ({
+          conceptTag: card.conceptTag,
+          frontText: card.frontText,
+          backText: card.backText,
+          approved: card.approved,
+          suspended: card.suspended,
+        })),
+      })
+
+  return new Response(body, {
     status: 200,
     headers: {
-      'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${deckCsvFilename(deck.title)}"`,
+      'Content-Type': format === 'anki' ? 'text/tab-separated-values; charset=utf-8' : 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="${
+        format === 'anki'
+          ? deckCsvFilename(deck.title).replace(/\.csv$/, '.anki.tsv')
+          : deckCsvFilename(deck.title)
+      }"`,
       'Cache-Control': 'no-store',
     },
   })
