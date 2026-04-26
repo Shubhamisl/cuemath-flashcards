@@ -170,7 +170,8 @@ export function ReviewSession({
       const nextEvents = [...events, { rating, elapsedMs, timestamp: now, hintUsed: hintShown }]
       setEvents(nextEvents)
 
-      const decision = observe(nextEvents, flags)
+      const decision =
+        phase === 'main' ? observe(nextEvents, flags) : { action: 'continue' as const }
 
       if (decision.action === 'inject_easy') {
         setFlags((f) => ({ ...f, injectedEasy: true }))

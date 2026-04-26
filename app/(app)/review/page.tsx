@@ -10,9 +10,9 @@ export const dynamic = 'force-dynamic'
 export default async function ReviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deck?: string; mode?: string }>
+  searchParams: Promise<{ deck?: string; mode?: string; run?: string }>
 }) {
-  const { deck: deckId, mode: rawMode } = await searchParams
+  const { deck: deckId, mode: rawMode, run } = await searchParams
   if (!deckId) redirect('/library')
   const mode = parseReviewMode(rawMode)
 
@@ -43,6 +43,7 @@ export default async function ReviewPage({
         <span className="text-sm opacity-60">{cards.length} cards</span>
       </header>
       <ReviewSession
+        key={`${deckId}:${mode}:${run ?? 'base'}`}
         cards={cards}
         subject={deck.subject_family as subjectFamily}
         deckId={deckId}

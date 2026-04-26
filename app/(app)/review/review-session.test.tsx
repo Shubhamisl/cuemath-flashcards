@@ -6,6 +6,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { ReviewSession } from './review-session'
 import type { SprintCard } from '@/lib/queue/types'
 
+const { observeSpy, fetchEasyCardsSpy } = vi.hoisted(() => ({
+  observeSpy: vi.fn(),
+  fetchEasyCardsSpy: vi.fn(),
+}))
+
 const pushSpy = vi.fn()
 const refreshSpy = vi.fn()
 
@@ -31,11 +36,11 @@ vi.mock('./actions', () => ({
 }))
 
 vi.mock('@/lib/fatigue/easy-cards', () => ({
-  fetchEasyCards: vi.fn(async () => []),
+  fetchEasyCards: fetchEasyCardsSpy,
 }))
 
 vi.mock('@/lib/fatigue/observe', () => ({
-  observe: vi.fn(() => ({ action: 'continue' })),
+  observe: observeSpy,
 }))
 
 function card(overrides: Partial<SprintCard> = {}): SprintCard {
@@ -57,6 +62,10 @@ describe('review-session', () => {
   it('reveals a hint before the answer', async () => {
     pushSpy.mockReset()
     refreshSpy.mockReset()
+    observeSpy.mockReset()
+    observeSpy.mockReturnValue({ action: 'continue' })
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([])
     const user = userEvent.setup()
 
     render(
@@ -82,6 +91,10 @@ describe('review-session', () => {
   it('ends the session from escape before the card is flipped', async () => {
     pushSpy.mockReset()
     refreshSpy.mockReset()
+    observeSpy.mockReset()
+    observeSpy.mockReturnValue({ action: 'continue' })
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([])
     const user = userEvent.setup()
 
     render(
@@ -105,6 +118,10 @@ describe('review-session', () => {
   it('offers a weak-card retry pass after a low rating in the main sprint', async () => {
     pushSpy.mockReset()
     refreshSpy.mockReset()
+    observeSpy.mockReset()
+    observeSpy.mockReturnValue({ action: 'continue' })
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([])
     const user = userEvent.setup()
 
     render(
@@ -131,6 +148,10 @@ describe('review-session', () => {
   it('starts a fresh quick session from the done screen', async () => {
     pushSpy.mockReset()
     refreshSpy.mockReset()
+    observeSpy.mockReset()
+    observeSpy.mockReturnValue({ action: 'continue' })
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([])
     const user = userEvent.setup()
 
     render(
@@ -148,5 +169,42 @@ describe('review-session', () => {
 
     expect(pushSpy).toHaveBeenCalledTimes(1)
     expect(pushSpy.mock.calls[0][0]).toMatch(/^\/review\?deck=deck-1&mode=quick&run=/)
+  })
+
+  it('does not inject easy cards during the weak-card retry loop', async () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
+    observeSpy.mockReset()
+    observeSpy
+      .mockReturnValueOnce({ action: 'continue' })
+      .mockReturnValueOnce({ action: 'inject_easy' })
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([
+      card({
+        id: 'card-2',
+        front: { text: 'Easy check-in' },
+        back: { text: 'Momentum' },
+      }),
+    ])
+    const user = userEvent.setup()
+
+    render(
+      <ReviewSession
+        cards={[card()]}
+        deckId="deck-1"
+        startedAt="2026-04-26T00:00:00.000Z"
+        mode="quick"
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Show answer (Space)' }))
+    await user.click(screen.getByRole('button', { name: 'Forgot (press 1)' }))
+    await user.click(screen.getByRole('button', { name: 'Retry weak cards' }))
+    await user.click(screen.getByRole('button', { name: 'Show answer (Space)' }))
+    await user.click(screen.getByRole('button', { name: 'Forgot (press 1)' }))
+
+    expect(fetchEasyCardsSpy).not.toHaveBeenCalled()
+    expect(await screen.findByText('Nice sprint.')).toBeInTheDocument()
+    expect(screen.queryByText('Easy check-in')).not.toBeInTheDocument()
   })
 })
