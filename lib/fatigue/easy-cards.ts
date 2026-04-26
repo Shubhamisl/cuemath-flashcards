@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/db/server'
+import { buildHintFromBack } from '@/lib/cards/hints'
 import type { SprintCard } from '@/lib/queue/types'
 
 export async function fetchEasyCards(args: {
@@ -29,7 +30,12 @@ export async function fetchEasyCards(args: {
   // We intentionally do NOT require stability > 30 — on early sprints no card
   // has that much stability yet, and inject-easy would never fire. Relative
   // "easier than what you just struggled on" is what matters for morale.
-  const candidates = (data as SprintCard[]).filter(
+  const candidates = (data as Array<Omit<SprintCard, 'hint'>>)
+    .map((card) => ({
+      ...card,
+      hint: buildHintFromBack(card.back.text),
+    }))
+    .filter(
     (c) => !excludeIds.includes(c.id) && (c.fsrs_state?.stability ?? 0) > 0,
   )
   candidates.sort((a, b) => (b.fsrs_state?.stability ?? 0) - (a.fsrs_state?.stability ?? 0))

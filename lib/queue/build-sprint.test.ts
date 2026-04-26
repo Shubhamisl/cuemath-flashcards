@@ -12,6 +12,7 @@ function card(id: string, overrides: Partial<SprintCard> = {}): SprintCard {
     concept_tag: 'A',
     front: { text: `Q${id}` },
     back: { text: `A${id}` },
+    hint: null,
     fsrs_state: null,
     suspended: false,
     approved: true,

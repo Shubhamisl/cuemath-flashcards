@@ -267,6 +267,7 @@ export type Database = {
           elapsed_ms: number | null
           fsrs_state_after: Json | null
           fsrs_state_before: Json | null
+          hint_used: boolean
           id: string
           rated_at: string
           rating: number
@@ -278,6 +279,7 @@ export type Database = {
           elapsed_ms?: number | null
           fsrs_state_after?: Json | null
           fsrs_state_before?: Json | null
+          hint_used?: boolean
           id?: string
           rated_at?: string
           rating: number
@@ -289,6 +291,7 @@ export type Database = {
           elapsed_ms?: number | null
           fsrs_state_after?: Json | null
           fsrs_state_before?: Json | null
+          hint_used?: boolean
           id?: string
           rated_at?: string
           rating?: number
@@ -313,6 +316,7 @@ export type Database = {
           id: string
           mean_accuracy: number | null
           mean_response_ms: number | null
+          mode: string
           started_at: string
           user_id: string
         }
@@ -323,6 +327,7 @@ export type Database = {
           id?: string
           mean_accuracy?: number | null
           mean_response_ms?: number | null
+          mode?: string
           started_at?: string
           user_id: string
         }
@@ -333,6 +338,7 @@ export type Database = {
           id?: string
           mean_accuracy?: number | null
           mean_response_ms?: number | null
+          mode?: string
           started_at?: string
           user_id?: string
         }

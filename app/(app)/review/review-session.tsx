@@ -13,25 +13,30 @@ import { observe, type ReviewEvent } from '@/lib/fatigue/observe'
 import type { SprintCard } from '@/lib/queue/types'
 import type { FsrsRating } from '@/lib/srs/schedule'
 import type { subjectFamily } from '@/lib/brand/tokens'
+import type { ReviewMode } from '@/lib/review/mode'
 
 const SPRINT_MS_CAP = 15 * 60 * 1000
+type SessionEvent = ReviewEvent & { hintUsed: boolean }
 
 export function ReviewSession({
   cards: initialCards,
   subject,
   deckId,
   startedAt,
+  mode,
 }: {
   cards: SprintCard[]
   subject?: subjectFamily
   deckId: string
   startedAt: string
+  mode: ReviewMode
 }) {
   const router = useRouter()
   const [cards, setCards] = useState<SprintCard[]>(initialCards)
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
-  const [events, setEvents] = useState<ReviewEvent[]>([])
+  const [hintShown, setHintShown] = useState(false)
+  const [events, setEvents] = useState<SessionEvent[]>([])
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
   const [showBreak, setShowBreak] = useState(false)
@@ -59,18 +64,24 @@ export function ReviewSession({
   useEffect(() => {
     if (!done || finalized.current || cards.length === 0) return
     finalized.current = true
-    const ratings = events.map((e) => ({ rating: e.rating, elapsedMs: e.elapsedMs }))
+    const ratings = events.map((e) => ({
+      rating: e.rating,
+      elapsedMs: e.elapsedMs,
+      hintUsed: e.hintUsed,
+    }))
     void finalizeSession({
       startedAt,
       endedAt: endedAt ?? new Date().toISOString(),
       ratings,
       breakPromptedAt,
+      mode,
     })
-  }, [done, events, cards.length, breakPromptedAt, endedAt, startedAt])
+  }, [done, events, cards.length, breakPromptedAt, endedAt, startedAt, mode])
 
   function moveToIndex(nextIndex: number) {
     shownAt.current = Date.now()
     setFlipped(false)
+    setHintShown(false)
     if (nextIndex >= cards.length && endedAt === null) {
       setEndedAt(new Date().toISOString())
     }
@@ -83,7 +94,7 @@ export function ReviewSession({
     const elapsedMs = now - (shownAt.current ?? now)
 
     startTransition(async () => {
-      const res = await submitRating({ cardId: current.id, rating, elapsedMs })
+      const res = await submitRating({ cardId: current.id, rating, elapsedMs, hintUsed: hintShown })
       if ('error' in res) {
         setError(res.error)
         return
@@ -93,7 +104,7 @@ export function ReviewSession({
       setLastInterval(res.intervalDays)
       window.setTimeout(() => setLastInterval(null), 2000)
 
-      const nextEvents = [...events, { rating, elapsedMs, timestamp: now }]
+      const nextEvents = [...events, { rating, elapsedMs, timestamp: now, hintUsed: hintShown }]
       setEvents(nextEvents)
 
       const decision = observe(nextEvents, flags)
@@ -129,10 +140,21 @@ export function ReviewSession({
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (done || showBreak) return
+      if (done) return
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        moveToIndex(cards.length)
+        return
+      }
+      if (showBreak) return
       if (e.key === ' ') {
         e.preventDefault()
         setFlipped((f) => !f)
+        return
+      }
+      if (!flipped && current?.hint && (e.key === 'h' || e.key === 'H')) {
+        e.preventDefault()
+        setHintShown(true)
         return
       }
       if (!flipped) return
@@ -140,11 +162,10 @@ export function ReviewSession({
       else if (e.key === '2') rate(2)
       else if (e.key === '3' || e.key === 'Enter') rate(3)
       else if (e.key === '4') rate(4)
-      else if (e.key === 'Escape') moveToIndex(cards.length)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [flipped, done, showBreak, cards.length, pending]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [flipped, done, showBreak, cards.length, pending, current?.hint]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (cards.length === 0) {
     return (
@@ -189,7 +210,7 @@ export function ReviewSession({
 
         <div className="flex flex-col items-center gap-3 w-full max-w-[440px]">
           <CueButton onClick={() => router.refresh()} className="w-full">
-            Another sprint
+            {mode === 'quick' ? 'Another Quick 5' : 'Another sprint'}
           </CueButton>
           <button
             onClick={() => router.push(`/deck/${deckId}`)}
@@ -245,9 +266,31 @@ export function ReviewSession({
             subject={subject}
           />
           {!flipped && (
-            <CueButton className="w-full" onClick={() => setFlipped(true)}>
-              Show answer (Space)
-            </CueButton>
+            <div className="space-y-3">
+              {current.hint && (
+                <>
+                  <CueButton
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setHintShown(true)}
+                    disabled={hintShown}
+                  >
+                    {hintShown ? 'Hint revealed' : 'Reveal hint (H)'}
+                  </CueButton>
+                  {hintShown && (
+                    <CueCard tone="blue" className="shadow-card-rest px-5 py-4 space-y-2">
+                      <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                        Hint
+                      </p>
+                      <p className="text-sm text-ink-black/75">{current.hint}</p>
+                    </CueCard>
+                  )}
+                </>
+              )}
+              <CueButton className="w-full" onClick={() => setFlipped(true)}>
+                Show answer (Space)
+              </CueButton>
+            </div>
           )}
           {flipped && <RatingBar disabled={pending} onRate={rate} />}
 
@@ -269,7 +312,9 @@ export function ReviewSession({
         </p>
       )}
       {error && <p className="text-sm text-red-700">{error}</p>}
-      <p className="text-xs text-center opacity-50">Esc to end early</p>
+      <p className="text-xs text-center opacity-50">
+        {current?.hint ? 'H for hint, Space for answer, Esc to end early' : 'Space for answer, Esc to end early'}
+      </p>
     </div>
   )
 }

@@ -11,6 +11,7 @@ export async function submitRating(args: {
   cardId: string
   rating: FsrsRating
   elapsedMs: number
+  hintUsed: boolean
 }): Promise<{ ok: true; intervalDays: number } | { error: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -53,6 +54,7 @@ export async function submitRating(args: {
     rated_at: now.toISOString(),
     rating: args.rating,
     elapsed_ms: args.elapsedMs,
+    hint_used: args.hintUsed,
     scheduled_days_before: scheduledDaysBefore,
     fsrs_state_before: before,
     fsrs_state_after: nextState,
@@ -75,8 +77,9 @@ export async function submitRating(args: {
 export async function finalizeSession(args: {
   startedAt: string
   endedAt: string
-  ratings: { rating: FsrsRating; elapsedMs: number }[]
+  ratings: { rating: FsrsRating; elapsedMs: number; hintUsed: boolean }[]
   breakPromptedAt: string | null
+  mode: 'standard' | 'quick'
 }): Promise<{ ok: true } | { error: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -93,6 +96,7 @@ export async function finalizeSession(args: {
     started_at: args.startedAt,
     ended_at: args.endedAt,
     cards_reviewed: total,
+    mode: args.mode,
     mean_accuracy: meanAccuracy,
     mean_response_ms: meanResponseMs,
     break_prompted_at: args.breakPromptedAt,

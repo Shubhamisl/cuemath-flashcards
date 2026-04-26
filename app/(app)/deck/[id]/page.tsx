@@ -8,6 +8,7 @@ import { MasteryRing } from '@/components/mastery-ring'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
 import { tierToTone } from '@/lib/progress/tier-tone'
 import { canMarkDeckReady, summarizeReviewGate } from '@/lib/decks/review-gate'
+import { labelForMode } from '@/lib/review/mode'
 import { DeleteDeckButton } from './delete-deck-button'
 import { RenameDeckForm } from './rename-deck-form'
 import { ReviewReadyButton } from './review-ready-button'
@@ -200,14 +201,23 @@ export default async function DeckPage({
           <div className="space-y-3">
             {deck.status === 'ready' ? (
               <>
-                <Link href={`/review?deck=${deck.id}`} className="inline-block w-full max-w-[480px]">
-                  <CueButton size="lg" className="w-full" disabled={stats.dueCount === 0}>
-                    {stats.dueCount > 0 ? 'Start sprint' : 'All caught up'}
-                  </CueButton>
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-3 w-full max-w-[480px]">
+                  <Link href={`/review?deck=${deck.id}`} className="inline-block flex-1">
+                    <CueButton size="lg" className="w-full" disabled={stats.dueCount === 0}>
+                      {stats.dueCount > 0 ? 'Start sprint' : 'All caught up'}
+                    </CueButton>
+                  </Link>
+                  {stats.dueCount > 0 && (
+                    <Link href={`/review?deck=${deck.id}&mode=quick`} className="inline-block flex-1">
+                      <CueButton variant="ghost" size="lg" className="w-full">
+                        {labelForMode('quick')}
+                      </CueButton>
+                    </Link>
+                  )}
+                </div>
                 <p className="text-sm text-ink-black/70 max-w-[480px]">
                   {stats.dueCount > 0
-                    ? 'Up to 20 approved cards ready for review.'
+                    ? 'Choose a full sprint or a shorter Quick 5 with hints available during review.'
                     : 'Nothing due right now. Check back later.'}
                 </p>
               </>
