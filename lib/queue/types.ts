@@ -6,6 +6,7 @@ export type SprintCard = {
   concept_tag: string | null
   front: { text: string }
   back: { text: string }
+  hint: string | null
   fsrs_state: FsrsCardState | null  // null = never reviewed ("new")
   suspended: boolean
   approved: boolean

@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/db/server'
 import { schedule, initialState, type FsrsCardState, type FsrsRating } from '@/lib/srs/schedule'
 import { getReviewBlockReason } from '@/lib/decks/review-gate'
+import { computeSessionPreview, type SessionPreview } from '@/lib/review/session-preview'
 
 const LEECH_LAPSES = 6
 const LEECH_REPS = 10
@@ -11,6 +12,7 @@ export async function submitRating(args: {
   cardId: string
   rating: FsrsRating
   elapsedMs: number
+  hintUsed: boolean
 }): Promise<{ ok: true; intervalDays: number } | { error: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -53,6 +55,7 @@ export async function submitRating(args: {
     rated_at: now.toISOString(),
     rating: args.rating,
     elapsed_ms: args.elapsedMs,
+    hint_used: args.hintUsed,
     scheduled_days_before: scheduledDaysBefore,
     fsrs_state_before: before,
     fsrs_state_after: nextState,
@@ -75,8 +78,9 @@ export async function submitRating(args: {
 export async function finalizeSession(args: {
   startedAt: string
   endedAt: string
-  ratings: { rating: FsrsRating; elapsedMs: number }[]
+  ratings: { rating: FsrsRating; elapsedMs: number; hintUsed: boolean }[]
   breakPromptedAt: string | null
+  mode: 'standard' | 'quick'
 }): Promise<{ ok: true } | { error: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -93,10 +97,30 @@ export async function finalizeSession(args: {
     started_at: args.startedAt,
     ended_at: args.endedAt,
     cards_reviewed: total,
+    mode: args.mode,
     mean_accuracy: meanAccuracy,
     mean_response_ms: meanResponseMs,
     break_prompted_at: args.breakPromptedAt,
   })
   if (error) return { error: error.message }
   return { ok: true }
+}
+
+export async function getSessionPreview(
+  deckId: string,
+): Promise<SessionPreview | { error: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not signed in' }
+
+  const { data, error } = await supabase
+    .from('cards')
+    .select('concept_tag, fsrs_state')
+    .eq('deck_id', deckId)
+    .eq('user_id', user.id)
+    .eq('approved', true)
+    .eq('suspended', false)
+
+  if (error) return { error: error.message }
+  return computeSessionPreview((data ?? []) as Array<{ concept_tag: string | null; fsrs_state: { due?: string; lapses?: number } | null }>, new Date())
 }

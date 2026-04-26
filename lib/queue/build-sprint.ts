@@ -1,5 +1,6 @@
 import type { SprintCard } from './types'
 import { createClient } from '@/lib/db/server'
+import { buildHintFromBack } from '@/lib/cards/hints'
 
 function isDue(c: SprintCard, now: Date): boolean {
   if (c.suspended) return false
@@ -57,5 +58,9 @@ export async function buildSprint(args: {
     .eq('approved', true)
     .limit(500)
   if (error) throw error
-  return buildSprintFromCards((data ?? []) as SprintCard[], now, args.size)
+  const rows = ((data ?? []) as Array<Omit<SprintCard, 'hint'>>).map((card) => ({
+    ...card,
+    hint: buildHintFromBack(card.back.text),
+  }))
+  return buildSprintFromCards(rows, now, args.size)
 }
