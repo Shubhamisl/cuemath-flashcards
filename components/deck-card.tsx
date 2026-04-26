@@ -16,7 +16,7 @@ type Props = {
   id: string
   title: string
   subjectFamily: subjectFamily
-  status: 'ingesting' | 'draft' | 'ready' | 'failed'
+  status: 'ingesting' | 'draft' | 'ready' | 'failed' | 'archived'
   cardCount: number
   tier?: Tier
   masteryPct?: number
@@ -138,10 +138,11 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tier, ma
           <div className="size-16" />
         )}
         <div className="flex flex-col items-end gap-1.5">
-          {status === 'draft' && <CuePill tone="warning">Draft</CuePill>}
-          {status === 'ready' && tier && (
-            <CuePill tone={tierToTone(tier)}>{tier}</CuePill>
-          )}
+        {status === 'draft' && <CuePill tone="warning">Draft</CuePill>}
+        {status === 'archived' && <CuePill tone="neutral">Archived</CuePill>}
+        {status === 'ready' && tier && (
+          <CuePill tone={tierToTone(tier)}>{tier}</CuePill>
+        )}
           {status === 'ready' && typeof dueCount === 'number' && dueCount > 0 && (
             <CuePill tone="info">{dueCount} due</CuePill>
           )}
@@ -156,6 +157,9 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tier, ma
         )}
         {status === 'draft' && (
           <div className="text-sm text-ink-black/60">{cardCount} cards - review before study</div>
+        )}
+        {status === 'archived' && (
+          <div className="text-sm text-ink-black/60">{cardCount} cards - hidden from active study</div>
         )}
         {active && (
           <div className="text-sm text-ink-black/60">
@@ -182,6 +186,12 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tier, ma
         </div>
       )}
 
+      {status === 'archived' && (
+        <div className="mt-auto text-xs uppercase tracking-[0.08em] text-ink-black/60">
+          Archived
+        </div>
+      )}
+
       {status === 'failed' && (
         <div className="mt-auto flex items-center gap-2">
           <CueButton variant="ghost" onClick={onRetry} disabled={pending}>
@@ -200,7 +210,7 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tier, ma
     </div>
   )
 
-  if (status === 'ready' || status === 'draft') {
+  if (status === 'ready' || status === 'draft' || status === 'archived') {
     return (
       <div className="relative group/card">
         {confirmDelete && deleteConfirmUI}

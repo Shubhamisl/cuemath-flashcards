@@ -7,9 +7,11 @@ import { CuePill } from '@/lib/brand/primitives/pill'
 import { MasteryRing } from '@/components/mastery-ring'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
 import { tierToTone } from '@/lib/progress/tier-tone'
+import { canArchiveDeck } from '@/lib/decks/archive'
 import { canMarkDeckReady, summarizeReviewGate } from '@/lib/decks/review-gate'
 import { labelForMode } from '@/lib/review/mode'
 import { computeSessionPreview } from '@/lib/review/session-preview'
+import { ArchiveDeckButton } from './archive-deck-button'
 import { DeleteDeckButton } from './delete-deck-button'
 import { RenameDeckForm } from './rename-deck-form'
 import { ReviewReadyButton } from './review-ready-button'
@@ -75,6 +77,7 @@ export default async function DeckPage({
     new Date(),
   )
   const canReady = canMarkDeckReady(deck.status, gateSummary)
+  const canArchive = canArchiveDeck(deck.status)
 
   const { data: reviewedCards } = await supabase
     .from('cards')
@@ -126,6 +129,7 @@ export default async function DeckPage({
               {deck.status === 'draft' && <CuePill tone="warning">Draft</CuePill>}
               {deck.status === 'ingesting' && <CuePill tone="info">Processing</CuePill>}
               {deck.status === 'failed' && <CuePill tone="warning">Failed</CuePill>}
+              {deck.status === 'archived' && <CuePill tone="neutral">Archived</CuePill>}
             </div>
             <RenameDeckForm deckId={deck.id} initialTitle={deck.title} />
           </div>
@@ -180,6 +184,13 @@ export default async function DeckPage({
                     : 'Nothing due right now. Check back later.'}
                 </p>
               </>
+            ) : deck.status === 'archived' ? (
+              <div className="space-y-3">
+                <p className="text-sm text-ink-black/70 max-w-[480px]">
+                  This deck is archived, so it stays out of the default library and review queue until you restore it.
+                </p>
+                <ArchiveDeckButton deckId={deck.id} archived />
+              </div>
             ) : deck.status === 'draft' ? (
               <>
                 <Link href={`/deck/${deck.id}/cards`} className="inline-block w-full max-w-[480px]">
@@ -247,6 +258,8 @@ export default async function DeckPage({
               </div>
             </div>
           )}
+
+          {canArchive && <ArchiveDeckButton deckId={deck.id} archived={false} />}
 
           <DeleteDeckButton deckId={deck.id} deckTitle={deck.title} />
         </div>

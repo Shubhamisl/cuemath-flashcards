@@ -9,14 +9,32 @@ import { CueButton } from '@/lib/brand/primitives/button'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
 import { computeStreak } from '@/lib/progress/streak'
 import type { subjectFamily } from '@/lib/brand/tokens'
+import {
+  filterAndSortDecks,
+  type LibraryMasteryFilter,
+  type LibrarySort,
+  type LibraryStatusFilter,
+} from '@/lib/library/library-view'
 import { TopNav } from '../_components/top-nav'
 
 export default async function LibraryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; sort?: string }>
+  searchParams: Promise<{
+    q?: string
+    sort?: string
+    subject?: string
+    status?: string
+    mastery?: string
+  }>
 }) {
-  const { q = '', sort = 'created' } = await searchParams
+  const {
+    q = '',
+    sort = 'created',
+    subject = 'all',
+    status = 'active',
+    mastery = 'all',
+  } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -62,14 +80,16 @@ export default async function LibraryPage({
     .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
 
-  const readyIds = (decks ?? []).filter((d) => d.status === 'ready').map((d) => d.id)
+  const studyDeckIds = (decks ?? [])
+    .filter((d) => d.status === 'ready' || d.status === 'archived')
+    .map((d) => d.id)
   const statsByDeck: Record<string, { tier: string; masteryPct: number; dueCount: number }> = {}
-  if (readyIds.length > 0) {
+  if (studyDeckIds.length > 0) {
     const { data: cardsRaw } = await supabase
       .from('cards')
       .select('deck_id, fsrs_state, suspended')
       .eq('user_id', user!.id)
-      .in('deck_id', readyIds)
+      .in('deck_id', studyDeckIds)
     const grouped: Record<string, StatCard[]> = {}
     for (const r of cardsRaw ?? []) {
       const row = r as { deck_id: string } & StatCard
@@ -80,32 +100,35 @@ export default async function LibraryPage({
       statsByDeck[id] = { tier: s.tier, masteryPct: s.masteryPct, dueCount: s.dueCount }
     }
   }
-  const globalDueNowCount = readyIds.reduce(
-    (sum, id) => sum + (statsByDeck[id]?.dueCount ?? 0),
-    0,
-  )
+  const globalDueNowCount = (decks ?? [])
+    .filter((deck) => deck.status === 'ready')
+    .reduce(
+      (sum, deck) => sum + (statsByDeck[deck.id]?.dueCount ?? 0),
+      0,
+    )
 
   const fullName = profile?.display_name ?? 'there'
   const name = fullName.split(' ')[0] ?? 'there'
 
-  // Filter by title search
-  let filtered = (decks ?? []).filter((d) =>
-    q ? d.title.toLowerCase().includes(q.toLowerCase()) : true,
+  const filtered = filterAndSortDecks(
+    (decks ?? []).map((deck) => ({
+      id: deck.id,
+      title: deck.title,
+      subjectFamily: deck.subject_family as subjectFamily,
+      status: deck.status,
+      cardCount: deck.card_count,
+      tier: statsByDeck[deck.id]?.tier as import('@/lib/progress/deck-stats').Tier | undefined,
+      masteryPct: statsByDeck[deck.id]?.masteryPct,
+      dueCount: statsByDeck[deck.id]?.dueCount,
+    })),
+    {
+      query: q,
+      sort: sort as LibrarySort,
+      subject: subject as 'all' | subjectFamily,
+      status: status as LibraryStatusFilter,
+      mastery: mastery as LibraryMasteryFilter,
+    },
   )
-
-  // Sort
-  if (sort === 'title') {
-    filtered = filtered.sort((a, b) => a.title.localeCompare(b.title))
-  } else if (sort === 'due') {
-    filtered = filtered.sort(
-      (a, b) => (statsByDeck[b.id]?.dueCount ?? 0) - (statsByDeck[a.id]?.dueCount ?? 0),
-    )
-  } else if (sort === 'mastery') {
-    filtered = filtered.sort(
-      (a, b) => (statsByDeck[a.id]?.masteryPct ?? 0) - (statsByDeck[b.id]?.masteryPct ?? 0),
-    )
-  }
-  // default 'created' is already ordered by created_at DESC from Supabase
 
   const dailyGoal = profile?.daily_goal_cards ?? 20
   const progressPct = Math.min(100, Math.round((doneToday / dailyGoal) * 100))
@@ -152,7 +175,13 @@ export default async function LibraryPage({
         </header>
 
         <Suspense>
-          <SearchSortBar initialQ={q} initialSort={sort} />
+          <SearchSortBar
+            initialQ={q}
+            initialSort={sort as LibrarySort}
+            initialSubject={subject as 'all' | subjectFamily}
+            initialStatus={status as LibraryStatusFilter}
+            initialMastery={mastery as LibraryMasteryFilter}
+          />
         </Suspense>
 
         {(!decks || decks.length === 0) ? (
@@ -167,22 +196,19 @@ export default async function LibraryPage({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filtered.map((d) => {
-              const s = statsByDeck[d.id]
-              return (
-                <DeckCard
-                  key={d.id}
-                  id={d.id}
-                  title={d.title}
-                  subjectFamily={d.subject_family as subjectFamily}
-                  status={d.status as 'ingesting' | 'draft' | 'ready' | 'failed'}
-                  cardCount={d.card_count}
-                  tier={s?.tier as import('@/lib/progress/deck-stats').Tier | undefined}
-                  masteryPct={s?.masteryPct}
-                  dueCount={s?.dueCount}
-                />
-              )
-            })}
+            {filtered.map((d) => (
+              <DeckCard
+                key={d.id}
+                id={d.id}
+                title={d.title}
+                subjectFamily={d.subjectFamily}
+                status={d.status as 'ingesting' | 'draft' | 'ready' | 'failed' | 'archived'}
+                cardCount={d.cardCount}
+                tier={d.tier}
+                masteryPct={d.masteryPct}
+                dueCount={d.dueCount}
+              />
+            ))}
           </div>
         )}
       </div>

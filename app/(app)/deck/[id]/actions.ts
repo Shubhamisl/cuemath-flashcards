@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/db/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { canArchiveDeck, canRestoreDeck, restoreStatusForArchivedDeck } from '@/lib/decks/archive'
 import { canMarkDeckReady, summarizeReviewGate } from '@/lib/decks/review-gate'
 
 export async function renameDeck(
@@ -107,6 +108,74 @@ export async function markDeckReady(
   revalidatePath(`/deck/${deckId}`)
   revalidatePath(`/deck/${deckId}/cards`)
   revalidatePath('/library')
+  revalidatePath('/review')
+  return { ok: true }
+}
+
+export async function archiveDeck(
+  deckId: string,
+): Promise<{ ok: true } | { error: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: deck } = await supabase
+    .from('decks')
+    .select('status')
+    .eq('id', deckId)
+    .eq('user_id', user.id)
+    .single()
+  if (!deck) return { error: 'Deck not found' }
+  if (!canArchiveDeck(deck.status)) {
+    return { error: 'Only ready decks can be archived right now.' }
+  }
+
+  const { error } = await supabase
+    .from('decks')
+    .update({ status: 'archived' })
+    .eq('id', deckId)
+    .eq('user_id', user.id)
+  if (error) return { error: error.message }
+
+  revalidatePath(`/deck/${deckId}`)
+  revalidatePath('/library')
+  revalidatePath('/progress')
+  revalidatePath('/review')
+  return { ok: true }
+}
+
+export async function restoreDeck(
+  deckId: string,
+): Promise<{ ok: true } | { error: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: deck } = await supabase
+    .from('decks')
+    .select('status')
+    .eq('id', deckId)
+    .eq('user_id', user.id)
+    .single()
+  if (!deck) return { error: 'Deck not found' }
+  if (!canRestoreDeck(deck.status)) {
+    return { error: 'This deck is not archived.' }
+  }
+
+  const { error } = await supabase
+    .from('decks')
+    .update({ status: restoreStatusForArchivedDeck(deck.status) })
+    .eq('id', deckId)
+    .eq('user_id', user.id)
+  if (error) return { error: error.message }
+
+  revalidatePath(`/deck/${deckId}`)
+  revalidatePath('/library')
+  revalidatePath('/progress')
   revalidatePath('/review')
   return { ok: true }
 }
