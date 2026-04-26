@@ -15,7 +15,7 @@
 - **Stage 1 still open:** page-range upload, source page/chunk visibility in card review, single-card regenerate from source chunk, and clearer scanned/low-text PDF warning states.
 - **Stage 2 remaining policy gap:** changing FSRS scheduling based on `hint_used`. We already persist hint usage, but any mastery penalty should be treated as a data-backed scheduling policy decision, not a casual FSRS rewrite.
 - **Stage 3 baseline:** dashboard, weak-concept drill, weekly summary, and multi-week activity view are now shipped. A later UI/UX overhaul can revisit presentation polish without changing the underlying metrics model.
-- **Stage 4 baseline:** daily new-card caps, mature-card interval fuzz, and a global review queue are now shipped. Warm-up and cool-down structure is the next scheduling slice.
+- **Stage 4 baseline:** daily new-card caps, mature-card interval fuzz, the global review queue, and warm-up/cool-down queue structure are now shipped. Stage 5 is the next major roadmap move.
 
 ---
 
@@ -186,7 +186,7 @@
 - Daily new-card caps per deck and globally are shipped.
 - Mature-card interval fuzz to avoid same-day review cliffs is shipped.
 - A global review queue across decks is shipped.
-- Add warm-up and cool-down cards around harder sprint blocks.
+- Warm-up and cool-down cards around harder sprint blocks are shipped.
 - Add optional cross-deck surprise retrieval once the global queue exists.
 - Defer personalized FSRS weights until there is enough review data and a clear evaluation approach.
 

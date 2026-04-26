@@ -10,6 +10,8 @@ type NewCardBudget = {
   remainingByDeck: Record<string, number>
 }
 
+type StructureMode = 'standard' | 'quick'
+
 function isDue(c: SprintCard, now: Date): boolean {
   if (c.suspended) return false
   if (!c.approved) return false
@@ -38,6 +40,38 @@ function interleave(cards: SprintCard[]): SprintCard[] {
   return out
 }
 
+function reviewEaseScore(card: SprintCard): number {
+  if (!card.fsrs_state) return Number.NEGATIVE_INFINITY
+  return (
+    card.fsrs_state.stability * 100 -
+    card.fsrs_state.difficulty * 10 -
+    card.fsrs_state.lapses * 5
+  )
+}
+
+function applyWarmupCooldownStructure(cards: SprintCard[], mode: StructureMode): SprintCard[] {
+  if (mode !== 'standard' || cards.length < 6) {
+    return cards
+  }
+
+  const reviewCards = cards
+    .filter((card) => card.fsrs_state !== null)
+    .sort((a, b) => {
+      const scoreDiff = reviewEaseScore(b) - reviewEaseScore(a)
+      if (scoreDiff !== 0) return scoreDiff
+      return a.id.localeCompare(b.id)
+    })
+
+  if (reviewCards.length < 2) {
+    return cards
+  }
+
+  const warmup = reviewCards[0]
+  const cooldown = reviewCards[1]
+  const middle = cards.filter((card) => card.id !== warmup.id && card.id !== cooldown.id)
+  return [warmup, ...middle, cooldown]
+}
+
 function computeGlobalNewCardCap(dailyGoalCards: number): number {
   return Math.max(1, Math.min(dailyGoalCards, DEFAULT_GLOBAL_NEW_CARD_CAP))
 }
@@ -59,6 +93,7 @@ export function buildSprintFromCardsWithFilter(
   options?: {
     conceptTag?: string
     newCardBudget?: NewCardBudget
+    structureMode?: StructureMode
   },
 ): SprintCard[] {
   const eligible = cards.filter((c) => {
@@ -95,12 +130,16 @@ export function buildSprintFromCardsWithFilter(
     selected.push(card)
   }
 
-  return interleave(selected)
+  return applyWarmupCooldownStructure(
+    interleave(selected),
+    options?.structureMode ?? 'quick',
+  )
 }
 
 export async function buildSprint(args: {
   userId: string
   size: number
+  mode?: StructureMode
   deckId?: string
   conceptTag?: string
   readyDeckIds?: string[]
@@ -170,5 +209,6 @@ export async function buildSprint(args: {
       remainingGlobal: Math.max(0, globalCap - reviewedNewIds.size),
       remainingByDeck,
     },
+    structureMode: args.mode ?? 'quick',
   })
 }

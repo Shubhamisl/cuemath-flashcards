@@ -128,4 +128,40 @@ describe('queue/build-sprint', () => {
     })
     expect(out.map((c) => c.id)).toEqual(['deck1-new-1', 'deck2-new-1', 'deck2-old'])
   })
+
+  it('adds an easy warm-up and cool-down around standard sprints', () => {
+    const input = [
+      card('new-a'),
+      card('new-b', { concept_tag: 'B' }),
+      card('hard-a', { concept_tag: 'A', fsrs_state: dueState(4, 2) }),
+      card('hard-b', { concept_tag: 'B', fsrs_state: dueState(3, 3) }),
+      card('warmup', { concept_tag: 'C', fsrs_state: dueState(1, 40) }),
+      card('cooldown', { concept_tag: 'D', fsrs_state: dueState(1, 30) }),
+    ]
+
+    const out = buildSprintFromCardsWithFilter(input, now, 10, {
+      structureMode: 'standard',
+    })
+
+    expect(out[0]?.id).toBe('warmup')
+    expect(out.at(-1)?.id).toBe('cooldown')
+  })
+
+  it('leaves quick review queues unstructured', () => {
+    const input = [
+      card('new-a'),
+      card('new-b', { concept_tag: 'B' }),
+      card('hard-a', { concept_tag: 'A', fsrs_state: dueState(4, 2) }),
+      card('hard-b', { concept_tag: 'B', fsrs_state: dueState(3, 3) }),
+      card('warmup', { concept_tag: 'C', fsrs_state: dueState(1, 40) }),
+      card('cooldown', { concept_tag: 'D', fsrs_state: dueState(1, 30) }),
+    ]
+
+    const out = buildSprintFromCardsWithFilter(input, now, 10, {
+      structureMode: 'quick',
+    })
+
+    expect(out[0]?.id).toBe('new-a')
+    expect(out.at(-1)?.id).not.toBe('cooldown')
+  })
 })

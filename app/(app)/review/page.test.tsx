@@ -92,6 +92,8 @@ describe('review/page', () => {
     expect(redirectSpy).not.toHaveBeenCalledWith('/library')
     expect(buildSprintSpy).toHaveBeenCalledWith({
       userId: 'user-1',
+      conceptTag: undefined,
+      mode: 'standard',
       readyDeckIds: ['deck-1', 'deck-2'],
       size: 20,
     })

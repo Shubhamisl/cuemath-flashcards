@@ -50,6 +50,7 @@ export default async function ReviewPage({
       userId: user.id,
       deckId,
       conceptTag,
+      mode,
       size: sprintSizeForMode(mode),
     })
   } else {
@@ -67,6 +68,7 @@ export default async function ReviewPage({
       userId: user.id,
       conceptTag,
       readyDeckIds,
+      mode,
       size: sprintSizeForMode(mode),
     })
   }
