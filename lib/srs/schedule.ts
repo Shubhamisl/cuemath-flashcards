@@ -22,6 +22,9 @@ export type ScheduleResult = {
 }
 
 const fsrs = new FSRS(generatorParameters())
+const MATURE_FUZZ_MIN_INTERVAL_DAYS = 7
+const MATURE_FUZZ_MIN_STABILITY = 14
+const MATURE_FUZZ_MAX_DAYS = 3
 
 function toFsrs(state: FsrsCardState): FsrsCard {
   return {
@@ -57,6 +60,54 @@ export function initialState(): FsrsCardState {
   return fromFsrs(createEmptyCard(new Date(0)))
 }
 
+function shouldFuzz(state: FsrsCardState, intervalDays: number): boolean {
+  return (
+    state.state === 2 &&
+    intervalDays >= MATURE_FUZZ_MIN_INTERVAL_DAYS &&
+    state.stability >= MATURE_FUZZ_MIN_STABILITY
+  )
+}
+
+function hashString(input: string): number {
+  let hash = 0
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0
+  }
+  return hash
+}
+
+function applyMatureCardFuzz(state: FsrsCardState, dueDate: Date, now: Date): FsrsCardState {
+  const baseIntervalDays = Math.max(
+    0,
+    Math.round((dueDate.getTime() - now.getTime()) / 86400000),
+  )
+  if (!shouldFuzz(state, baseIntervalDays)) {
+    return state
+  }
+
+  const windowDays = Math.min(
+    MATURE_FUZZ_MAX_DAYS,
+    Math.max(1, Math.round(baseIntervalDays * 0.15)),
+  )
+  const seed = [
+    state.due,
+    state.stability.toFixed(4),
+    state.difficulty.toFixed(4),
+    String(state.reps),
+    String(state.lapses),
+    String(state.scheduled_days),
+  ].join('|')
+  const offset = (hashString(seed) % (windowDays * 2 + 1)) - windowDays
+  const fuzzedIntervalDays = Math.max(1, baseIntervalDays + offset)
+  const fuzzedDue = new Date(now.getTime() + fuzzedIntervalDays * 86400000)
+
+  return {
+    ...state,
+    due: fuzzedDue.toISOString(),
+    scheduled_days: fuzzedIntervalDays,
+  }
+}
+
 export function schedule(state: FsrsCardState, rating: FsrsRating, now: Date): ScheduleResult {
   const ratingMap: Record<FsrsRating, Grade> = {
     1: Rating.Again,
@@ -65,7 +116,7 @@ export function schedule(state: FsrsCardState, rating: FsrsRating, now: Date): S
     4: Rating.Easy,
   }
   const record = fsrs.next(toFsrs(state), now, ratingMap[rating])
-  const next = fromFsrs(record.card)
+  const next = applyMatureCardFuzz(fromFsrs(record.card), new Date(record.card.due), now)
   const dueDate = new Date(next.due)
   const intervalDays = Math.max(
     0,
