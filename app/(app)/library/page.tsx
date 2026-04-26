@@ -8,6 +8,7 @@ import { SearchSortBar } from '@/components/search-sort-bar'
 import { CueButton } from '@/lib/brand/primitives/button'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
 import { computeStreak } from '@/lib/progress/streak'
+import type { IngestJobSnapshot } from '@/lib/ingest/diagnostics'
 import type { subjectFamily } from '@/lib/brand/tokens'
 import {
   filterAndSortDecks,
@@ -79,6 +80,30 @@ export default async function LibraryPage({
     .select('id, title, subject_family, status, card_count, tags')
     .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
+
+  const latestJobByDeck: Record<string, IngestJobSnapshot> = {}
+  const ingestDeckIds = (decks ?? [])
+    .filter((deck) => deck.status === 'ingesting' || deck.status === 'failed')
+    .map((deck) => deck.id)
+  if (ingestDeckIds.length > 0) {
+    const { data: ingestJobs } = await supabase
+      .from('ingest_jobs')
+      .select('deck_id, stage, progress_pct, error, started_at, finished_at')
+      .in('deck_id', ingestDeckIds)
+      .order('started_at', { ascending: false })
+
+    for (const job of ingestJobs ?? []) {
+      if (!latestJobByDeck[job.deck_id]) {
+        latestJobByDeck[job.deck_id] = {
+          stage: job.stage,
+          progress_pct: job.progress_pct,
+          error: job.error,
+          started_at: job.started_at,
+          finished_at: job.finished_at,
+        }
+      }
+    }
+  }
 
   const studyDeckIds = (decks ?? [])
     .filter((d) => d.status === 'ready' || d.status === 'archived')
@@ -209,6 +234,7 @@ export default async function LibraryPage({
                 tier={d.tier}
                 masteryPct={d.masteryPct}
                 dueCount={d.dueCount}
+                initialJob={latestJobByDeck[d.id] ?? null}
               />
             ))}
           </div>

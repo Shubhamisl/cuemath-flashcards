@@ -131,5 +131,6 @@ export async function retryIngest(deckId: string): Promise<{ ok: true; jobId: st
   void fetch(`${proto}://${host}/api/ingest/${job.id}`, { method: 'POST' }).catch(() => {})
 
   revalidatePath('/library')
+  revalidatePath(`/deck/${deckId}`)
   return { ok: true, jobId: job.id }
 }

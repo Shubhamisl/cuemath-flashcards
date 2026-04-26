@@ -11,6 +11,12 @@ import { canArchiveDeck } from '@/lib/decks/archive'
 import { canMarkDeckReady, summarizeReviewGate } from '@/lib/decks/review-gate'
 import { labelForMode } from '@/lib/review/mode'
 import { computeSessionPreview } from '@/lib/review/session-preview'
+import {
+  buildIngestDiagnostics,
+  getIngestStageLabel,
+  type DeckStatus,
+  type IngestJobSnapshot,
+} from '@/lib/ingest/diagnostics'
 import { ArchiveDeckButton } from './archive-deck-button'
 import { DeckTagsForm } from './deck-tags-form'
 import { DeleteDeckButton } from './delete-deck-button'
@@ -55,6 +61,7 @@ export default async function DeckPage({
     .eq('user_id', user.id)
     .single()
   if (!deck) notFound()
+  const deckRow = deck
 
   const { data: cards } = await supabase
     .from('cards')
@@ -77,8 +84,8 @@ export default async function DeckPage({
       .map((card) => ({ fsrs_state: card.fsrs_state, suspended: card.suspended })),
     new Date(),
   )
-  const canReady = canMarkDeckReady(deck.status, gateSummary)
-  const canArchive = canArchiveDeck(deck.status)
+  const canReady = canMarkDeckReady(deckRow.status, gateSummary)
+  const canArchive = canArchiveDeck(deckRow.status)
 
   const { data: reviewedCards } = await supabase
     .from('cards')
@@ -96,6 +103,25 @@ export default async function DeckPage({
     }>,
     new Date(),
   )
+  const { data: latestJob } = await supabase
+    .from('ingest_jobs')
+    .select('stage, progress_pct, error, started_at, finished_at')
+    .eq('deck_id', id)
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const ingestJob = (latestJob ?? null) as IngestJobSnapshot | null
+  const ingestDiagnostics = buildIngestDiagnostics({
+    status: deckRow.status as DeckStatus,
+    job: ingestJob,
+  })
+
+  async function retryFailedDeck() {
+    'use server'
+
+    const { retryIngest } = await import('../../library/actions')
+    await retryIngest(deckRow.id)
+  }
 
   return (
     <main className="min-h-screen">
@@ -127,22 +153,22 @@ export default async function DeckPage({
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-3">
               <CuePill tone={tierToTone(stats.tier)}>{stats.tier}</CuePill>
-              {deck.status === 'draft' && <CuePill tone="warning">Draft</CuePill>}
-              {deck.status === 'ingesting' && <CuePill tone="info">Processing</CuePill>}
-              {deck.status === 'failed' && <CuePill tone="warning">Failed</CuePill>}
-              {deck.status === 'archived' && <CuePill tone="neutral">Archived</CuePill>}
+              {deckRow.status === 'draft' && <CuePill tone="warning">Draft</CuePill>}
+              {deckRow.status === 'ingesting' && <CuePill tone="info">Processing</CuePill>}
+              {deckRow.status === 'failed' && <CuePill tone="warning">Failed</CuePill>}
+              {deckRow.status === 'archived' && <CuePill tone="neutral">Archived</CuePill>}
             </div>
-            <RenameDeckForm deckId={deck.id} initialTitle={deck.title} />
-            <DeckTagsForm deckId={deck.id} initialTags={(deck.tags ?? []) as string[]} />
+            <RenameDeckForm deckId={deckRow.id} initialTitle={deckRow.title} />
+            <DeckTagsForm deckId={deckRow.id} initialTags={(deckRow.tags ?? []) as string[]} />
           </div>
 
           <div className="grid grid-cols-3 gap-4 max-w-[600px]">
-            <StatTile value={deck.card_count ?? 0} label="Total" />
+            <StatTile value={deckRow.card_count ?? 0} label="Total" />
             <StatTile value={gateSummary.approvedCount} label="Approved" />
             <StatTile value={`${stats.masteryPct}%`} label="Mastery" />
           </div>
 
-          {deck.status === 'draft' && (
+          {deckRow.status === 'draft' && (
             <div className="max-w-[520px] rounded-card border border-amber-200 bg-amber-50 px-5 py-4 space-y-2">
               <p className="font-display font-semibold text-sm text-ink-black">Review gate</p>
               <p className="text-sm text-ink-black/70">
@@ -164,16 +190,16 @@ export default async function DeckPage({
           )}
 
           <div className="space-y-3">
-            {deck.status === 'ready' ? (
+            {deckRow.status === 'ready' ? (
               <>
                 <div className="flex flex-col sm:flex-row gap-3 w-full max-w-[480px]">
-                  <Link href={`/review?deck=${deck.id}`} className="inline-block flex-1">
+                  <Link href={`/review?deck=${deckRow.id}`} className="inline-block flex-1">
                     <CueButton size="lg" className="w-full" disabled={stats.dueCount === 0}>
                       {stats.dueCount > 0 ? 'Start sprint' : 'All caught up'}
                     </CueButton>
                   </Link>
                   {stats.dueCount > 0 && (
-                    <Link href={`/review?deck=${deck.id}&mode=quick`} className="inline-block flex-1">
+                    <Link href={`/review?deck=${deckRow.id}&mode=quick`} className="inline-block flex-1">
                       <CueButton variant="ghost" size="lg" className="w-full">
                         {labelForMode('quick')}
                       </CueButton>
@@ -185,37 +211,37 @@ export default async function DeckPage({
                     ? 'Choose a full sprint or a shorter Quick 5 with hints available during review.'
                     : 'Nothing due right now. Check back later.'}
                 </p>
-                <a href={`/deck/${deck.id}/export`} className="inline-block w-full max-w-[480px]">
+                <a href={`/deck/${deckRow.id}/export`} className="inline-block w-full max-w-[480px]">
                   <CueButton variant="ghost" size="lg" className="w-full">
                     Export CSV
                   </CueButton>
                 </a>
-                <a href={`/deck/${deck.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
+                <a href={`/deck/${deckRow.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
                   <CueButton variant="ghost" size="lg" className="w-full">
                     Export for Anki
                   </CueButton>
                 </a>
               </>
-            ) : deck.status === 'archived' ? (
+            ) : deckRow.status === 'archived' ? (
               <div className="space-y-3">
                 <p className="text-sm text-ink-black/70 max-w-[480px]">
                   This deck is archived, so it stays out of the default library and review queue until you restore it.
                 </p>
-                <a href={`/deck/${deck.id}/export`} className="inline-block w-full max-w-[480px]">
+                <a href={`/deck/${deckRow.id}/export`} className="inline-block w-full max-w-[480px]">
                   <CueButton variant="ghost" size="lg" className="w-full">
                     Export CSV
                   </CueButton>
                 </a>
-                <a href={`/deck/${deck.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
+                <a href={`/deck/${deckRow.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
                   <CueButton variant="ghost" size="lg" className="w-full">
                     Export for Anki
                   </CueButton>
                 </a>
-                <ArchiveDeckButton deckId={deck.id} archived />
+                <ArchiveDeckButton deckId={deckRow.id} archived />
               </div>
-            ) : deck.status === 'draft' ? (
+            ) : deckRow.status === 'draft' ? (
               <>
-                <Link href={`/deck/${deck.id}/cards`} className="inline-block w-full max-w-[480px]">
+                <Link href={`/deck/${deckRow.id}/cards`} className="inline-block w-full max-w-[480px]">
                   <CueButton size="lg" className="w-full">
                     Review generated cards
                   </CueButton>
@@ -223,33 +249,63 @@ export default async function DeckPage({
                 <p className="text-sm text-ink-black/70 max-w-[480px]">
                   Approve, edit, or delete cards until the deck feels trustworthy.
                 </p>
-                <a href={`/deck/${deck.id}/export`} className="inline-block w-full max-w-[480px]">
+                <a href={`/deck/${deckRow.id}/export`} className="inline-block w-full max-w-[480px]">
                   <CueButton variant="ghost" size="lg" className="w-full">
                     Export CSV
                   </CueButton>
                 </a>
-                <a href={`/deck/${deck.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
+                <a href={`/deck/${deckRow.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
                   <CueButton variant="ghost" size="lg" className="w-full">
                     Export for Anki
                   </CueButton>
                 </a>
-                <ReviewReadyButton deckId={deck.id} disabled={!canReady} />
+                <ReviewReadyButton deckId={deckRow.id} disabled={!canReady} />
               </>
-            ) : deck.status === 'ingesting' ? (
-              <p className="text-sm text-ink-black/70 max-w-[480px]">
-                We are still generating cards for this deck.
-              </p>
+            ) : deckRow.status === 'ingesting' ? (
+              <div className="max-w-[560px] rounded-card border border-trust-blue/30 bg-trust-blue/10 px-5 py-4 space-y-2">
+                <p className="font-display font-semibold text-sm text-ink-black">
+                  {ingestDiagnostics?.title ?? 'Generating cards'}
+                </p>
+                <p className="text-sm text-ink-black/70">
+                  {ingestDiagnostics?.detail ?? 'We are still generating cards for this deck.'}
+                </p>
+                <div className="flex flex-wrap gap-3 text-xs uppercase tracking-[0.08em] text-ink-black/60">
+                  {ingestDiagnostics?.stageLabel && <span>{ingestDiagnostics.stageLabel}</span>}
+                  {ingestDiagnostics?.progressLabel && <span>{ingestDiagnostics.progressLabel}</span>}
+                </div>
+              </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-ink-black/70 max-w-[480px]">
-                  This deck is not ready for review yet.
-                </p>
-                <a href={`/deck/${deck.id}/export`} className="inline-block w-full max-w-[480px]">
+                <div className="max-w-[560px] rounded-card border border-alert-coral/30 bg-alert-coral/10 px-5 py-4 space-y-2">
+                  <p className="font-display font-semibold text-sm text-ink-black">
+                    {ingestDiagnostics?.title ?? 'Generation failed'}
+                  </p>
+                  <p className="text-sm text-ink-black/70">
+                    {ingestDiagnostics?.detail ?? 'This deck is not ready for review yet.'}
+                  </p>
+                  <div className="flex flex-wrap gap-3 text-xs uppercase tracking-[0.08em] text-ink-black/60">
+                    {ingestDiagnostics?.stageLabel && (
+                      <span>{ingestDiagnostics.stageLabel}</span>
+                    )}
+                    {ingestDiagnostics?.progressLabel && (
+                      <span>{ingestDiagnostics.progressLabel}</span>
+                    )}
+                    {!ingestDiagnostics?.stageLabel && ingestJob?.stage && (
+                      <span>{getIngestStageLabel(ingestJob.stage)}</span>
+                    )}
+                  </div>
+                </div>
+                <form action={retryFailedDeck} className="w-full max-w-[480px]">
+                  <CueButton size="lg" className="w-full">
+                    Retry generation
+                  </CueButton>
+                </form>
+                <a href={`/deck/${deckRow.id}/export`} className="inline-block w-full max-w-[480px]">
                   <CueButton variant="ghost" size="lg" className="w-full">
                     Export CSV
                   </CueButton>
                 </a>
-                <a href={`/deck/${deck.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
+                <a href={`/deck/${deckRow.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
                   <CueButton variant="ghost" size="lg" className="w-full">
                     Export for Anki
                   </CueButton>
@@ -259,10 +315,10 @@ export default async function DeckPage({
           </div>
 
           <Link
-            href={`/deck/${deck.id}/cards`}
+            href={`/deck/${deckRow.id}/cards`}
             className="inline-flex items-center gap-1.5 text-sm font-display font-semibold text-ink-black/60 hover:text-ink-black"
           >
-            Browse {deck.card_count ?? 0} cards {'->'}
+            Browse {deckRow.card_count ?? 0} cards {'->'}
           </Link>
 
           {preview.weakTags.length > 0 && (
@@ -303,9 +359,9 @@ export default async function DeckPage({
             </div>
           )}
 
-          {canArchive && <ArchiveDeckButton deckId={deck.id} archived={false} />}
+          {canArchive && <ArchiveDeckButton deckId={deckRow.id} archived={false} />}
 
-          <DeleteDeckButton deckId={deck.id} deckTitle={deck.title} />
+          <DeleteDeckButton deckId={deckRow.id} deckTitle={deckRow.title} />
         </div>
       </div>
     </main>

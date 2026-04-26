@@ -9,6 +9,7 @@ import { MasteryRing } from '@/components/mastery-ring'
 import { createClient } from '@/lib/db/client'
 import { deleteDeckFromLibrary, retryIngest } from '@/app/(app)/library/actions'
 import { tierToTone } from '@/lib/progress/tier-tone'
+import { buildIngestDiagnostics, getIngestStageLabel, type IngestJobSnapshot } from '@/lib/ingest/diagnostics'
 import type { subjectFamily } from '@/lib/brand/tokens'
 import type { Tier } from '@/lib/progress/deck-stats'
 
@@ -22,25 +23,29 @@ type Props = {
   tier?: Tier
   masteryPct?: number
   dueCount?: number
+  initialJob?: IngestJobSnapshot | null
 }
 
-type JobRow = { stage: string; progress_pct: number; error: string | null }
+type JobRow = IngestJobSnapshot
 
-const STAGE_LABEL: Record<string, string> = {
-  uploading: 'Uploading',
-  parsing: 'Parsing PDF',
-  extracting: 'Extracting cards',
-  embedding: 'Embedding',
-  ready: 'Ready',
-  failed: 'Failed',
-}
-
-export function DeckCard({ id, title, subjectFamily, status, cardCount, tags = [], tier, masteryPct, dueCount }: Props) {
-  const [job, setJob] = useState<JobRow | null>(null)
+export function DeckCard({
+  id,
+  title,
+  subjectFamily,
+  status,
+  cardCount,
+  tags = [],
+  tier,
+  masteryPct,
+  dueCount,
+  initialJob = null,
+}: Props) {
+  const [job, setJob] = useState<JobRow | null>(initialJob)
   const [pending, startTransition] = useTransition()
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const active = status === 'ingesting'
+  const diagnostics = buildIngestDiagnostics({ status, job })
 
   useEffect(() => {
     if (!active) return
@@ -164,13 +169,16 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tags = [
         )}
         {active && (
           <div className="text-sm text-ink-black/60">
-            {STAGE_LABEL[job?.stage ?? 'uploading'] ?? 'Working...'}
-            {typeof job?.progress_pct === 'number' ? ` - ${job.progress_pct}%` : ''}
+            {diagnostics?.stageLabel ?? getIngestStageLabel(job?.stage ?? 'uploading') ?? 'Working...'}
+            {diagnostics?.progressLabel ? ` - ${diagnostics.progressLabel}` : ''}
           </div>
         )}
         {status === 'failed' && (
-          <div className="text-sm text-red-700">
-            Failed{job?.error ? `: ${job.error.slice(0, 120)}` : ''}
+          <div className="space-y-1">
+            <div className="text-sm font-semibold text-red-700">{diagnostics?.title ?? 'Generation failed'}</div>
+            {diagnostics?.detail && (
+              <div className="text-sm text-red-700/90">{diagnostics.detail}</div>
+            )}
           </div>
         )}
         {tags.length > 0 && (
@@ -201,10 +209,13 @@ export function DeckCard({ id, title, subjectFamily, status, cardCount, tags = [
       )}
 
       {status === 'failed' && (
-        <div className="mt-auto flex items-center gap-2">
+        <div className="mt-auto flex flex-wrap items-center gap-2">
           <CueButton variant="ghost" onClick={onRetry} disabled={pending}>
             {pending ? '...' : 'Retry'}
           </CueButton>
+          <Link href={`/deck/${id}`} className="font-body text-sm font-semibold text-ink-black/70 hover:underline">
+            View details
+          </Link>
           <button
             type="button"
             onClick={() => setConfirmDelete(true)}
