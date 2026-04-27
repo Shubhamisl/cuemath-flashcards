@@ -61,5 +61,8 @@ Thumbs.db
 # Memory (local-only)
 /memory/
 
+# Brainstorm / local design companion artifacts
+/.superpowers/
+
 # Obsidian vault config
 /.obsidian/
