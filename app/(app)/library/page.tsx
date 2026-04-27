@@ -1,11 +1,8 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/db/server'
-import { UploadModal } from '@/components/upload-modal'
 import { DeckCard } from '@/components/deck-card'
 import { SearchSortBar } from '@/components/search-sort-bar'
-import { CueButton } from '@/lib/brand/primitives/button'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
 import { computeStreak } from '@/lib/progress/streak'
 import type { IngestJobSnapshot } from '@/lib/ingest/diagnostics'
@@ -17,6 +14,7 @@ import {
   type LibraryStatusFilter,
 } from '@/lib/library/library-view'
 import { TopNav } from '../_components/top-nav'
+import { LibraryHero } from './library-hero'
 
 export default async function LibraryPage({
   searchParams,
@@ -165,41 +163,13 @@ export default async function LibraryPage({
       <TopNav name={name} streak={streak} />
 
       <div className="max-w-[1100px] mx-auto px-6 py-10 space-y-10">
-        <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          <div className="space-y-2">
-            <h1 className="font-display font-extrabold text-4xl md:text-5xl tracking-tight">
-              Hi, {name}
-            </h1>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-40 rounded-full bg-ink-black/10 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-cue-yellow transition-all duration-progress"
-                  style={{ width: `${progressPct}%` }}
-                />
-              </div>
-              <p className="text-sm text-ink-black/70">
-                {doneToday} / {dailyGoal} today
-              </p>
-            </div>
-          </div>
-          <div className="md:w-auto flex flex-col gap-3 md:items-end">
-            <UploadModal />
-            {globalDueNowCount > 0 && (
-              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                <Link href="/review" className="inline-block">
-                  <CueButton size="lg" className="w-full sm:w-auto">
-                    Review all due
-                  </CueButton>
-                </Link>
-                <Link href="/review?mode=quick" className="inline-block">
-                  <CueButton variant="ghost" size="lg" className="w-full sm:w-auto">
-                    Quick 5
-                  </CueButton>
-                </Link>
-              </div>
-            )}
-          </div>
-        </header>
+        <LibraryHero
+          name={name}
+          doneToday={doneToday}
+          dailyGoal={dailyGoal}
+          progressPct={progressPct}
+          globalDueNowCount={globalDueNowCount}
+        />
 
         <Suspense>
           <SearchSortBar

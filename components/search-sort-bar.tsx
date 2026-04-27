@@ -46,63 +46,76 @@ export function SearchSortBar({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_repeat(4,minmax(0,180px))] gap-3">
-      <input
-        type="search"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') push({ q, ...baseFilters })
-        }}
-        onBlur={() => push({ q, ...baseFilters })}
-        placeholder="Search decks..."
-        className="flex-1 min-w-0 rounded-input border-2 border-ink-black/20 bg-paper-white px-4 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-cue-yellow"
-      />
-      <select
-        value={initialSort}
-        onChange={(e) => push({ q, ...baseFilters, sort: e.target.value })}
-        className="rounded-input border-2 border-ink-black/20 bg-paper-white px-3 py-2 font-body text-sm focus:outline-none focus:border-ink-black"
-      >
-        <option value="created">Newest</option>
-        <option value="title">A-Z</option>
-        <option value="due">Most due</option>
-        <option value="mastery">Least mastered</option>
-      </select>
-      <select
-        value={initialSubject}
-        onChange={(e) => push({ q, ...baseFilters, subject: e.target.value })}
-        className="rounded-input border-2 border-ink-black/20 bg-paper-white px-3 py-2 font-body text-sm focus:outline-none focus:border-ink-black"
-      >
-        <option value="all">All subjects</option>
-        <option value="math">Math</option>
-        <option value="language">Language</option>
-        <option value="science">Science</option>
-        <option value="humanities">Humanities</option>
-        <option value="other">Other</option>
-      </select>
-      <select
-        value={initialStatus}
-        onChange={(e) => push({ q, ...baseFilters, status: e.target.value })}
-        className="rounded-input border-2 border-ink-black/20 bg-paper-white px-3 py-2 font-body text-sm focus:outline-none focus:border-ink-black"
-      >
-        <option value="active">Active decks</option>
-        <option value="ready">Ready</option>
-        <option value="draft">Draft</option>
-        <option value="ingesting">Processing</option>
-        <option value="failed">Failed</option>
-        <option value="archived">Archived</option>
-      </select>
-      <select
-        value={initialMastery}
-        onChange={(e) => push({ q, ...baseFilters, mastery: e.target.value })}
-        className="rounded-input border-2 border-ink-black/20 bg-paper-white px-3 py-2 font-body text-sm focus:outline-none focus:border-ink-black"
-      >
-        <option value="all">All mastery</option>
-        <option value="Curious">Curious</option>
-        <option value="Practicing">Practicing</option>
-        <option value="Confident">Confident</option>
-        <option value="SharpMind">SharpMind</option>
-      </select>
-    </div>
+    <section className="rounded-[24px] border border-ink-black/10 bg-paper-white px-4 py-4 shadow-card-rest">
+      <div className="flex flex-col gap-1 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-display font-semibold uppercase tracking-[0.08em] text-ink-black/55">
+            Find a deck
+          </p>
+          <p className="text-sm text-ink-black/65">
+            Search by title, tag, subject, or study state.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.15fr)_repeat(4,minmax(0,180px))]">
+        <input
+          type="search"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') push({ q, ...baseFilters })
+          }}
+          onBlur={() => push({ q, ...baseFilters })}
+          placeholder="Search decks, tags, or subjects..."
+          className="flex-1 min-w-0 rounded-input border-2 border-ink-black/20 bg-paper-white px-4 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-cue-yellow"
+        />
+        <select
+          value={initialSort}
+          onChange={(e) => push({ q, ...baseFilters, sort: e.target.value })}
+          className="rounded-input border-2 border-ink-black/20 bg-paper-white px-3 py-2 font-body text-sm focus:outline-none focus:border-ink-black"
+        >
+          <option value="created">Newest</option>
+          <option value="title">A-Z</option>
+          <option value="due">Most due</option>
+          <option value="mastery">Least mastered</option>
+        </select>
+        <select
+          value={initialSubject}
+          onChange={(e) => push({ q, ...baseFilters, subject: e.target.value })}
+          className="rounded-input border-2 border-ink-black/20 bg-paper-white px-3 py-2 font-body text-sm focus:outline-none focus:border-ink-black"
+        >
+          <option value="all">All subjects</option>
+          <option value="math">Math</option>
+          <option value="language">Language</option>
+          <option value="science">Science</option>
+          <option value="humanities">Humanities</option>
+          <option value="other">Other</option>
+        </select>
+        <select
+          value={initialStatus}
+          onChange={(e) => push({ q, ...baseFilters, status: e.target.value })}
+          className="rounded-input border-2 border-ink-black/20 bg-paper-white px-3 py-2 font-body text-sm focus:outline-none focus:border-ink-black"
+        >
+          <option value="active">Active decks</option>
+          <option value="ready">Ready</option>
+          <option value="draft">Draft</option>
+          <option value="ingesting">Processing</option>
+          <option value="failed">Failed</option>
+          <option value="archived">Archived</option>
+        </select>
+        <select
+          value={initialMastery}
+          onChange={(e) => push({ q, ...baseFilters, mastery: e.target.value })}
+          className="rounded-input border-2 border-ink-black/20 bg-paper-white px-3 py-2 font-body text-sm focus:outline-none focus:border-ink-black"
+        >
+          <option value="all">All mastery</option>
+          <option value="Curious">Curious</option>
+          <option value="Practicing">Practicing</option>
+          <option value="Confident">Confident</option>
+          <option value="SharpMind">SharpMind</option>
+        </select>
+      </div>
+    </section>
   )
 }

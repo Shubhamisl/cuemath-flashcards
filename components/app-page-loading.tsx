@@ -2,10 +2,10 @@ type AppPageLoadingProps = {
   title: string
 }
 
-function LoadingBar({ width }: { width: string }) {
+function LoadingBar({ width, className = 'h-4' }: { width: string; className?: string }) {
   return (
     <div
-      className="h-4 rounded-full bg-ink-black/10 animate-pulse"
+      className={`${className} rounded-full bg-ink-black/10 animate-pulse`}
       style={{ width }}
       aria-hidden="true"
     />
@@ -16,16 +16,31 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
   return (
     <main className="min-h-screen">
       <div className="border-b border-ink-black/10">
-        <div className="max-w-[1100px] mx-auto px-6 py-5 flex items-center justify-between gap-4">
-          <LoadingBar width="140px" />
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-16 rounded-full bg-ink-black/8 animate-pulse" aria-hidden="true" />
-            <div className="h-10 w-10 rounded-full bg-ink-black/8 animate-pulse" aria-hidden="true" />
+        <div className="mx-auto max-w-[1200px] px-6 py-5">
+          <div
+            role="presentation"
+            aria-label="Navigation loading"
+            className="rounded-[28px] border border-ink-black/10 bg-soft-cream/60 px-4 py-3 backdrop-blur-sm"
+          >
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+                <LoadingBar width="108px" className="h-6" />
+                <div className="flex items-center gap-2 rounded-full border border-ink-black/10 bg-paper-white/85 p-1">
+                  <LoadingBar width="74px" className="h-9" />
+                  <LoadingBar width="76px" className="h-9" />
+                  <LoadingBar width="68px" className="h-9" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3 self-end lg:self-auto">
+                <div className="h-8 w-20 rounded-full bg-paper-white/90 animate-pulse" aria-hidden="true" />
+                <div className="h-9 w-9 rounded-full bg-paper-white animate-pulse" aria-hidden="true" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 py-10 space-y-8">
+      <div className="mx-auto max-w-[1100px] px-6 py-10 space-y-10">
         <header className="space-y-3" aria-live="polite">
           <h1 className="font-display font-extrabold text-4xl md:text-5xl tracking-tight text-ink-black">
             {title}
@@ -33,31 +48,77 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
           <p className="font-body text-sm text-ink-black/70">Just getting things ready...</p>
         </header>
 
-        <section className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex-1 space-y-3">
-            <LoadingBar width="220px" />
-            <LoadingBar width="360px" />
+        <section
+          role="presentation"
+          aria-label="Hero loading"
+          className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.9fr)]"
+        >
+          <div className="space-y-5 rounded-[28px] border border-ink-black/10 bg-paper-white px-6 py-6 shadow-card-rest">
+            <LoadingBar width="88px" className="h-3" />
+            <LoadingBar width="214px" className="h-10" />
+            <div className="flex items-center gap-3">
+              <div className="h-2.5 w-44 rounded-full bg-ink-black/10 animate-pulse" aria-hidden="true" />
+              <LoadingBar width="96px" className="h-4" />
+            </div>
           </div>
-          <div className="flex gap-3">
-            <div className="h-12 w-36 rounded-input bg-cue-yellow/40 animate-pulse" aria-hidden="true" />
-            <div className="h-12 w-28 rounded-input bg-ink-black/8 animate-pulse" aria-hidden="true" />
+          <div className="space-y-5 rounded-[28px] border border-ink-black/10 bg-mint-sky/55 px-6 py-6 shadow-card-rest">
+            <div className="space-y-2">
+              <LoadingBar width="82px" className="h-3" />
+              <LoadingBar width="238px" className="h-4" />
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <div className="h-12 w-36 rounded-input bg-cue-yellow/40 animate-pulse" aria-hidden="true" />
+              <div className="h-12 w-28 rounded-input bg-paper-white/80 animate-pulse" aria-hidden="true" />
+              <div className="h-12 w-32 rounded-input bg-paper-white/90 animate-pulse" aria-hidden="true" />
+            </div>
           </div>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <section
+          role="presentation"
+          aria-label="Controls loading"
+          className="rounded-[24px] border border-ink-black/10 bg-paper-white px-4 py-4 shadow-card-rest"
+        >
+          <div className="space-y-4">
+            <div className="space-y-2 pb-1">
+              <LoadingBar width="82px" className="h-3" />
+              <LoadingBar width="232px" className="h-4" />
+            </div>
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.15fr)_repeat(4,minmax(0,180px))]">
+              <div className="h-11 rounded-input border-2 border-ink-black/10 bg-paper-white animate-pulse" aria-hidden="true" />
+              <div className="h-11 rounded-input border-2 border-ink-black/10 bg-paper-white animate-pulse" aria-hidden="true" />
+              <div className="h-11 rounded-input border-2 border-ink-black/10 bg-paper-white animate-pulse" aria-hidden="true" />
+              <div className="h-11 rounded-input border-2 border-ink-black/10 bg-paper-white animate-pulse" aria-hidden="true" />
+              <div className="h-11 rounded-input border-2 border-ink-black/10 bg-paper-white animate-pulse" aria-hidden="true" />
+            </div>
+          </div>
+        </section>
+
+        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
-              className="rounded-card border border-ink-black/10 bg-paper-white p-6 space-y-5 shadow-card-rest"
-              aria-hidden="true"
+              role="presentation"
+              aria-label="Deck loading"
+              className="space-y-5 rounded-card border border-ink-black/10 bg-paper-white p-6 shadow-card-rest"
             >
               <div className="flex items-start justify-between gap-3">
-                <LoadingBar width="120px" />
-                <div className="h-7 w-20 rounded-full bg-ink-black/8 animate-pulse" />
+                <div className="h-16 w-16 rounded-full bg-ink-black/8 animate-pulse" aria-hidden="true" />
+                <div className="flex flex-col items-end gap-2">
+                  <div className="h-7 w-20 rounded-full bg-ink-black/8 animate-pulse" aria-hidden="true" />
+                  <div className="h-7 w-16 rounded-full bg-cue-yellow/35 animate-pulse" aria-hidden="true" />
+                </div>
               </div>
-              <LoadingBar width="72px" />
-              <div className="pt-10">
-                <LoadingBar width="110px" />
+              <div className="space-y-3">
+                <LoadingBar width="148px" />
+                <LoadingBar width="118px" />
+                <div className="flex gap-2 pt-1">
+                  <div className="h-7 w-16 rounded-full bg-ink-black/8 animate-pulse" aria-hidden="true" />
+                  <div className="h-7 w-20 rounded-full bg-ink-black/8 animate-pulse" aria-hidden="true" />
+                </div>
+              </div>
+              <div className="pt-6">
+                <LoadingBar width="112px" className="h-3" />
               </div>
             </div>
           ))}

@@ -54,4 +54,27 @@ describe('DeckCard', () => {
     ).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'View details' })).toHaveAttribute('href', '/deck/deck-1')
   })
+
+  it('surfaces state badges and study metadata for ready decks', () => {
+    render(
+      <DeckCard
+        id="deck-2"
+        title="Biology Systems"
+        subjectFamily="science"
+        status="ready"
+        cardCount={35}
+        tags={['biology', 'systems']}
+        tier="SharpMind"
+        masteryPct={82}
+        dueCount={4}
+      />,
+    )
+
+    expect(screen.getByText('Biology Systems')).toBeInTheDocument()
+    expect(screen.getByText('SharpMind')).toBeInTheDocument()
+    expect(screen.getByText('4 due')).toBeInTheDocument()
+    expect(screen.getByText('4 due now')).toBeInTheDocument()
+    expect(screen.getByText('82% mastered')).toBeInTheDocument()
+    expect(screen.getByText('biology')).toBeInTheDocument()
+  })
 })

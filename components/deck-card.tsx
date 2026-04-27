@@ -136,19 +136,19 @@ export function DeckCard({
   )
 
   const cardBody = (
-    <div className="flex flex-col gap-4 h-full min-h-[200px]">
-      <div className="flex items-start justify-between">
+    <div className="flex h-full min-h-[220px] flex-col gap-5">
+      <div className="flex items-start justify-between gap-3">
         {status === 'ready' && typeof masteryPct === 'number' ? (
           <MasteryRing pct={masteryPct} size={64} stroke={6} showLabel={false} />
         ) : (
           <div className="size-16" />
         )}
         <div className="flex flex-col items-end gap-1.5">
-        {status === 'draft' && <CuePill tone="warning">Draft</CuePill>}
-        {status === 'archived' && <CuePill tone="neutral">Archived</CuePill>}
-        {status === 'ready' && tier && (
-          <CuePill tone={tierToTone(tier)}>{tier}</CuePill>
-        )}
+          {status === 'draft' && <CuePill tone="warning">Draft</CuePill>}
+          {status === 'archived' && <CuePill tone="neutral">Archived</CuePill>}
+          {status === 'ready' && tier && (
+            <CuePill tone={tierToTone(tier)}>{tier}</CuePill>
+          )}
           {status === 'ready' && typeof dueCount === 'number' && dueCount > 0 && (
             <CuePill tone="info">{dueCount} due</CuePill>
           )}
@@ -156,10 +156,16 @@ export function DeckCard({
         </div>
       </div>
 
-      <div className="space-y-1">
-        <div className="font-display font-extrabold text-lg leading-tight truncate">{title}</div>
+      <div className="space-y-2">
+        <div className="font-display text-[20px] font-extrabold leading-tight text-ink-black">
+          {title}
+        </div>
         {status === 'ready' && (
-          <div className="text-sm text-ink-black/60">{cardCount} cards</div>
+          <div className="flex flex-wrap items-center gap-2 text-sm text-ink-black/62">
+            <span>{cardCount} cards</span>
+            {typeof dueCount === 'number' && dueCount > 0 ? <span aria-hidden="true">-</span> : null}
+            {typeof dueCount === 'number' && dueCount > 0 ? <span>{dueCount} due now</span> : null}
+          </div>
         )}
         {status === 'draft' && (
           <div className="text-sm text-ink-black/60">{cardCount} cards - review before study</div>

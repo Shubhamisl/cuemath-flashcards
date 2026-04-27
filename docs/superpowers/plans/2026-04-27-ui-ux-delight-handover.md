@@ -71,10 +71,10 @@ These are important so a polish pass does not accidentally damage the product.
 
 **Goal:** Make the app feel grounded and legible before improving individual screens.
 
-- [ ] Introduce a more obvious persistent app navigation model for `Library`, `Progress`, and `Profile`.
-- [ ] Make the current location visually unmistakable.
-- [ ] Reduce the feeling that important destinations are hidden behind logo/avatar behaviors.
-- [ ] Ensure global actions (`Upload`, `Review all due`, `Quick 5`) feel intentionally placed instead of floating.
+- [x] Introduce a more obvious persistent app navigation model for `Library`, `Progress`, and `Profile`.
+- [x] Make the current location visually unmistakable.
+- [x] Reduce the feeling that important destinations are hidden behind logo/avatar behaviors.
+- [x] Ensure global actions (`Upload`, `Review all due`, `Quick 5`) feel intentionally placed instead of floating.
 - [ ] Make nav behavior equally clear on mobile and desktop.
 
 **Acceptance bar**
@@ -88,10 +88,10 @@ These are important so a polish pass does not accidentally damage the product.
 
 **Goal:** Turn the library from "functional dashboard" into a motivating study home.
 
-- [ ] Improve the visual hierarchy of the greeting, progress strip, and CTA cluster.
+- [x] Improve the visual hierarchy of the greeting, progress strip, and CTA cluster.
 - [ ] Make deck density feel deliberate: spacing, grid rhythm, and card alignment should look tighter and more premium.
-- [ ] Refine search/sort/filter layout so it scans faster.
-- [ ] Improve deck-card state design for `draft`, `ready`, `failed`, and `archived`.
+- [x] Refine search/sort/filter layout so it scans faster.
+- [x] Improve deck-card state design for `draft`, `ready`, `failed`, and `archived`.
 - [ ] Make deck metadata feel easier to parse at a glance: subject, due count, mastery, tags, ingest problems.
 - [ ] Review color balance across many cards so the page does not look washed out or arbitrary.
 - [ ] Add a better empty-library state and better "no search results" state.
@@ -180,7 +180,7 @@ These are important so a polish pass does not accidentally damage the product.
 **Goal:** Make the product feel responsive even when work is happening.
 
 - [x] Added route-level loading shells for main app surfaces.
-- [ ] Evaluate whether skeletons are visually polished enough or still feel generic.
+- [x] Evaluate whether skeletons are visually polished enough or still feel generic.
 - [ ] Add clearer pending states for save/update/retry actions.
 - [ ] Improve success feedback after key actions: save, approve, retry, archive, export.
 - [ ] Normalize empty states, loading states, and completion states into one visual language.
@@ -335,3 +335,4 @@ Why:
 - Explicit conclusion: the app is functionally strong, but delight is still a meaningful remaining workstream.
 - Loading-state improvements already shipped and reflected here as partial progress, not final polish.
 - Approved first execution slice: **Ribbon Shell** for shell + library, with playful-smart tone and light consistency across the app.
+- Ribbon Shell Slice A shipped across the authenticated shell and library composition, including the aligned library loading shell.
