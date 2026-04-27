@@ -10,21 +10,22 @@ export default async function ProfilePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name, daily_goal_cards, subject_family, level, onboarded_at')
-    .eq('user_id', user.id)
-    .single()
-
-  if (!profile?.onboarded_at) redirect('/onboarding/subject')
-
   const now = new Date()
   const fortyDaysAgo = new Date(now.getTime() - 40 * 86400000)
-  const { data: sessions } = await supabase
-    .from('sessions')
-    .select('started_at')
-    .eq('user_id', user.id)
-    .gte('started_at', fortyDaysAgo.toISOString())
+  const [{ data: profile }, { data: sessions }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('display_name, daily_goal_cards, daily_new_cards_limit, subject_family, level, onboarded_at')
+      .eq('user_id', user.id)
+      .single(),
+    supabase
+      .from('sessions')
+      .select('started_at')
+      .eq('user_id', user.id)
+      .gte('started_at', fortyDaysAgo.toISOString()),
+  ])
+
+  if (!profile?.onboarded_at) redirect('/onboarding/subject')
   const streak = computeStreak(
     (sessions ?? []).map((s) => s.started_at as string),
     now,
@@ -55,6 +56,8 @@ export default async function ProfilePage() {
               subject_family: (profile.subject_family ?? 'math') as subjectFamily,
               level: profile.level ?? 'intermediate',
               daily_goal_cards: profile.daily_goal_cards ?? 20,
+              daily_new_cards_limit:
+                profile.daily_new_cards_limit ?? Math.min(profile.daily_goal_cards ?? 20, 10),
             }}
           />
         </div>

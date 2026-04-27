@@ -10,6 +10,7 @@ type UpdateInput = {
   subject_family?: string
   level?: string
   daily_goal_cards?: number
+  daily_new_cards_limit?: number
 }
 
 export async function updateProfile(input: UpdateInput) {
@@ -23,6 +24,9 @@ export async function updateProfile(input: UpdateInput) {
   if (input.subject_family !== undefined) patch.subject_family = input.subject_family
   if (input.level !== undefined) patch.level = input.level
   if (input.daily_goal_cards !== undefined) patch.daily_goal_cards = input.daily_goal_cards
+  if (input.daily_new_cards_limit !== undefined) {
+    patch.daily_new_cards_limit = input.daily_new_cards_limit
+  }
 
   if (Object.keys(patch).length === 0) return { ok: true as const }
 

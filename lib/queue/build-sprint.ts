@@ -1,9 +1,7 @@
 import type { SprintCard } from './types'
 import { createClient } from '@/lib/db/server'
 import { buildHintFromBack } from '@/lib/cards/hints'
-
-const DEFAULT_GLOBAL_NEW_CARD_CAP = 10
-const DEFAULT_PER_DECK_NEW_CARD_CAP = 5
+import { resolveNewCardCaps } from './new-card-caps'
 
 type NewCardBudget = {
   remainingGlobal: number
@@ -70,10 +68,6 @@ function applyWarmupCooldownStructure(cards: SprintCard[], mode: StructureMode):
   const cooldown = reviewCards[1]
   const middle = cards.filter((card) => card.id !== warmup.id && card.id !== cooldown.id)
   return [warmup, ...middle, cooldown]
-}
-
-function computeGlobalNewCardCap(dailyGoalCards: number): number {
-  return Math.max(1, Math.min(dailyGoalCards, DEFAULT_GLOBAL_NEW_CARD_CAP))
 }
 
 function isInitialFsrsState(value: unknown): boolean {
@@ -171,7 +165,7 @@ export async function buildSprint(args: {
     query,
     supabase
       .from('profiles')
-      .select('daily_goal_cards')
+      .select('daily_goal_cards, daily_new_cards_limit')
       .eq('user_id', args.userId)
       .single(),
     supabase
@@ -186,7 +180,10 @@ export async function buildSprint(args: {
     ...card,
     hint: buildHintFromBack(card.back.text),
   }))
-  const globalCap = computeGlobalNewCardCap(profile?.daily_goal_cards ?? 20)
+  const caps = resolveNewCardCaps({
+    dailyGoalCards: profile?.daily_goal_cards ?? 20,
+    dailyNewCardsLimit: profile?.daily_new_cards_limit ?? null,
+  })
   const reviewedNewIds = new Set(
     (todayReviews ?? [])
       .filter((review) => isInitialFsrsState(review.fsrs_state_before))
@@ -195,7 +192,7 @@ export async function buildSprint(args: {
   const remainingByDeck: Record<string, number> = {}
   for (const row of rows) {
     if (!(row.deck_id in remainingByDeck)) {
-      remainingByDeck[row.deck_id] = Math.min(DEFAULT_PER_DECK_NEW_CARD_CAP, globalCap)
+      remainingByDeck[row.deck_id] = caps.perDeck
     }
   }
   for (const row of rows) {
@@ -206,7 +203,7 @@ export async function buildSprint(args: {
   return buildSprintFromCardsWithFilter(rows, now, args.size, {
     conceptTag: args.conceptTag,
     newCardBudget: {
-      remainingGlobal: Math.max(0, globalCap - reviewedNewIds.size),
+      remainingGlobal: Math.max(0, caps.global - reviewedNewIds.size),
       remainingByDeck,
     },
     structureMode: args.mode ?? 'quick',

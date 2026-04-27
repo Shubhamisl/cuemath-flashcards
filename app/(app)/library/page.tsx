@@ -39,91 +39,92 @@ export default async function LibraryPage({
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name, daily_goal_cards, onboarded_at')
-    .eq('user_id', user!.id)
-    .single()
+  const now = new Date()
+  const fortyDaysAgo = new Date(now.getTime() - 40 * 86400000)
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+  const [{ data: profile }, { data: sessions }, { data: todaySessions }, { data: decks }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('display_name, daily_goal_cards, onboarded_at')
+      .eq('user_id', user!.id)
+      .single(),
+    supabase
+      .from('sessions')
+      .select('started_at')
+      .eq('user_id', user!.id)
+      .gte('started_at', fortyDaysAgo.toISOString()),
+    supabase
+      .from('sessions')
+      .select('cards_reviewed')
+      .eq('user_id', user!.id)
+      .gte('started_at', todayStart.toISOString()),
+    supabase
+      .from('decks')
+      .select('id, title, subject_family, status, card_count, tags')
+      .eq('user_id', user!.id)
+      .order('created_at', { ascending: false }),
+  ])
 
   if (!profile?.onboarded_at) {
     redirect('/onboarding/subject')
   }
 
-  const now = new Date()
-  const fortyDaysAgo = new Date(now.getTime() - 40 * 86400000)
-  const { data: sessions } = await supabase
-    .from('sessions')
-    .select('started_at')
-    .eq('user_id', user!.id)
-    .gte('started_at', fortyDaysAgo.toISOString())
   const streak = computeStreak(
     (sessions ?? []).map((s) => s.started_at as string),
     now,
   )
-
-  const todayStart = new Date()
-  todayStart.setHours(0, 0, 0, 0)
-
-  const { data: todaySessions } = await supabase
-    .from('sessions')
-    .select('cards_reviewed')
-    .eq('user_id', user!.id)
-    .gte('started_at', todayStart.toISOString())
 
   const doneToday = (todaySessions ?? []).reduce(
     (sum, s) => sum + (s.cards_reviewed ?? 0),
     0,
   )
 
-  const { data: decks } = await supabase
-    .from('decks')
-    .select('id, title, subject_family, status, card_count, tags')
-    .eq('user_id', user!.id)
-    .order('created_at', { ascending: false })
-
   const latestJobByDeck: Record<string, IngestJobSnapshot> = {}
   const ingestDeckIds = (decks ?? [])
     .filter((deck) => deck.status === 'ingesting' || deck.status === 'failed')
     .map((deck) => deck.id)
-  if (ingestDeckIds.length > 0) {
-    const { data: ingestJobs } = await supabase
-      .from('ingest_jobs')
-      .select('deck_id, stage, progress_pct, error, started_at, finished_at')
-      .in('deck_id', ingestDeckIds)
-      .order('started_at', { ascending: false })
-
-    for (const job of ingestJobs ?? []) {
-      if (!latestJobByDeck[job.deck_id]) {
-        latestJobByDeck[job.deck_id] = {
-          stage: job.stage,
-          progress_pct: job.progress_pct,
-          error: job.error,
-          started_at: job.started_at,
-          finished_at: job.finished_at,
-        }
-      }
-    }
-  }
-
   const studyDeckIds = (decks ?? [])
     .filter((d) => d.status === 'ready' || d.status === 'archived')
     .map((d) => d.id)
   const statsByDeck: Record<string, { tier: string; masteryPct: number; dueCount: number }> = {}
-  if (studyDeckIds.length > 0) {
-    const { data: cardsRaw } = await supabase
-      .from('cards')
-      .select('deck_id, fsrs_state, suspended')
-      .eq('user_id', user!.id)
-      .in('deck_id', studyDeckIds)
-    const grouped: Record<string, StatCard[]> = {}
-    for (const r of cardsRaw ?? []) {
-      const row = r as { deck_id: string } & StatCard
-      ;(grouped[row.deck_id] ??= []).push({ fsrs_state: row.fsrs_state, suspended: row.suspended })
+  const [{ data: ingestJobs }, { data: cardsRaw }] = await Promise.all([
+    ingestDeckIds.length > 0
+      ? supabase
+          .from('ingest_jobs')
+          .select('deck_id, stage, progress_pct, error, started_at, finished_at')
+          .in('deck_id', ingestDeckIds)
+          .order('started_at', { ascending: false })
+      : Promise.resolve({ data: null }),
+    studyDeckIds.length > 0
+      ? supabase
+          .from('cards')
+          .select('deck_id, fsrs_state, suspended')
+          .eq('user_id', user!.id)
+          .in('deck_id', studyDeckIds)
+      : Promise.resolve({ data: null }),
+  ])
+
+  for (const job of ingestJobs ?? []) {
+    if (!latestJobByDeck[job.deck_id]) {
+      latestJobByDeck[job.deck_id] = {
+        stage: job.stage,
+        progress_pct: job.progress_pct,
+        error: job.error,
+        started_at: job.started_at,
+        finished_at: job.finished_at,
+      }
     }
-    for (const [id, group] of Object.entries(grouped)) {
-      const s = computeDeckStats(group, now)
-      statsByDeck[id] = { tier: s.tier, masteryPct: s.masteryPct, dueCount: s.dueCount }
-    }
+  }
+
+  const grouped: Record<string, StatCard[]> = {}
+  for (const r of cardsRaw ?? []) {
+    const row = r as { deck_id: string } & StatCard
+    ;(grouped[row.deck_id] ??= []).push({ fsrs_state: row.fsrs_state, suspended: row.suspended })
+  }
+  for (const [id, group] of Object.entries(grouped)) {
+    const s = computeDeckStats(group, now)
+    statsByDeck[id] = { tier: s.tier, masteryPct: s.masteryPct, dueCount: s.dueCount }
   }
   const globalDueNowCount = (decks ?? [])
     .filter((deck) => deck.status === 'ready')

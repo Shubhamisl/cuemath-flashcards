@@ -19,6 +19,7 @@ export default function GoalPage() {
     startTransition(async () => {
       await patchProfile({
         daily_goal_cards: selected,
+        daily_new_cards_limit: Math.min(selected, 10),
         onboarded_at: new Date().toISOString(),
       })
       router.push('/library')

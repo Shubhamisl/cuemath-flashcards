@@ -259,6 +259,7 @@ export type Database = {
         Row: {
           created_at: string
           daily_goal_cards: number
+          daily_new_cards_limit: number
           display_name: string | null
           fsrs_weights: Json | null
           level: string | null
@@ -271,6 +272,7 @@ export type Database = {
         Insert: {
           created_at?: string
           daily_goal_cards?: number
+          daily_new_cards_limit?: number
           display_name?: string | null
           fsrs_weights?: Json | null
           level?: string | null
@@ -283,6 +285,7 @@ export type Database = {
         Update: {
           created_at?: string
           daily_goal_cards?: number
+          daily_new_cards_limit?: number
           display_name?: string | null
           fsrs_weights?: Json | null
           level?: string | null

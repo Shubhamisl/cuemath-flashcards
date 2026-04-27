@@ -7,6 +7,7 @@ type Patch = {
   subject_family?: string
   level?: string
   daily_goal_cards?: number
+  daily_new_cards_limit?: number
   onboarded_at?: string
 }
 

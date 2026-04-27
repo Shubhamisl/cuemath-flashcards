@@ -11,6 +11,7 @@ type Initial = {
   subject_family: subjectFamily
   level: string
   daily_goal_cards: number
+  daily_new_cards_limit: number
 }
 
 const SUBJECTS: Array<{ id: subjectFamily; label: string }> = [
@@ -28,6 +29,7 @@ const LEVELS = [
 ]
 
 const GOALS = [10, 20, 40]
+const NEW_CARD_OPTIONS = [3, 5, 8, 10, 15, 20]
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -42,6 +44,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
   const [subject, setSubject] = useState<subjectFamily>(initial.subject_family)
   const [level, setLevel] = useState(initial.level)
   const [goal, setGoal] = useState(initial.daily_goal_cards)
+  const [dailyNewCardsLimit, setDailyNewCardsLimit] = useState(initial.daily_new_cards_limit)
   const [pending, startTransition] = useTransition()
   const [toast, setToast] = useState<string | null>(null)
   const [signOutPending, startSignOut] = useTransition()
@@ -59,6 +62,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
         subject_family: subject,
         level,
         daily_goal_cards: goal,
+        daily_new_cards_limit: dailyNewCardsLimit,
       })
       if ('error' in res && res.error) showToast('Could not save.')
       else showToast('Saved.')
@@ -75,13 +79,15 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
   function handleDelete() {
     startTransition(async () => {
       await deleteAccount()
-      showToast('Coming soon — talk to support to delete your account.')
+      showToast('Coming soon - talk to support to delete your account.')
     })
   }
 
+  const maxNewCardsOption = Math.min(goal, 20)
+  const newCardOptions = NEW_CARD_OPTIONS.filter((value) => value <= maxNewCardsOption)
+
   return (
     <div className="space-y-8">
-      {/* Profile card */}
       <CueCard tone="paper" className="shadow-card-rest p-8 space-y-6">
         <div className="space-y-1">
           <h2 className="font-display font-semibold text-[22px] text-ink-black">Profile</h2>
@@ -89,7 +95,6 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
         </div>
 
         <div className="space-y-6">
-          {/* Display name */}
           <div>
             <FieldLabel>Display name</FieldLabel>
             <input
@@ -101,7 +106,6 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
             />
           </div>
 
-          {/* Email (read-only) */}
           <div>
             <FieldLabel>Email</FieldLabel>
             <div className="inline-flex items-center rounded-full border border-ink-black/15 bg-paper-white px-4 py-2 font-body text-sm text-ink-black/60">
@@ -109,7 +113,6 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
             </div>
           </div>
 
-          {/* Subject */}
           <div>
             <FieldLabel>Subject</FieldLabel>
             <div className="flex flex-wrap gap-2">
@@ -134,7 +137,6 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
             </div>
           </div>
 
-          {/* Level */}
           <div>
             <FieldLabel>Level</FieldLabel>
             <div className="flex flex-wrap gap-2">
@@ -159,7 +161,6 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
             </div>
           </div>
 
-          {/* Daily goal */}
           <div>
             <FieldLabel>Daily goal</FieldLabel>
             <div className="flex flex-wrap gap-2">
@@ -169,7 +170,10 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
                   <button
                     key={g}
                     type="button"
-                    onClick={() => setGoal(g)}
+                    onClick={() => {
+                      setGoal(g)
+                      setDailyNewCardsLimit((current) => Math.min(current, Math.min(g, 20)))
+                    }}
                     aria-pressed={active}
                     className={`rounded-full px-6 py-3 font-body text-base font-semibold text-ink-black transition ${
                       active
@@ -178,6 +182,33 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
                     }`}
                   >
                     {g} cards / day
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div>
+            <FieldLabel>Daily new cards</FieldLabel>
+            <p className="mb-3 text-sm text-ink-black/60">
+              Brand-new cards only. Reviews still show up whenever they are due.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {newCardOptions.map((count) => {
+                const active = dailyNewCardsLimit === count
+                return (
+                  <button
+                    key={count}
+                    type="button"
+                    onClick={() => setDailyNewCardsLimit(count)}
+                    aria-pressed={active}
+                    className={`rounded-full px-6 py-3 font-body text-base font-semibold text-ink-black transition ${
+                      active
+                        ? 'border-2 border-ink-black bg-soft-cream'
+                        : 'border border-ink-black/15 bg-paper-white hover:bg-soft-cream/40'
+                    }`}
+                  >
+                    {count} new cards / day
                   </button>
                 )
               })}
@@ -196,12 +227,11 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
             </span>
           )}
           <CueButton onClick={save} disabled={pending}>
-            {pending ? 'Saving…' : 'Save changes'}
+            {pending ? 'Saving...' : 'Save changes'}
           </CueButton>
         </div>
       </CueCard>
 
-      {/* Account card */}
       <CueCard tone="paper" className="shadow-card-rest p-8 space-y-6">
         <div className="space-y-1">
           <h2 className="font-display font-semibold text-[22px] text-ink-black">Account</h2>
@@ -216,7 +246,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
             onClick={handleSignOut}
             disabled={signOutPending}
           >
-            {signOutPending ? 'Signing out…' : 'Sign out'}
+            {signOutPending ? 'Signing out...' : 'Sign out'}
           </CueButton>
         </div>
 
