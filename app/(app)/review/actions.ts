@@ -49,28 +49,31 @@ export async function submitRating(args: {
 
   const shouldSuspend = nextState.lapses >= LEECH_LAPSES && nextState.reps >= LEECH_REPS
 
-  const { error: insErr } = await supabase.from('reviews').insert({
-    card_id: args.cardId,
-    user_id: user.id,
-    rated_at: now.toISOString(),
-    rating: args.rating,
-    elapsed_ms: args.elapsedMs,
-    hint_used: args.hintUsed,
-    scheduled_days_before: scheduledDaysBefore,
-    fsrs_state_before: before,
-    fsrs_state_after: nextState,
-  })
-  if (insErr) return { error: insErr.message }
-
-  const { error: upErr } = await supabase
-    .from('cards')
-    .update({
-      fsrs_state: nextState,
-      suspended: shouldSuspend,
-    })
-    .eq('id', args.cardId)
-    .eq('user_id', user.id)
-  if (upErr) return { error: upErr.message }
+  // Both writes are independent given `nextState` — the review is append-only
+  // and the card update is keyed on cardId. Run them in parallel.
+  const [insRes, upRes] = await Promise.all([
+    supabase.from('reviews').insert({
+      card_id: args.cardId,
+      user_id: user.id,
+      rated_at: now.toISOString(),
+      rating: args.rating,
+      elapsed_ms: args.elapsedMs,
+      hint_used: args.hintUsed,
+      scheduled_days_before: scheduledDaysBefore,
+      fsrs_state_before: before,
+      fsrs_state_after: nextState,
+    }),
+    supabase
+      .from('cards')
+      .update({
+        fsrs_state: nextState,
+        suspended: shouldSuspend,
+      })
+      .eq('id', args.cardId)
+      .eq('user_id', user.id),
+  ])
+  if (insRes.error) return { error: insRes.error.message }
+  if (upRes.error) return { error: upRes.error.message }
 
   return { ok: true, intervalDays }
 }

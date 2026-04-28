@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CueCard } from '@/lib/brand/primitives/card'
 import { CueButton } from '@/lib/brand/primitives/button'
@@ -11,7 +11,7 @@ import { submitRating, finalizeSession, getSessionPreview } from './actions'
 import { fetchEasyCards } from '@/lib/fatigue/easy-cards'
 import { observe, type ReviewEvent } from '@/lib/fatigue/observe'
 import type { SprintCard } from '@/lib/queue/types'
-import type { FsrsRating } from '@/lib/srs/schedule'
+import { initialState, schedule, type FsrsCardState, type FsrsRating } from '@/lib/srs/schedule'
 import type { subjectFamily } from '@/lib/brand/tokens'
 import { labelForMode, type ReviewMode } from '@/lib/review/mode'
 import type { SessionPreview } from '@/lib/review/session-preview'
@@ -57,7 +57,7 @@ export function ReviewSession({
   const [weakCards, setWeakCards] = useState<SprintCard[]>([])
   const [preview, setPreview] = useState<SessionPreview | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [pending, startTransition] = useTransition()
+  const [failedCount, setFailedCount] = useState(0)
   const [showBreak, setShowBreak] = useState(false)
   const [easyNote, setEasyNote] = useState<string | null>(null)
   const [flags, setFlags] = useState({ injectedEasy: false, promptedBreak: false })
@@ -67,6 +67,8 @@ export function ReviewSession({
   const [endedAt, setEndedAt] = useState<string | null>(null)
   const shownAt = useRef<number | null>(null)
   const finalized = useRef(false)
+  const advancingRef = useRef(false)
+  const indexRef = useRef(0)
 
   const current = cards[index]
   const typingSupported = supportsTypingChallenge(current?.back.text ?? '')
@@ -100,6 +102,10 @@ export function ReviewSession({
     }, SPRINT_MS_CAP)
     return () => window.clearTimeout(timer)
   }, [])
+
+  useEffect(() => {
+    indexRef.current = index
+  }, [index])
 
   useEffect(() => {
     if (!done || finalized.current || cards.length === 0) return
@@ -186,64 +192,71 @@ export function ReviewSession({
   }
 
   function rate(rating: FsrsRating) {
-    if (!current || pending || showBreak) return
+    if (!current || showBreak || advancingRef.current) return
+    advancingRef.current = true
+
     const now = Date.now()
     const elapsedMs = now - (shownAt.current ?? now)
+    const ratedCard = current
+    const cardId = ratedCard.id
 
-    startTransition(async () => {
-      const res = await submitRating({ cardId: current.id, rating, elapsedMs, hintUsed: hintShown })
-      if ('error' in res) {
-        setError(res.error)
-        return
-      }
-
-      setError(null)
-      setLastInterval(res.intervalDays)
+    // Compute the FSRS interval client-side using the same algorithm the
+    // server runs. Cards already carry `fsrs_state`, so the optimistic
+    // interval matches what the server will compute. This lets us advance
+    // the UI in the same frame as the click, instead of after a roundtrip.
+    try {
+      const before: FsrsCardState =
+        (ratedCard.fsrs_state as FsrsCardState | null) ?? initialState()
+      const result = schedule(before, rating, new Date())
+      setLastInterval(result.intervalDays)
       window.setTimeout(() => setLastInterval(null), 2000)
+    } catch {
+      // optimistic compute failed — silently skip the hint, server still saves
+    }
 
-      const nextWeakCards =
-        phase === 'main' && rating <= 2 && !weakCards.some((card) => card.id === current.id)
-          ? [...weakCards, current]
-          : weakCards
-      if (nextWeakCards !== weakCards) {
-        setWeakCards(nextWeakCards)
-      }
+    setError(null)
 
-      const nextEvents = [...events, { rating, elapsedMs, timestamp: now, hintUsed: hintShown }]
-      setEvents(nextEvents)
+    const nextWeakCards =
+      phase === 'main' && rating <= 2 && !weakCards.some((c) => c.id === ratedCard.id)
+        ? [...weakCards, ratedCard]
+        : weakCards
+    if (nextWeakCards !== weakCards) {
+      setWeakCards(nextWeakCards)
+    }
 
-      const decision =
-        phase === 'main' ? observe(nextEvents, flags) : { action: 'continue' as const }
+    const nextEvents = [...events, { rating, elapsedMs, timestamp: now, hintUsed: hintShown }]
+    setEvents(nextEvents)
 
-      if (decision.action === 'inject_easy') {
-        setFlags((f) => ({ ...f, injectedEasy: true }))
-        if (!deckId) {
-          moveToIndex(index + 1)
-          return
-        }
+    const decision =
+      phase === 'main' ? observe(nextEvents, flags) : { action: 'continue' as const }
+
+    if (decision.action === 'inject_easy') {
+      setFlags((f) => ({ ...f, injectedEasy: true }))
+      if (deckId) {
         const excludeIds = cards.map((c) => c.id)
-        const extras = await fetchEasyCards({ deckId, excludeIds, n: 2 })
-        if (extras.length > 0) {
+        // Fire-and-forget: fetch easy cards, splice them in just after the
+        // user's current position when they arrive. indexRef is kept current
+        // by an effect, so the splice lands at the right place even though
+        // index may have advanced since rate() was called.
+        void fetchEasyCards({ deckId, excludeIds, n: 2 }).then((extras) => {
+          if (extras.length === 0) return
           setCards((prev) => {
             const copy = [...prev]
-            copy.splice(index + 1, 0, ...extras)
+            const inject = Math.min(indexRef.current + 1, copy.length)
+            copy.splice(inject, 0, ...extras)
             return copy
           })
           setEasyNote("Here's an easy one - keep your rhythm.")
           window.setTimeout(() => setEasyNote(null), 2500)
-        }
-        moveToIndex(index + 1)
-        return
+        })
       }
-
-      if (decision.action === 'prompt_break') {
-        setFlags((f) => ({ ...f, promptedBreak: true }))
-        setBreakPromptedAt(new Date().toISOString())
-        setShowBreak(true)
-        moveToIndex(index + 1)
-        return
-      }
-
+      moveToIndex(index + 1)
+    } else if (decision.action === 'prompt_break') {
+      setFlags((f) => ({ ...f, promptedBreak: true }))
+      setBreakPromptedAt(new Date().toISOString())
+      setShowBreak(true)
+      moveToIndex(index + 1)
+    } else {
       const nextIndex = index + 1
       if (nextIndex >= cards.length) {
         if (phase === 'main') {
@@ -251,16 +264,34 @@ export function ReviewSession({
           if (nextWeakCards.length === 0) {
             finishSession()
           }
-          return
+        } else {
+          setCompletedWeakLoop(true)
+          finishSession()
+          moveToIndex(nextIndex)
         }
-        setCompletedWeakLoop(true)
-        finishSession()
+      } else {
         moveToIndex(nextIndex)
-        return
       }
+    }
 
-      moveToIndex(nextIndex)
-    })
+    // Background server write. Failures bump a counter that the UI surfaces
+    // as a sticky banner — the rating itself stays advanced because rolling
+    // back mid-sprint would be more disruptive than a "refresh to retry".
+    void submitRating({ cardId, rating, elapsedMs, hintUsed: hintShown })
+      .then((res) => {
+        if (res && 'error' in res) {
+          setFailedCount((c) => c + 1)
+        }
+      })
+      .catch(() => {
+        setFailedCount((c) => c + 1)
+      })
+
+    // Tiny cooldown so a rapid double-tap on the rating bar can't fire twice
+    // before React has rendered the next card.
+    window.setTimeout(() => {
+      advancingRef.current = false
+    }, 60)
   }
 
   useEffect(() => {
@@ -300,7 +331,7 @@ export function ReviewSession({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [flipped, done, showBreak, cards.length, pending, current?.hint, typingOpen, typedAnswer]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [flipped, done, showBreak, cards.length, current?.hint, typingOpen, typedAnswer]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (cards.length === 0) {
     return (
@@ -619,7 +650,7 @@ export function ReviewSession({
                   </p>
                 </CueCard>
               )}
-              <RatingBar disabled={pending} onRate={rate} />
+              <RatingBar disabled={false} onRate={rate} />
             </div>
           )}
 
@@ -641,6 +672,23 @@ export function ReviewSession({
         </p>
       )}
       {error && <p className="text-sm text-red-700">{error}</p>}
+      {failedCount > 0 && (
+        <div
+          role="alert"
+          className="sticky bottom-4 mx-auto w-full max-w-[440px] rounded-card bg-alert-coral/90 text-ink-black px-4 py-3 text-sm font-display font-semibold shadow-card-flip flex items-center justify-between gap-3"
+        >
+          <span>
+            {failedCount} rating{failedCount === 1 ? '' : 's'} didn&apos;t save. Refresh to retry.
+          </span>
+          <button
+            type="button"
+            onClick={() => setFailedCount(0)}
+            className="text-xs uppercase tracking-[0.06em] underline opacity-80 hover:opacity-100"
+          >
+            dismiss
+          </button>
+        </div>
+      )}
       <p className="text-xs text-center opacity-50">
         {typingSupported
           ? current?.hint
