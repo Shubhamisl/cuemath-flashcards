@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useEffect, useState } from 'react'
 import { CueCard } from '@/lib/brand/primitives/card'
 import type { subjectFamily } from '@/lib/brand/tokens'
 import { patchProfile } from '../actions'
@@ -16,20 +16,24 @@ const LEVELS = [
 
 export function LevelOptions({ subject }: { subject: subjectFamily | null }) {
   const router = useRouter()
-  const [pending, startTransition] = useTransition()
   const [picked, setPicked] = useState<string | null>(null)
 
+  useEffect(() => {
+    router.prefetch('/onboarding/goal')
+  }, [router])
+
   function pick(level: string) {
-    if (pending) return
+    if (picked) return
     setPicked(level)
-    startTransition(async () => {
-      await patchProfile({ level })
-      router.push('/onboarding/goal')
-    })
+    void patchProfile({ level })
+    const params = new URLSearchParams()
+    if (subject) params.set('s', subject)
+    params.set('l', level)
+    router.push(`/onboarding/goal?${params.toString()}`)
   }
 
   return (
-    <div className="space-y-8">
+    <div className="motion-premium-reveal space-y-8">
       <OnboardingProgress step={2} />
       <div className="space-y-3">
         {subject && <SubjectChip subject={subject} />}
@@ -45,7 +49,7 @@ export function LevelOptions({ subject }: { subject: subjectFamily | null }) {
               key={l.id}
               role="button"
               tabIndex={0}
-              aria-disabled={pending}
+              aria-disabled={picked !== null}
               aria-pressed={active}
               onClick={() => pick(l.id)}
               onKeyDown={(e) => {
