@@ -47,32 +47,49 @@ export default async function DeckPage({
   } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('onboarded_at')
-    .eq('user_id', user.id)
-    .single()
-  if (!profile?.onboarded_at) redirect('/onboarding/subject')
+  // Run profile, deck, cards, ingest_jobs in parallel after auth. Cards is a
+  // single fetch with a superset column list so both stats + preview can be
+  // computed client-side without a second roundtrip.
+  const [
+    { data: profile },
+    { data: deck },
+    { data: cards },
+    { data: latestJob },
+  ] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('onboarded_at')
+      .eq('user_id', user.id)
+      .single(),
+    supabase
+      .from('decks')
+      .select('id, title, subject_family, card_count, status, tags')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single(),
+    supabase
+      .from('cards')
+      .select('fsrs_state, suspended, approved, concept_tag')
+      .eq('deck_id', id)
+      .eq('user_id', user.id),
+    supabase
+      .from('ingest_jobs')
+      .select('stage, progress_pct, error, started_at, finished_at')
+      .eq('deck_id', id)
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ])
 
-  const { data: deck } = await supabase
-    .from('decks')
-    .select('id, title, subject_family, card_count, status, tags')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
+  if (!profile?.onboarded_at) redirect('/onboarding/subject')
   if (!deck) notFound()
   const deckRow = deck
-
-  const { data: cards } = await supabase
-    .from('cards')
-    .select('fsrs_state, suspended, approved')
-    .eq('deck_id', id)
-    .eq('user_id', user.id)
 
   const cardRows = (cards ?? []) as Array<
     StatCard & {
       approved: boolean
       suspended: boolean
+      concept_tag: string | null
     }
   >
   const gateSummary = summarizeReviewGate(
@@ -87,29 +104,17 @@ export default async function DeckPage({
   const canReady = canMarkDeckReady(deckRow.status, gateSummary)
   const canArchive = canArchiveDeck(deckRow.status)
 
-  const { data: reviewedCards } = await supabase
-    .from('cards')
-    .select('concept_tag, fsrs_state')
-    .eq('deck_id', id)
-    .eq('user_id', user.id)
-    .eq('approved', true)
-    .not('fsrs_state', 'is', null)
-    .eq('suspended', false)
+  const reviewedCards = cardRows.filter(
+    (card) => card.approved && !card.suspended && card.fsrs_state != null,
+  )
 
   const preview = computeSessionPreview(
-    (reviewedCards ?? []) as Array<{
-      concept_tag: string | null
-      fsrs_state: { due?: string; lapses?: number } | null
-    }>,
+    reviewedCards.map((card) => ({
+      concept_tag: card.concept_tag,
+      fsrs_state: card.fsrs_state as { due?: string; lapses?: number } | null,
+    })),
     new Date(),
   )
-  const { data: latestJob } = await supabase
-    .from('ingest_jobs')
-    .select('stage, progress_pct, error, started_at, finished_at')
-    .eq('deck_id', id)
-    .order('started_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
   const ingestJob = (latestJob ?? null) as IngestJobSnapshot | null
   const ingestDiagnostics = buildIngestDiagnostics({
     status: deckRow.status as DeckStatus,
