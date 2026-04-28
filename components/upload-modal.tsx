@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { CueButton } from '@/lib/brand/primitives/button'
 import { CueCard } from '@/lib/brand/primitives/card'
 import { createDeckFromUpload } from '@/app/(app)/library/actions'
@@ -41,6 +41,25 @@ export function UploadModal() {
     setOpen(false)
   }
 
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    const prevPad = document.body.style.paddingRight
+    const sbw = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    if (sbw > 0) document.body.style.paddingRight = `${sbw}px`
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') close()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      document.body.style.paddingRight = prevPad
+      document.removeEventListener('keydown', onKey)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+
   function submit() {
     if (!file) { setError('Choose a PDF first'); return }
     const fd = new FormData()
@@ -64,7 +83,7 @@ export function UploadModal() {
 
   return (
     <div
-      className="motion-premium-reveal fixed inset-0 z-50 flex items-center justify-center bg-ink-black/15 backdrop-blur-[3px] p-4"
+      className="motion-premium-reveal fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink-black/10 p-4 sm:items-center sm:p-6"
       onClick={close}
       role="dialog"
       aria-modal="true"
@@ -72,7 +91,7 @@ export function UploadModal() {
     >
       <CueCard
         tone="paper"
-        className="motion-premium-modal w-full max-w-[520px] rounded-panel p-8 space-y-6"
+        className="motion-premium-modal my-auto w-full max-w-[520px] rounded-panel p-6 space-y-5 sm:p-8 sm:space-y-6"
         style={{ boxShadow: 'var(--shadow-card-flip)' }}
         onClick={(e) => e.stopPropagation()}
       >
