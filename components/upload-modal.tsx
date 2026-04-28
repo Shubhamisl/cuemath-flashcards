@@ -16,17 +16,12 @@ const SUBJECTS = [
 ] as const
 
 export function UploadModal() {
-  const [mounted, setMounted] = useState(false)
   const [open, setOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
   const [subject, setSubject] = useState<(typeof SUBJECTS)[number]['id']>('other')
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   function pick(f: File) {
     if (f.type !== 'application/pdf') {
@@ -109,7 +104,7 @@ export function UploadModal() {
     )
   }
 
-  if (!mounted) return null
+  if (typeof document === 'undefined') return null
 
   return createPortal(
     <div
