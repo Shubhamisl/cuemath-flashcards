@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
+import { createPortal } from 'react-dom'
 import { CueButton } from '@/lib/brand/primitives/button'
 import { CueCard } from '@/lib/brand/primitives/card'
 import { createDeckFromUpload } from '@/app/(app)/library/actions'
@@ -15,6 +16,7 @@ const SUBJECTS = [
 ] as const
 
 export function UploadModal() {
+  const [mounted, setMounted] = useState(false)
   const [open, setOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
@@ -22,9 +24,21 @@ export function UploadModal() {
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   function pick(f: File) {
-    if (f.type !== 'application/pdf') { setError('PDF only'); return }
-    if (f.size > 20 * 1024 * 1024) { setError('Max 20MB'); return }
+    if (f.type !== 'application/pdf') {
+      setError('PDF only')
+      return
+    }
+
+    if (f.size > 20 * 1024 * 1024) {
+      setError('Max 20MB')
+      return
+    }
+
     setFile(f)
     setTitle(f.name.replace(/\.pdf$/i, ''))
     setError(null)
@@ -43,13 +57,16 @@ export function UploadModal() {
 
   useEffect(() => {
     if (!open) return
+
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    
+
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') close()
     }
+
     document.addEventListener('keydown', onKey)
+
     return () => {
       document.body.style.overflow = prev
       document.removeEventListener('keydown', onKey)
@@ -58,15 +75,29 @@ export function UploadModal() {
   }, [open])
 
   function submit() {
-    if (!file) { setError('Choose a PDF first'); return }
+    if (!file) {
+      setError('Choose a PDF first')
+      return
+    }
+
     const fd = new FormData()
     fd.set('file', file)
     fd.set('title', title)
     fd.set('subject_family', subject)
+
     startTransition(async () => {
       const res = await createDeckFromUpload(fd)
-      if ('error' in res) { setError(res.error); return }
-      setOpen(false); setFile(null); setTitle(''); setSubject('other'); setError(null)
+
+      if ('error' in res) {
+        setError(res.error)
+        return
+      }
+
+      setOpen(false)
+      setFile(null)
+      setTitle('')
+      setSubject('other')
+      setError(null)
     })
   }
 
@@ -78,7 +109,9 @@ export function UploadModal() {
     )
   }
 
-  return (
+  if (!mounted) return null
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-ink-black/20 p-4 sm:p-6"
       onClick={close}
@@ -100,7 +133,9 @@ export function UploadModal() {
             aria-label="Close"
             className="text-ink-black/60 hover:text-ink-black size-8 inline-flex items-center justify-center rounded-full"
           >
-            <span aria-hidden="true" className="text-xl leading-none">×</span>
+            <span aria-hidden="true" className="text-xl leading-none">
+              ×
+            </span>
           </button>
         </div>
 
@@ -115,15 +150,18 @@ export function UploadModal() {
             className="hidden"
             onChange={(e) => e.target.files?.[0] && pick(e.target.files[0])}
           />
+
           <div
             aria-hidden="true"
             className="size-12 rounded-full bg-paper-white flex items-center justify-center text-2xl"
           >
             ↑
           </div>
+
           <span className="font-display font-semibold text-base text-ink-black">
             {file ? file.name : 'Drop a PDF here or click to choose'}
           </span>
+
           <span className="text-xs text-ink-black/60">Up to 20MB</span>
         </label>
 
@@ -140,9 +178,11 @@ export function UploadModal() {
 
         <div className="space-y-3">
           <span className="block text-sm font-display font-semibold">What is this about?</span>
+
           <div className="flex flex-wrap gap-2">
             {SUBJECTS.map((s) => {
               const selected = subject === s.id
+
               return (
                 <button
                   key={s.id}
@@ -175,11 +215,13 @@ export function UploadModal() {
           >
             Cancel
           </button>
+
           <CueButton onClick={submit} disabled={pending || !file}>
             {pending ? 'Uploading…' : 'Upload'}
           </CueButton>
         </div>
       </CueCard>
-    </div>
+    </div>,
+    document.body,
   )
 }
