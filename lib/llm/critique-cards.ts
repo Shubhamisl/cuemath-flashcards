@@ -45,7 +45,7 @@ const critiqueDecisionSchema = z.object({
   decision: z.enum(['keep', 'rewrite', 'drop']),
   quality_score: z.coerce.number().int().min(1).max(5),
   reason: z.string().max(240).optional().default(''),
-  card: atomicCardSchema.optional(),
+  card: atomicCardSchema.nullable().optional(),
 })
 
 const critiqueBatchSchema = z.object({
