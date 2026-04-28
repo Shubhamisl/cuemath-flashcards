@@ -33,12 +33,12 @@ export function DeleteDeckButton({ deckId, deckTitle }: { deckId: string; deckTi
   }
 
   return (
-    <div className="pt-4">
+    <div>
       {!open ? (
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="font-body text-sm font-semibold text-alert-coral hover:underline"
+          className="inline-flex min-h-[44px] items-center rounded-input border-2 border-alert-coral bg-paper-white px-5 font-display font-bold text-sm text-alert-coral hover:bg-alert-coral/10 transition"
         >
           Delete deck
         </button>

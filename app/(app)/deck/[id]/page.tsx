@@ -216,32 +216,12 @@ export default async function DeckPage({
                     ? 'Choose a full sprint or a shorter Quick 5 with hints available during review.'
                     : 'Nothing due right now. Check back later.'}
                 </p>
-                <a href={`/deck/${deckRow.id}/export`} className="inline-block w-full max-w-[480px]">
-                  <CueButton variant="ghost" size="lg" className="w-full">
-                    Export CSV
-                  </CueButton>
-                </a>
-                <a href={`/deck/${deckRow.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
-                  <CueButton variant="ghost" size="lg" className="w-full">
-                    Export for Anki
-                  </CueButton>
-                </a>
               </>
             ) : deckRow.status === 'archived' ? (
               <div className="space-y-3">
                 <p className="text-sm text-ink-black/70 max-w-[480px]">
                   This deck is archived, so it stays out of the default library and review queue until you restore it.
                 </p>
-                <a href={`/deck/${deckRow.id}/export`} className="inline-block w-full max-w-[480px]">
-                  <CueButton variant="ghost" size="lg" className="w-full">
-                    Export CSV
-                  </CueButton>
-                </a>
-                <a href={`/deck/${deckRow.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
-                  <CueButton variant="ghost" size="lg" className="w-full">
-                    Export for Anki
-                  </CueButton>
-                </a>
                 <ArchiveDeckButton deckId={deckRow.id} archived />
               </div>
             ) : deckRow.status === 'draft' ? (
@@ -254,16 +234,6 @@ export default async function DeckPage({
                 <p className="text-sm text-ink-black/70 max-w-[480px]">
                   Approve, edit, or delete cards until the deck feels trustworthy.
                 </p>
-                <a href={`/deck/${deckRow.id}/export`} className="inline-block w-full max-w-[480px]">
-                  <CueButton variant="ghost" size="lg" className="w-full">
-                    Export CSV
-                  </CueButton>
-                </a>
-                <a href={`/deck/${deckRow.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
-                  <CueButton variant="ghost" size="lg" className="w-full">
-                    Export for Anki
-                  </CueButton>
-                </a>
                 <ReviewReadyButton deckId={deckRow.id} disabled={!canReady} />
               </>
             ) : deckRow.status === 'ingesting' ? (
@@ -305,16 +275,6 @@ export default async function DeckPage({
                     Retry generation
                   </CueButton>
                 </form>
-                <a href={`/deck/${deckRow.id}/export`} className="inline-block w-full max-w-[480px]">
-                  <CueButton variant="ghost" size="lg" className="w-full">
-                    Export CSV
-                  </CueButton>
-                </a>
-                <a href={`/deck/${deckRow.id}/export?format=anki`} className="inline-block w-full max-w-[480px]">
-                  <CueButton variant="ghost" size="lg" className="w-full">
-                    Export for Anki
-                  </CueButton>
-                </a>
               </div>
             )}
           </div>
@@ -344,29 +304,62 @@ export default async function DeckPage({
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
                 Upcoming
               </p>
-              <div className="flex flex-wrap gap-3 text-sm text-ink-black/70">
-                {preview.dueLaterToday > 0 && (
-                  <span>
-                    <span className="font-display font-bold text-ink-black">{preview.dueLaterToday}</span> later today
-                  </span>
-                )}
-                {preview.dueTomorrow > 0 && (
-                  <span>
-                    <span className="font-display font-bold text-ink-black">{preview.dueTomorrow}</span> tomorrow
-                  </span>
-                )}
-                {preview.dueThisWeek > 0 && (
-                  <span>
-                    <span className="font-display font-bold text-ink-black">{preview.dueThisWeek}</span> this week
-                  </span>
-                )}
+              <CueCard tone="cream" className="motion-premium-list-item shadow-card-rest flex items-start gap-3 px-4 py-3">
+                <span aria-hidden="true" className="mt-0.5 inline-flex size-7 items-center justify-center rounded-full bg-paper-white/70 text-base">
+                  📅
+                </span>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-black/75">
+                  {preview.dueLaterToday > 0 && (
+                    <span>
+                      <span className="font-display font-bold text-ink-black">{preview.dueLaterToday}</span> card{preview.dueLaterToday === 1 ? '' : 's'} later today
+                    </span>
+                  )}
+                  {preview.dueTomorrow > 0 && (
+                    <span>
+                      <span className="font-display font-bold text-ink-black">{preview.dueTomorrow}</span> card{preview.dueTomorrow === 1 ? '' : 's'} due tomorrow
+                    </span>
+                  )}
+                  {preview.dueThisWeek > 0 && (
+                    <span>
+                      <span className="font-display font-bold text-ink-black">{preview.dueThisWeek}</span> card{preview.dueThisWeek === 1 ? '' : 's'} this week
+                    </span>
+                  )}
+                </div>
+              </CueCard>
+            </div>
+          )}
+
+          {(deckRow.status === 'ready' || deckRow.status === 'draft' || deckRow.status === 'archived' || deckRow.status === 'failed') && (
+            <div className="space-y-2 max-w-[480px]">
+              <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                Export
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a href={`/deck/${deckRow.id}/export`} className="inline-block flex-1">
+                  <CueButton variant="ghost" size="lg" className="w-full">
+                    Export CSV
+                  </CueButton>
+                </a>
+                <a href={`/deck/${deckRow.id}/export?format=anki`} className="inline-block flex-1">
+                  <CueButton variant="ghost" size="lg" className="w-full">
+                    Export for Anki
+                  </CueButton>
+                </a>
               </div>
             </div>
           )}
 
-          {canArchive && <ArchiveDeckButton deckId={deckRow.id} archived={false} />}
-
-          <DeleteDeckButton deckId={deckRow.id} deckTitle={deckRow.title} />
+          {deckRow.status !== 'ingesting' && (
+            <div className="space-y-2 max-w-[480px] pt-2">
+              <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+                Deck settings
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                {canArchive && <ArchiveDeckButton deckId={deckRow.id} archived={false} />}
+                <DeleteDeckButton deckId={deckRow.id} deckTitle={deckRow.title} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </main>

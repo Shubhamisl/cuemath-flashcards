@@ -19,15 +19,12 @@ export function LibraryHero({
 }: LibraryHeroProps) {
   return (
     <header className="motion-premium-reveal grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.9fr)]">
-      <div className="motion-premium-list-item rounded-[28px] border border-ink-black/10 bg-paper-white px-6 py-6 shadow-card-rest">
-        <p className="text-xs font-display font-semibold uppercase tracking-[0.08em] text-ink-black/55">
-          Study home
-        </p>
-        <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink-black">
+      <div className="motion-premium-list-item px-2 py-4 sm:px-4">
+        <h1 className="font-display text-[44px] font-extrabold tracking-tight text-ink-black leading-[1.05]">
           Hi, {name}
         </h1>
         <div className="mt-4 flex items-center gap-3">
-          <div className="h-2.5 w-44 overflow-hidden rounded-full bg-ink-black/10">
+          <div className="h-2 w-56 overflow-hidden rounded-full bg-ink-black/10">
             <div
               className="motion-premium-progress h-full rounded-full bg-cue-yellow"
               style={{ width: `${progressPct}%` }}

@@ -30,7 +30,7 @@ export function ArchiveDeckButton({
 
   return (
     <div className="space-y-2">
-      <CueButton variant="ghost" onClick={submit} disabled={pending} className="w-full max-w-[480px]">
+      <CueButton variant="ghost" onClick={submit} disabled={pending}>
         {pending
           ? archived
             ? 'Restoring deck...'

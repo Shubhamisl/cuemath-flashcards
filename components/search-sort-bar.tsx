@@ -46,17 +46,10 @@ export function SearchSortBar({
   }
 
   return (
-    <section className="rounded-[24px] border border-ink-black/10 bg-paper-white px-4 py-4 shadow-card-rest">
-      <div className="flex flex-col gap-1 pb-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-display font-semibold uppercase tracking-[0.08em] text-ink-black/55">
-            Find a deck
-          </p>
-          <p className="text-sm text-ink-black/65">
-            Search by title, tag, subject, or study state.
-          </p>
-        </div>
-      </div>
+    <section className="space-y-3">
+      <p className="text-xs font-display font-semibold uppercase tracking-[0.08em] text-ink-black/55">
+        Your decks
+      </p>
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.15fr)_repeat(4,minmax(0,180px))]">
         <input
