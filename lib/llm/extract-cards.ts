@@ -30,7 +30,7 @@ type BuildArgs = {
 
 export function buildExtractionPrompt({ pages, alreadyCarded, remainingBudget }: BuildArgs): string {
   const pageBlocks = pages.map((p) => `--- Page ${p.index} ---\n${p.text}`).join('\n\n')
-  const batchBudget = Math.min(remainingBudget, Math.max(3, pages.length * 4))
+  const batchBudget = Math.min(remainingBudget, Math.max(6, pages.length * 6))
   const dedupeBlock = alreadyCarded.length
     ? `\n\nConcepts already carded (do NOT re-card these):\n${alreadyCarded.map((c) => `- ${c}`).join('\n')}`
     : ''
