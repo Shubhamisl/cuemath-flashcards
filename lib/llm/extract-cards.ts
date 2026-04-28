@@ -10,6 +10,13 @@ const LEARNING_UNIT_SYSTEM = `You extract learning units from study material bef
 Identify only material that is worth remembering or applying later.
 Do not write flashcards yet.
 
+Allowed type values ONLY:
+- concept
+- formula
+- relationship
+- worked_example
+- common_mistake
+
 Extract:
 - concepts and definitions
 - formulas and what variables mean
@@ -36,12 +43,41 @@ Return ONLY valid JSON matching the requested schema. No prose, no markdown.`
 
 export const OPENROUTER_EXTRACTION_FALLBACK_MODEL = 'google/gemma-4-31b-it:free'
 
+const LEARNING_UNIT_TYPES = [
+  'concept',
+  'formula',
+  'relationship',
+  'worked_example',
+  'common_mistake',
+] as const
+
+type LearningUnitType = (typeof LEARNING_UNIT_TYPES)[number]
+
+function normalizeLearningUnitType(value: unknown): LearningUnitType {
+  const raw = String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_')
+
+  if (raw === 'formula' || raw === 'equation' || raw === 'rule') return 'formula'
+  if (raw === 'relationship' || raw === 'distinction' || raw === 'comparison' || raw === 'cause_effect') {
+    return 'relationship'
+  }
+  if (raw === 'worked_example' || raw === 'example' || raw === 'method' || raw === 'procedure' || raw === 'solution_steps') {
+    return 'worked_example'
+  }
+  if (raw === 'common_mistake' || raw === 'mistake' || raw === 'misconception' || raw === 'pitfall') {
+    return 'common_mistake'
+  }
+  return 'concept'
+}
+
 const learningUnitSchema = z.object({
-  type: z.enum(['concept', 'formula', 'relationship', 'worked_example', 'common_mistake']),
+  type: z.preprocess(normalizeLearningUnitType, z.enum(LEARNING_UNIT_TYPES)),
   name: z.string().min(1).max(120),
   teaching_point: z.string().min(1).max(900),
-  source_page: z.number().int().min(0),
-  importance: z.number().int().min(1).max(3),
+  source_page: z.number().int().min(0).catch(0),
+  importance: z.coerce.number().int().min(1).max(3).catch(2),
   related_terms: z.array(z.string().min(1).max(80)).max(8).optional().default([]),
 })
 
@@ -75,6 +111,9 @@ function buildLearningUnitPrompt(pages: ParsedPage[]): string {
 Budget: AT MOST ${unitBudget} learning units.
 Prefer fewer strong units over many weak ones.
 Use importance: 3 = must-study, 2 = useful, 1 = optional.
+
+The type field MUST be exactly one of:
+concept, formula, relationship, worked_example, common_mistake
 
 ${pageBlocks}
 
