@@ -14,24 +14,30 @@ These are no longer product gaps and should not be re-planned as net-new work:
 - Individual card edit/delete is shipped in the card browser.
 - The Next.js request hook has migrated from deprecated root `middleware.ts` behavior to root `proxy.ts`.
 - A fresh Vercel deployment from `master` commit `7db9cdc` succeeded after the proxy migration.
+- **Font stack** wired via `next/font/google` — Plus Jakarta Sans (display) + Nunito Sans (body) in `app/layout.tsx`. (Closes former item 16.)
+- **`llm_calls` cost logging** is live via `lib/llm/observability.ts` → `logLlmCall()`, invoked from the Anthropic, OpenRouter chat, and OpenRouter embedding adapters. Provider, model, latency, token counts, classified error class, and deck/job FKs are persisted. (Closes former item 13.)
+- **Critique pass** is shipped as a pipeline stage (`parsing → extracting → critiquing → embedding → insert`). Quality-scored decisions, null-card drops, and a fallback to extracted candidates when the critique drops everything are all in place. (Partially closes former item 12 — see updated entry below.)
+- **Activity heatmap** (12-week, 5-level Cuemath yellow gradient) is shipped on `/progress`. (Partially closes former item 15 — predicted-retention charts still deferred.)
+- **Optimistic onboarding navigation:** subject/level steps navigate immediately, pass selection via URL search params, prefetch the next route, and fire the profile patch in the background. Goal step still awaits its patch because middleware gates on `onboarded_at`.
 
 ---
 
-## 1. LLM provider — OpenRouter free models (not Anthropic Claude)
+## 1. LLM provider — OpenRouter (GPT-5 mini), not Anthropic Claude
 
 - **Files:** `.env.local`, `lib/llm/extract-cards.ts` (`getLlmProvider`), `lib/llm/openrouter-chat.ts`
-- **Demo:** `LLM_PROVIDER=openrouter`, `LLM_MODEL=google/gemma-4-31b-it:free` (or other OR free tier)
+- **Demo:** `LLM_PROVIDER=openrouter`, `LLM_MODEL=openai/gpt-5-mini` (paid, via OpenRouter)
 - **Prod:** `LLM_PROVIDER=anthropic`, `LLM_MODEL=claude-sonnet-4-6` via `lib/llm/claude.ts` → `anthropicChat()`
-- **Why:** free tier for testing. Provider abstraction already in place — flipping envs swaps it.
-- **Risk at prod time:** free tier is rate-limited / often 5xx. Swap before any user traffic.
+- **Why:** GPT-5 mini gives clean structured extraction + critique output without requiring an Anthropic key for the showcase. Provider abstraction already in place — flipping envs swaps it.
+- **Risk at prod time:** none beyond standardising on a single vendor. Output quality is already production-grade; swap to Claude when consolidating the model surface.
 
-## 2. Embedding provider — OpenRouter Nemotron (not OpenAI)
+## 2. Embedding provider — Google embedding 2 preview via OpenRouter (not OpenAI)
 
-- **Files:** `.env.local`, `lib/embeddings/openrouter.ts`
-- **Demo:** `nvidia/llama-nemotron-embed-vl-1b-v2:free` via OpenRouter
+- **Files:** `.env.local`, `lib/embeddings/openrouter.ts` (the in-code `DEFAULT_MODEL` constant still references the previous Nemotron fallback; runtime model is overridden by `EMBEDDING_MODEL` env)
+- **Demo:** Google embedding 2 preview via OpenRouter, set through `EMBEDDING_MODEL`
 - **Prod (per spec):** OpenAI `text-embedding-3-small` (1536 dims)
-- **Why:** same — free-tier viability.
+- **Why:** Google embedding 2 preview gives strong retrieval quality on the showcase corpora and routes through the same OpenRouter gateway as the LLM, so we keep one vendor surface during the demo.
 - **Why it's safe:** `cards.embedding` column is flexible `vector` + `embedding_dim int` so dims don't need to match between providers. Interference search (Plan 5+) must scope queries to matching `embedding_dim`.
+- **Cleanup:** the in-code `DEFAULT_MODEL` fallback should be updated to match before the next code review pass.
 
 ## 3. `cards.embedding` schema — flexible `vector`, not `vector(1536)`
 
@@ -103,47 +109,41 @@ These are no longer product gaps and should not be re-planned as net-new work:
 - **Spec §6:** coral-tinted tray with click-through to rewrite flow.
 - **Prod:** Plan 5+ or Week 2 stretch.
 
-## 12. PDF ingestion — no critique / interference / review-gate stages
+## 12. PDF ingestion — partial pipeline (critique shipped; structure / interference / review-gate still deferred)
 
 - **File:** `lib/ingest/pipeline.ts`
-- **Demo:** 4 stages (parse → extract → embed → insert).
-- **Spec §5:** 7 stages (+ structure, critique, tag interference, review gate).
-- **Why:** Scope B shortcut. User-approved.
-- **Prod:** add critique pass + human review gate before `status='ready'`.
+- **Demo:** 5 stages — `parsing → extracting → critiquing → embedding → insert`. Critique drops cards below quality threshold and falls back to the extracted candidates if it would drop the whole batch.
+- **Spec §5:** 7 stages (parse → structure → extract → critique → embed → tag interference → review gate).
+- **Still missing vs. spec:** explicit `structure` stage, interference-pair tagging, and a human review gate that holds the deck in `draft` until approved.
+- **Prod:** insert structure pass before extraction; add interference tagging on the embedding output; gate `status='ready'` on user approval.
 
-## 13. No `llm_calls` cost logging
+## 13. ~~No `llm_calls` cost logging~~ — RESOLVED
 
-- **Files:** schema has the table; no inserts yet.
-- **Demo:** all LLM calls fire-and-forget.
-- **Spec §5:** every LLM call logged (tokens, latency, cost).
-- **Prod:** wrap `LlmProvider.generate` and `embed()` to log per-call.
+Shipped via `lib/llm/observability.ts`. Every LLM and embedding call writes a row with provider, model, stage, latency, token counts, classified error class, and deck/job FKs. Inserts go through the service-role admin client; users can read their own rows under RLS. See "Shipped baseline updates" above.
 
 ## 14. Profiles: onboarding
 
-- **Files:** `app/(app)/onboarding/{subject,level,goal}/page.tsx`, `app/(app)/library/page.tsx`, `app/(app)/deck/[id]/page.tsx`.
-- **Status:** implemented post-Plan-5; new users redirect to `/onboarding/subject` until `onboarded_at` is set.
+- **Files:** `app/(app)/onboarding/{subject,level,goal}/{page,*-form,*-options}.tsx`, `app/(app)/onboarding/actions.ts`, `app/(app)/library/page.tsx`, `app/(app)/deck/[id]/page.tsx`.
+- **Status:** implemented post-Plan-5; new users redirect to `/onboarding/subject` until `onboarded_at` is set. Subject and level steps now navigate optimistically (URL-passed selection + prefetched next route + background patch); goal step still awaits the patch because middleware gates on `onboarded_at`.
 - **Spec §7:** 4-question Cuemath-style onboarding (subject, level, daily goal, first PDF). The first-PDF step is still part of the library upload flow rather than the onboarding wizard.
 
-## 15. No heatmap, no predicted-retention charts
+## 15. Predicted-retention charts (heatmap shipped)
 
-- **Spec §9:** stretch (Week 2).
-- **Demo:** omitted.
+- **Spec §9:** activity heatmap + predicted-retention overlay (Week 2 stretch).
+- **Demo:** 12-week activity heatmap is shipped on `/progress`. Predicted-retention charts are not yet built.
+- **Prod:** add a per-deck retention curve fed from FSRS stability values.
 
-## 16. Font stack
+## 16. ~~Font stack~~ — RESOLVED
 
-- **File:** `app/layout.tsx` (check current)
-- **Demo:** Geist (Next default) until brand wiring confirmed
-- **Spec §7:** Plus Jakarta Sans (display), Nunito Sans (body)
-- **Prod:** wire via `next/font/google`.
-- **Verify before launch.**
+Plus Jakarta Sans (display) and Nunito Sans (body) are wired via `next/font/google` in `app/layout.tsx`. See "Shipped baseline updates" above.
 
 ## 17. "Break prompt" triggers on last card of default 20-sprint
 
 - **File:** `lib/fatigue/observe.ts`
-- **Demo:** needs 20 events → fires at the very end, gets immediately replaced by the "done" screen.
+- **Current:** `BASELINE_WINDOW = 10` → needs 20 events to fire, which lands on the very last card of a 20-card sprint and gets immediately replaced by the "done" screen.
 - **Spec:** shows mid-sprint when slowdown is detected.
 - **Suggested fix:** drop `BASELINE_WINDOW` from 10 → 5 so it fires after 10 cards.
-- **Not yet fixed** — pending user decision (noted in chat).
+- **Status:** intentionally unchanged for the showcase — the prompt is non-blocking and dismissable, and the perceived-speed fixes on onboarding were prioritised first. One-line tune-up when revisited.
 
 ---
 
@@ -156,8 +156,9 @@ The current production backlog is tracked in `docs/superpowers/plans/2026-04-26-
 ## How to revert for prod
 
 A single PR can flip most of these:
-- Item 1, 2 → env vars only.
+- Items 1, 2 → env vars only (`LLM_PROVIDER`, `LLM_MODEL`, `EMBEDDING_MODEL`).
 - Items 4, 5, 6, 7, 8 → one-line code changes.
-- Items 9–17 → new tasks in the next-stages roadmap.
+- Items 9, 10, 11, 12 (remaining stages), 14 (PDF-in-onboarding), 15 (retention charts), 17 → new tasks in the next-stages roadmap.
+- Items 13, 16 → already resolved; left in this doc as historical record.
 
 Keep this file updated as more deviations accrue.

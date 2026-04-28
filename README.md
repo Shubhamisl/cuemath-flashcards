@@ -35,7 +35,7 @@ PDF → atomic flashcards → modern spaced-repetition review, wrapped in Cuemat
 | `SUPABASE_PROJECT_REF` | Supabase project ref |
 | `OPENROUTER_API_KEY` | OpenRouter key for LLM + embeddings |
 | `LLM_PROVIDER` | `openrouter` (demo) or `anthropic` (prod) |
-| `LLM_MODEL` | e.g. `google/gemma-4-31b-it:free` |
+| `LLM_MODEL` | e.g. `openai/gpt-5-mini` (demo) or `claude-sonnet-4-6` (prod) |
 | `EMBEDDING_MODEL` | e.g. `nvidia/llama-nemotron-embed-vl-1b-v2:free` |
 | `ANTHROPIC_API_KEY` | Only needed when `LLM_PROVIDER=anthropic` |
 

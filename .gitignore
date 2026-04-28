@@ -48,6 +48,14 @@ next-env.d.ts
 .env.local
 .env*.local
 
+# Claude Code local settings (may contain user-specific tokens / paths)
+.claude/settings.local.json
+
+# Demo / writeup artifacts (not part of the codebase)
+Cuemath-Flashcards-*.docx
+build-*-doc.js
+~$*.docx
+
 # Supabase
 supabase/.branches
 supabase/.temp
