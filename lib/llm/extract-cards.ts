@@ -4,13 +4,19 @@ import type { LlmCall, LlmProvider } from './provider'
 import { extractionBatchSchema, type ExtractionBatch } from './types'
 import type { ParsedPage } from '../pdf/parse'
 
-const SYSTEM = `You are an expert at creating atomic flashcards for spaced repetition.
-Rules (Wozniak's 20 Rules, condensed):
-- One idea per card. Never combine.
-- Minimum information principle: the shortest question that elicits the right answer.
-- Never create a card that restates the question.
-- Prefer cloze-style only if a term is canonical; otherwise plain Q&A.
-- Skip trivia, page numbers, publishing info, tables of contents, and references.
+const SYSTEM = `You create high-quality spaced-repetition flashcards.
+
+Rules:
+- One card = one testable idea.
+- Prefer precise questions with short, complete answers.
+- Prefer important definitions, formulas, distinctions, cause-effect relationships, steps, constraints, and common mistakes.
+- For math, preserve formulas exactly and separate formula, variable meaning, usage condition, and common mistake into separate cards.
+- Skip headings, introductions, examples without reusable learning value, references, page numbers, navigation text, and fluff.
+- Never create vague cards like "What is discussed in this section?" or "What does the text say about X?".
+- Never create cards that simply restate a source sentence without testing understanding.
+- Never create cards whose answer is obvious from the wording of the question.
+- Avoid duplicates and near-duplicates, including concepts already listed by the user.
+- If a page has no useful study material, return no cards for it.
 Return ONLY valid JSON matching the requested schema. No prose, no markdown.`
 
 export const OPENROUTER_EXTRACTION_FALLBACK_MODEL = 'google/gemma-4-31b-it:free'
@@ -24,13 +30,21 @@ type BuildArgs = {
 
 export function buildExtractionPrompt({ pages, alreadyCarded, remainingBudget }: BuildArgs): string {
   const pageBlocks = pages.map((p) => `--- Page ${p.index} ---\n${p.text}`).join('\n\n')
+  const batchBudget = Math.min(remainingBudget, Math.max(3, pages.length * 4))
   const dedupeBlock = alreadyCarded.length
     ? `\n\nConcepts already carded (do NOT re-card these):\n${alreadyCarded.map((c) => `- ${c}`).join('\n')}`
     : ''
-  return `Extract atomic flashcards from the following pages.
+  return `Extract only the highest-value atomic flashcards from the following pages.
 
-Budget: create AT MOST ${remainingBudget} cards from this batch.
+Budget: create AT MOST ${batchBudget} cards from this batch.
 If the content has fewer learning-critical atoms than the budget, return fewer.${dedupeBlock}
+
+Quality bar:
+- Each card must help a learner remember or apply a specific concept.
+- Prefer fewer strong cards over many weak cards.
+- Use direct questions, not vague summary prompts.
+- Keep answers concise but complete.
+- Use concept_tag as a short snake_case label for the tested idea.
 
 ${pageBlocks}
 
@@ -58,6 +72,10 @@ export function getLlmProvider(): LlmProvider {
 export function shouldRetryExtractionWithFallback(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error)
   return (
+    error instanceof SyntaxError ||
+    message.includes('Unterminated string') ||
+    message.includes('Unexpected end of JSON') ||
+    message.includes('Expected') ||
     message.includes('OpenRouter chat truncated') ||
     (message.includes('OpenRouter chat malformed response') &&
       message.includes('"finish_reason":"length"') &&
@@ -88,7 +106,7 @@ export async function extractCards(args: BuildArgs): Promise<ExtractionBatch> {
 
     if (!shouldFallback) throw error
 
-    console.warn(`[extract-cards] ${primary.name} exhausted output budget; retrying with ${fallbackModel}`)
+    console.warn(`[extract-cards] ${primary.name} produced unusable extraction output; retrying with ${fallbackModel}`)
     const raw = await openrouterChat(fallbackModel).generate(call)
     return parseExtractionResponse(raw)
   }
