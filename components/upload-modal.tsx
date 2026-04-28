@@ -64,7 +64,7 @@ export function UploadModal() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink-black/40 backdrop-blur-[2px] p-4"
+      className="motion-premium-reveal fixed inset-0 z-50 flex items-center justify-center bg-ink-black/40 backdrop-blur-[2px] p-4"
       onClick={close}
       role="dialog"
       aria-modal="true"
@@ -72,7 +72,7 @@ export function UploadModal() {
     >
       <CueCard
         tone="paper"
-        className="w-full max-w-[520px] rounded-panel p-8 space-y-6"
+        className="motion-premium-modal w-full max-w-[520px] rounded-panel p-8 space-y-6"
         style={{ boxShadow: 'var(--shadow-card-flip)' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -91,7 +91,7 @@ export function UploadModal() {
         <label
           onDragOver={(e) => e.preventDefault()}
           onDrop={onDrop}
-          className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-ink-black/20 rounded-card bg-soft-cream/40 px-6 py-10 text-center cursor-pointer hover:border-ink-black/40 transition-colors"
+          className="motion-premium-list-item flex flex-col items-center justify-center gap-2 border-2 border-dashed border-ink-black/20 rounded-card bg-soft-cream/40 px-6 py-10 text-center cursor-pointer hover:-translate-y-0.5 hover:border-ink-black/40"
         >
           <input
             type="file"
@@ -134,7 +134,7 @@ export function UploadModal() {
                   aria-pressed={selected}
                   onClick={() => setSubject(s.id)}
                   className={cn(
-                    'inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all',
+                    'motion-premium-choice inline-flex items-center px-4 py-2 rounded-full text-sm font-medium',
                     'border-2',
                     selected
                       ? `${s.selectedClass} border-ink-black`

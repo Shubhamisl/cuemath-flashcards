@@ -43,8 +43,8 @@ export function TopNav({ name, streak }: TopNavProps) {
   }
 
   return (
-    <nav className="max-w-[1200px] mx-auto px-6 py-5">
-      <div className="rounded-[28px] border border-ink-black/10 bg-soft-cream/60 px-4 py-3 backdrop-blur-sm">
+    <nav className="motion-premium-reveal max-w-[1200px] mx-auto px-6 py-5">
+      <div className="motion-premium-list-item rounded-[28px] border border-ink-black/10 bg-soft-cream/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
             <Link href="/library" className="font-display text-xl font-extrabold tracking-tight">
@@ -68,7 +68,7 @@ export function TopNav({ name, streak }: TopNavProps) {
               {open && (
                 <div
                   role="menu"
-                  className="absolute right-0 z-20 mt-2 w-44 rounded-card border border-ink-black/10 bg-paper-white p-1"
+                  className="motion-premium-modal absolute right-0 z-20 mt-2 w-44 rounded-card border border-ink-black/10 bg-paper-white p-1"
                   style={{ boxShadow: 'var(--shadow-card-flip)' }}
                 >
                   <button

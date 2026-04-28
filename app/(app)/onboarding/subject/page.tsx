@@ -30,7 +30,7 @@ export default function SubjectPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="motion-premium-reveal space-y-8">
       <OnboardingProgress step={1} />
       <div className="space-y-2">
         <h1 className="font-display font-extrabold text-[36px] md:text-[44px] tracking-tight text-ink-black leading-[1.05]">
@@ -58,7 +58,7 @@ export default function SubjectPage() {
                   pick(o.id)
                 }
               }}
-              className={`cursor-pointer shadow-card-rest border-2 transition-all duration-tap will-change-transform ${
+              className={`motion-premium-list-item cursor-pointer shadow-card-rest border-2 will-change-transform ${
                 active
                   ? 'border-ink-black scale-[1.01]'
                   : 'border-transparent hover:border-ink-black hover:-translate-y-0.5'

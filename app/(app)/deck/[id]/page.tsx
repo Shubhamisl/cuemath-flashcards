@@ -25,7 +25,7 @@ import { ReviewReadyButton } from './review-ready-button'
 
 function StatTile({ value, label }: { value: string | number; label: string }) {
   return (
-    <CueCard tone="cream" className="shadow-card-rest px-5 py-4 space-y-1">
+    <CueCard tone="cream" className="motion-premium-list-item shadow-card-rest px-5 py-4 space-y-1">
       <div className="font-display font-extrabold text-2xl text-ink-black">{value}</div>
       <div className="text-xs uppercase tracking-[0.08em] text-ink-black/60">{label}</div>
     </CueCard>
@@ -139,7 +139,7 @@ export default async function DeckPage({
         </Link>
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 pb-16 grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-12 items-start">
+      <div className="motion-premium-reveal max-w-[1100px] mx-auto px-6 pb-16 grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-12 items-start">
         <div className="flex flex-col items-center lg:items-start gap-4">
           <div className="relative">
             <MasteryRing pct={stats.masteryPct} size={256} stroke={12} showLabel={false} />
@@ -174,7 +174,7 @@ export default async function DeckPage({
           </div>
 
           {deckRow.status === 'draft' && (
-            <div className="max-w-[520px] rounded-card border border-amber-200 bg-amber-50 px-5 py-4 space-y-2">
+            <div className="motion-premium-reveal max-w-[520px] rounded-card border border-amber-200 bg-amber-50 px-5 py-4 space-y-2">
               <p className="font-display font-semibold text-sm text-ink-black">Review gate</p>
               <p className="text-sm text-ink-black/70">
                 {gateSummary.reviewableCount === 0
@@ -267,7 +267,7 @@ export default async function DeckPage({
                 <ReviewReadyButton deckId={deckRow.id} disabled={!canReady} />
               </>
             ) : deckRow.status === 'ingesting' ? (
-              <div className="max-w-[560px] rounded-card border border-trust-blue/30 bg-trust-blue/10 px-5 py-4 space-y-2">
+              <div className="motion-premium-reveal max-w-[560px] rounded-card border border-trust-blue/30 bg-trust-blue/10 px-5 py-4 space-y-2">
                 <p className="font-display font-semibold text-sm text-ink-black">
                   {ingestDiagnostics?.title ?? 'Generating cards'}
                 </p>
@@ -281,7 +281,7 @@ export default async function DeckPage({
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="max-w-[560px] rounded-card border border-alert-coral/30 bg-alert-coral/10 px-5 py-4 space-y-2">
+                <div className="motion-premium-reveal max-w-[560px] rounded-card border border-alert-coral/30 bg-alert-coral/10 px-5 py-4 space-y-2">
                   <p className="font-display font-semibold text-sm text-ink-black">
                     {ingestDiagnostics?.title ?? 'Generation failed'}
                   </p>

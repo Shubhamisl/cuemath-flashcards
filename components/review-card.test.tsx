@@ -19,6 +19,8 @@ describe('ReviewCard', () => {
 
     expect(frontFace).not.toBeNull()
     expect(backFace).not.toBeNull()
+    expect(frontFace).toHaveClass('motion-premium-card-face')
+    expect(backFace).toHaveClass('motion-premium-card-face')
     expect(frontFace).toHaveAttribute('aria-hidden', 'false')
     expect(backFace).toHaveAttribute('aria-hidden', 'true')
     expect(frontFace).toHaveStyle({ background: 'rgb(255, 241, 204)' })

@@ -18,8 +18,8 @@ export function LibraryHero({
   globalDueNowCount,
 }: LibraryHeroProps) {
   return (
-    <header className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.9fr)]">
-      <div className="rounded-[28px] border border-ink-black/10 bg-paper-white px-6 py-6 shadow-card-rest">
+    <header className="motion-premium-reveal grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.9fr)]">
+      <div className="motion-premium-list-item rounded-[28px] border border-ink-black/10 bg-paper-white px-6 py-6 shadow-card-rest">
         <p className="text-xs font-display font-semibold uppercase tracking-[0.08em] text-ink-black/55">
           Study home
         </p>
@@ -29,7 +29,7 @@ export function LibraryHero({
         <div className="mt-4 flex items-center gap-3">
           <div className="h-2.5 w-44 overflow-hidden rounded-full bg-ink-black/10">
             <div
-              className="h-full rounded-full bg-cue-yellow transition-all duration-progress"
+              className="motion-premium-progress h-full rounded-full bg-cue-yellow"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -39,7 +39,7 @@ export function LibraryHero({
         </div>
       </div>
 
-      <div className="rounded-[28px] border border-ink-black/10 bg-mint-sky/55 px-6 py-6 shadow-card-rest">
+      <div className="motion-premium-list-item rounded-[28px] border border-ink-black/10 bg-mint-sky/55 px-6 py-6 shadow-card-rest">
         <div className="flex flex-col gap-4">
           <div>
             <p className="text-xs font-display font-semibold uppercase tracking-[0.08em] text-ink-black/55">

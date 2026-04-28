@@ -11,7 +11,7 @@ import { tierToTone } from '@/lib/progress/tier-tone'
 
 function StatTile({ value, label }: { value: string | number; label: string }) {
   return (
-    <CueCard tone="cream" className="shadow-card-rest px-5 py-4 space-y-1">
+    <CueCard tone="cream" className="motion-premium-list-item shadow-card-rest px-5 py-4 space-y-1">
       <div className="font-display font-extrabold text-2xl text-ink-black">{value}</div>
       <div className="text-xs uppercase tracking-[0.08em] text-ink-black/60">{label}</div>
     </CueCard>
@@ -87,7 +87,7 @@ export default async function ProgressPage() {
       <TopNav name={name} streak={dashboard.summary.streak} />
 
       <div className="max-w-[1100px] mx-auto px-6 py-10 space-y-10">
-        <header className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+        <header className="motion-premium-reveal flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
               Progress
@@ -116,7 +116,7 @@ export default async function ProgressPage() {
               </div>
             )}
             <div className="flex items-center gap-4">
-              <MasteryRing pct={dashboard.summary.masteryPct} size={96} stroke={8} />
+              <MasteryRing pct={dashboard.summary.masteryPct} size={96} stroke={8} showLabel={false} />
               <div className="space-y-1">
                 <div className="text-sm text-ink-black/60">Overall mastery</div>
                 <div className="font-display font-extrabold text-4xl text-ink-black">
@@ -153,7 +153,7 @@ export default async function ProgressPage() {
                   <div key={day.isoDate} className="flex flex-col items-center gap-3">
                     <div className="text-xs text-ink-black/60">{day.cardsReviewed}</div>
                     <div
-                      className="w-full rounded-t-[10px] bg-cue-yellow/80"
+                      className="motion-premium-progress w-full rounded-t-[10px] bg-cue-yellow/80"
                       style={{ height }}
                       aria-label={`${day.label}: ${day.cardsReviewed} cards reviewed`}
                     />
@@ -250,7 +250,7 @@ export default async function ProgressPage() {
                 {dashboard.heatmap.map((day) => (
                   <div
                     key={day.isoDate}
-                    className={`aspect-square rounded-[6px] ${heatTone[day.level]}`}
+                    className={`motion-premium-list-item aspect-square rounded-[6px] ${heatTone[day.level]}`}
                     title={`${day.isoDate}: ${day.cardsReviewed} cards in ${day.sessions} session${day.sessions === 1 ? '' : 's'}`}
                     aria-label={`${day.isoDate}: ${day.cardsReviewed} cards reviewed`}
                   />
@@ -382,7 +382,7 @@ export default async function ProgressPage() {
                   <Link
                     key={deck.id}
                     href={`/deck/${deck.id}`}
-                    className="block rounded-card bg-paper-white hover:bg-soft-cream/70 transition-colors px-4 py-4"
+                    className="motion-premium-list-item block rounded-card bg-paper-white hover:-translate-y-0.5 hover:bg-soft-cream/70 px-4 py-4"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-2 min-w-0">

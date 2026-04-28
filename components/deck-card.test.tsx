@@ -71,6 +71,7 @@ describe('DeckCard', () => {
     )
 
     expect(screen.getByText('Biology Systems')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Biology Systems/ })).toHaveClass('motion-premium-list-item')
     expect(screen.getByText('SharpMind')).toBeInTheDocument()
     expect(screen.getByText('4 due')).toBeInTheDocument()
     expect(screen.getByText('4 due now')).toBeInTheDocument()

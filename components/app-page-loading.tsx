@@ -5,7 +5,7 @@ type AppPageLoadingProps = {
 function LoadingBar({ width, className = 'h-4' }: { width: string; className?: string }) {
   return (
     <div
-      className={`${className} rounded-full bg-ink-black/10 animate-pulse`}
+      className={`${className} motion-premium-sheen rounded-full bg-ink-black/10 animate-pulse`}
       style={{ width }}
       aria-hidden="true"
     />
@@ -20,7 +20,7 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
           <div
             role="presentation"
             aria-label="Navigation loading"
-            className="rounded-[28px] border border-ink-black/10 bg-soft-cream/60 px-4 py-3 backdrop-blur-sm"
+            className="motion-premium-reveal rounded-[28px] border border-ink-black/10 bg-soft-cream/60 px-4 py-3 backdrop-blur-sm"
           >
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
@@ -51,7 +51,7 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
         <section
           role="presentation"
           aria-label="Hero loading"
-          className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.9fr)]"
+          className="motion-premium-reveal grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.9fr)]"
         >
           <div className="space-y-5 rounded-[28px] border border-ink-black/10 bg-paper-white px-6 py-6 shadow-card-rest">
             <LoadingBar width="88px" className="h-3" />
@@ -77,7 +77,7 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
         <section
           role="presentation"
           aria-label="Controls loading"
-          className="rounded-[24px] border border-ink-black/10 bg-paper-white px-4 py-4 shadow-card-rest"
+          className="motion-premium-reveal rounded-[24px] border border-ink-black/10 bg-paper-white px-4 py-4 shadow-card-rest"
         >
           <div className="space-y-4">
             <div className="space-y-2 pb-1">
@@ -100,7 +100,7 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
               key={index}
               role="presentation"
               aria-label="Deck loading"
-              className="space-y-5 rounded-card border border-ink-black/10 bg-paper-white p-6 shadow-card-rest"
+              className="motion-premium-list-item space-y-5 rounded-card border border-ink-black/10 bg-paper-white p-6 shadow-card-rest"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="h-16 w-16 rounded-full bg-ink-black/8 animate-pulse" aria-hidden="true" />

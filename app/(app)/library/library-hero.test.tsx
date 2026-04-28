@@ -32,6 +32,7 @@ describe('LibraryHero', () => {
     )
 
     expect(screen.getByText('Hi, Shubham')).toBeInTheDocument()
+    expect(screen.getByRole('banner')).toHaveClass('motion-premium-reveal')
     expect(screen.getByText('7 / 20 today')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Review all due' })).toHaveAttribute('href', '/review')
     expect(screen.getByRole('link', { name: 'Quick 5' })).toHaveAttribute('href', '/review?mode=quick')

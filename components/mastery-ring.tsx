@@ -1,9 +1,11 @@
+import type { CSSProperties } from 'react'
+
 export function MasteryRing({
   pct,
   size = 40,
   stroke = 4,
   label,
-  showLabel = true,
+  showLabel = false,
 }: {
   pct: number
   size?: number
@@ -16,9 +18,17 @@ export function MasteryRing({
   const circumference = 2 * Math.PI * radius
   const dashOffset = circumference * (1 - clamped / 100)
   return (
-    <div className="inline-flex items-center gap-2" aria-label={label ?? `Mastery ${clamped}%`}>
+    <div
+      className="inline-flex items-center gap-2"
+      aria-label={label ?? `Mastery ${clamped}%`}
+      style={{
+        '--ring-start': String(circumference),
+        '--ring-end': String(dashOffset),
+      } as CSSProperties}
+    >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
+          className="motion-premium-ring"
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -37,7 +47,6 @@ export function MasteryRing({
           strokeDasharray={circumference}
           strokeDashoffset={dashOffset}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          style={{ transition: 'stroke-dashoffset 400ms ease' }}
         />
       </svg>
       {showLabel && <span className="text-xs font-semibold">{clamped}%</span>}

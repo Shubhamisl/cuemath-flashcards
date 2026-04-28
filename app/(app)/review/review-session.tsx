@@ -347,7 +347,10 @@ export function ReviewSession({
 
   if (showWeakLoopPrompt) {
     return (
-      <div className="flex flex-col items-center gap-6 py-8">
+      <div
+        className="motion-premium-reveal flex flex-col items-center gap-6 py-8"
+        data-motion-stage="weak-loop"
+      >
         <CueCard
           tone="cream"
           className="rounded-panel !shadow-none p-8 w-full max-w-[440px] text-center space-y-4"
@@ -384,7 +387,10 @@ export function ReviewSession({
     const secs = Math.floor((totalMs % 60000) / 1000)
 
     return (
-      <div className="flex flex-col items-center gap-6 py-8">
+      <div
+        className="motion-premium-reveal flex flex-col items-center gap-6 py-8"
+        data-motion-stage="session-complete"
+      >
         <CueCard
           tone="mint"
           className="rounded-panel !shadow-none p-10 w-full max-w-[440px] text-center space-y-6"
@@ -412,7 +418,7 @@ export function ReviewSession({
         </CueCard>
 
         {preview && (
-          <CueCard tone="blue" className="w-full max-w-[440px] shadow-card-rest space-y-4">
+          <CueCard tone="blue" className="motion-premium-list-item w-full max-w-[440px] shadow-card-rest space-y-4">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
                 Next session
@@ -513,7 +519,7 @@ export function ReviewSession({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="motion-premium-reveal space-y-6">
       <div
         className="flex items-center justify-center gap-1.5 flex-wrap"
         aria-label={`Card ${Math.min(index + 1, cards.length)} of ${cards.length}`}
@@ -542,7 +548,7 @@ export function ReviewSession({
         <>
           {current.fsrs_state === null && (
             <div className="flex justify-center">
-              <span className="text-xs font-display font-semibold uppercase tracking-[0.08em] bg-cue-yellow/30 text-ink-black px-3 py-1 rounded-full">
+              <span className="motion-premium-reveal text-xs font-display font-semibold uppercase tracking-[0.08em] bg-cue-yellow/30 text-ink-black px-3 py-1 rounded-full">
                 New
               </span>
             </div>
@@ -567,7 +573,7 @@ export function ReviewSession({
                     {hintShown ? 'Hint revealed' : 'Reveal hint (H)'}
                   </CueButton>
                   {hintShown && (
-                    <CueCard tone="blue" className="shadow-card-rest px-5 py-4 space-y-2">
+                    <CueCard tone="blue" className="motion-premium-reveal shadow-card-rest px-5 py-4 space-y-2">
                       <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
                         Hint
                       </p>
@@ -577,7 +583,7 @@ export function ReviewSession({
                 </>
               )}
               {typingSupported && typingOpen && (
-                <CueCard tone="cream" className="shadow-card-rest px-5 py-4 space-y-3">
+                <CueCard tone="cream" className="motion-premium-reveal shadow-card-rest px-5 py-4 space-y-3">
                   <div className="space-y-1">
                     <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
                       Typing challenge
@@ -632,7 +638,7 @@ export function ReviewSession({
           {flipped && (
             <div className="space-y-3">
               {typedCheck && (
-                <CueCard tone={typedCheck.exact ? 'mint' : typedCheck.close ? 'blue' : 'cream'} className="shadow-card-rest px-5 py-4 space-y-2">
+                <CueCard tone={typedCheck.exact ? 'mint' : typedCheck.close ? 'blue' : 'cream'} className="motion-premium-reveal shadow-card-rest px-5 py-4 space-y-2">
                   <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
                     Your attempt
                   </p>
@@ -655,7 +661,7 @@ export function ReviewSession({
           )}
 
           {lastInterval !== null && (
-            <p className="text-xs text-center text-ink-black/50">
+            <p className="motion-premium-reveal text-xs text-center text-ink-black/50">
               {lastInterval === 0
                 ? 'See you again shortly'
                 : lastInterval === 1
@@ -667,7 +673,7 @@ export function ReviewSession({
       )}
 
       {easyNote && (
-        <p className="text-sm text-center" style={{ color: 'var(--ink-black)' }}>
+        <p className="motion-premium-reveal text-sm text-center" style={{ color: 'var(--ink-black)' }}>
           {easyNote}
         </p>
       )}

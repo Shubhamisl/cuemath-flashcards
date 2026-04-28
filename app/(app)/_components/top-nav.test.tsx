@@ -35,6 +35,7 @@ describe('TopNav', () => {
 
     render(<TopNav name="Shubham" streak={3} />)
 
+    expect(screen.getByRole('navigation')).toHaveClass('motion-premium-reveal')
     expect(screen.getByRole('link', { name: 'Library' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'Progress' })).toHaveAttribute('href', '/progress')
     expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute('href', '/profile')

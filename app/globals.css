@@ -63,6 +63,9 @@
 
   --duration-tap: 120ms;
   --duration-progress: 400ms;
+  --duration-reveal: 220ms;
+  --duration-modal: 180ms;
+  --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   --font-display: var(--font-display), 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-body: var(--font-body), 'Nunito Sans', system-ui, sans-serif;
@@ -160,6 +163,110 @@
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  @keyframes premium-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes premium-modal {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes premium-sheen {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  @keyframes premium-ring-draw {
+    from {
+      stroke-dashoffset: var(--ring-start);
+    }
+    to {
+      stroke-dashoffset: var(--ring-end);
+    }
+  }
+
+  .motion-premium-reveal {
+    animation: premium-reveal var(--duration-reveal) var(--ease-premium) both;
+  }
+
+  .motion-premium-modal {
+    animation: premium-modal var(--duration-modal) var(--ease-premium) both;
+  }
+
+  .motion-premium-list-item {
+    transition:
+      transform var(--duration-reveal) var(--ease-premium),
+      box-shadow var(--duration-reveal) var(--ease-premium),
+      background-color var(--duration-reveal) var(--ease-premium),
+      border-color var(--duration-reveal) var(--ease-premium),
+      opacity var(--duration-reveal) var(--ease-premium);
+  }
+
+  .motion-premium-card-face {
+    transition:
+      transform var(--duration-reveal) var(--ease-premium),
+      box-shadow var(--duration-reveal) var(--ease-premium),
+      background-color var(--duration-reveal) var(--ease-premium);
+  }
+
+  .motion-premium-choice {
+    transition:
+      transform var(--duration-tap) var(--ease-premium),
+      box-shadow var(--duration-reveal) var(--ease-premium),
+      border-color var(--duration-reveal) var(--ease-premium),
+      background-color var(--duration-reveal) var(--ease-premium),
+      opacity var(--duration-reveal) var(--ease-premium);
+  }
+
+  .motion-premium-progress {
+    transition: width var(--duration-progress) var(--ease-premium);
+  }
+
+  .motion-premium-ring {
+    animation: premium-ring-draw 620ms var(--ease-premium) both;
+    transition: stroke-dashoffset var(--duration-progress) var(--ease-premium);
+  }
+
+  .motion-premium-sheen {
+    background-image: linear-gradient(
+      110deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.52) 45%,
+      transparent 70%
+    );
+    background-size: 220% 100%;
+    animation: premium-sheen 2.6s var(--ease-premium) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .motion-premium-reveal,
+    .motion-premium-modal,
+    .motion-premium-ring,
+    .motion-premium-sheen {
+      animation: none;
     }
   }
 }

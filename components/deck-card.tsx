@@ -240,10 +240,10 @@ export function DeckCard({
       <div className="relative group/card">
         {confirmDelete && deleteConfirmUI}
         {trashButton}
-        <Link href={`/deck/${id}`} className="block group">
+        <Link href={`/deck/${id}`} className="motion-premium-list-item block group">
           <CueCard
             subject={subjectFamily}
-            className="shadow-card-rest h-full transition-transform duration-tap group-hover:-translate-y-0.5"
+            className="shadow-card-rest h-full group-hover:-translate-y-0.5"
           >
             {cardBody}
           </CueCard>

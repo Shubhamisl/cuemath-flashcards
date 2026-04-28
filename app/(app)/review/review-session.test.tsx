@@ -120,6 +120,9 @@ describe('review-session', () => {
 
     await user.keyboard('{Escape}')
 
+    expect(screen.getByText('Nice sprint.').closest('[data-motion-stage="session-complete"]')).toHaveClass(
+      'motion-premium-reveal',
+    )
     expect(screen.getByText('Nice sprint.')).toBeInTheDocument()
     expect(await screen.findByText('Suggested next: Quick 5')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Start Quick 5' })).toBeInTheDocument()

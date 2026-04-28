@@ -82,7 +82,7 @@ function Face({
       data-face={backSide ? 'back' : 'front'}
       className={`flex rounded-card border border-ink-black/5 p-6 text-center ${
         backSide ? 'shadow-card-flip' : 'shadow-card-rest'
-      }`}
+      } motion-premium-card-face`}
       style={{
         gridArea: '1 / 1',
         minHeight: 240,
