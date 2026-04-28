@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useEffect, useState } from 'react'
 import { CueCard } from '@/lib/brand/primitives/card'
 import type { subjectFamily } from '@/lib/brand/tokens'
 import { patchProfile } from '../actions'
@@ -17,16 +17,17 @@ const OPTIONS: Array<{ id: subjectFamily; label: string; sub: string }> = [
 
 export default function SubjectPage() {
   const router = useRouter()
-  const [pending, startTransition] = useTransition()
   const [picked, setPicked] = useState<subjectFamily | null>(null)
 
+  useEffect(() => {
+    router.prefetch('/onboarding/level')
+  }, [router])
+
   function pick(family: subjectFamily) {
-    if (pending) return
+    if (picked) return
     setPicked(family)
-    startTransition(async () => {
-      await patchProfile({ subject_family: family })
-      router.push('/onboarding/level')
-    })
+    void patchProfile({ subject_family: family })
+    router.push(`/onboarding/level?s=${family}`)
   }
 
   return (
@@ -49,7 +50,7 @@ export default function SubjectPage() {
               subject={o.id}
               role="button"
               tabIndex={0}
-              aria-disabled={pending}
+              aria-disabled={picked !== null}
               aria-pressed={active}
               onClick={() => pick(o.id)}
               onKeyDown={(e) => {

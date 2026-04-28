@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { CueCard } from '@/lib/brand/primitives/card'
 import type { subjectFamily } from '@/lib/brand/tokens'
 import { patchProfile } from '../actions'
@@ -30,6 +30,10 @@ export function GoalForm({
   const [saved, setSaved] = useState<Goal | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    router.prefetch('/library')
+  }, [router])
+
   function pick(goal: Goal) {
     if (pending || saved !== null) return
     setPicked(goal)
@@ -54,7 +58,7 @@ export function GoalForm({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="motion-premium-reveal space-y-8">
       <OnboardingProgress step={3} />
       <div className="space-y-3">
         {subject && <SubjectChip subject={subject} />}

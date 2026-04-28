@@ -4,7 +4,17 @@ import { LevelOptions } from './level-options'
 
 const ALLOWED: subjectFamily[] = ['math', 'language', 'science', 'humanities', 'other']
 
-export default async function LevelPage() {
+export default async function LevelPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ s?: string }>
+}) {
+  const { s } = await searchParams
+
+  if (typeof s === 'string' && ALLOWED.includes(s as subjectFamily)) {
+    return <LevelOptions subject={s as subjectFamily} />
+  }
+
   const supabase = await createClient()
   const {
     data: { user },
