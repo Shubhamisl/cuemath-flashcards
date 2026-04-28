@@ -44,6 +44,8 @@ export function UploadModal() {
   useEffect(() => {
     if (!open) return
     const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') close()
     }
