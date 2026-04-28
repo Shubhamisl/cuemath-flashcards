@@ -6,9 +6,9 @@ import { updateJob, setDeckStatus } from './job'
 import { adminDb } from '../db/admin'
 import type { AtomicCard } from '../llm/types'
 
-// Keep demo/Hobby-tier generations focused. Smaller card caps reduce filler
-// cards and keep extraction + embedding comfortably inside Vercel limits.
-const CARD_CAP = 60
+// Keep generations focused while allowing stronger mini models to produce
+// enough useful coverage. Review gate still keeps all cards as drafts first.
+const CARD_CAP = 100
 const EXTRACTION_BATCH_PAGE_SIZE = 4
 
 async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
