@@ -1,6 +1,7 @@
 import { parsePdf } from '../pdf/parse'
 import { chunkPages } from '../pdf/chunk'
 import { extractCards } from '../llm/extract-cards'
+import { critiqueCards } from '../llm/critique-cards'
 import { embed } from '../embeddings/openrouter'
 import { updateJob, setDeckStatus } from './job'
 import { adminDb } from '../db/admin'
@@ -63,25 +64,44 @@ export async function runIngest(args: {
         allCards.push(c)
         alreadyCarded.push(c.concept_tag)
       }
-      const pct = 15 + Math.floor(((i + 1) / batches.length) * 55)
+      const pct = 15 + Math.floor(((i + 1) / batches.length) * 45)
       await updateJob(jobId, { progress_pct: pct })
     }
 
     if (allCards.length === 0) throw new Error('No cards extracted from PDF')
 
+    // --- critique ---
+    await updateJob(jobId, { stage: 'critiquing', progress_pct: 65 })
+    let finalCards = await withRetry(
+      () => critiqueCards({
+        cards: allCards,
+        metadata: { stage: 'critiquing', userId, deckId, jobId },
+      }),
+      'critiqueCards',
+    )
+
+    if (finalCards.length === 0) {
+      console.warn('[ingest] critique dropped every card; falling back to extracted candidates')
+      finalCards = allCards
+    }
+
+    if (finalCards.length > CARD_CAP) {
+      finalCards = finalCards.slice(0, CARD_CAP)
+    }
+
     // --- embed ---
-    await updateJob(jobId, { stage: 'embedding', progress_pct: 75 })
-    const texts = allCards.map((c) => `${c.front}\n${c.back}`)
+    await updateJob(jobId, { stage: 'embedding', progress_pct: 80 })
+    const texts = finalCards.map((c) => `${c.front}\n${c.back}`)
     const { vectors, dim } = await withRetry(
       () => embed(texts, { stage: 'embedding', userId, deckId, jobId }),
       'embed',
     )
-    if (vectors.length !== allCards.length) {
-      throw new Error(`embed count mismatch: ${vectors.length} vs ${allCards.length}`)
+    if (vectors.length !== finalCards.length) {
+      throw new Error(`embed count mismatch: ${vectors.length} vs ${finalCards.length}`)
     }
 
     // --- insert cards ---
-    const rows = allCards.map((c, i) => ({
+    const rows = finalCards.map((c, i) => ({
       deck_id: deckId,
       user_id: userId,
       approved: false,
@@ -98,7 +118,7 @@ export async function runIngest(args: {
     if (insErr) throw insErr
 
     // --- done ---
-    await setDeckStatus(deckId, 'draft', allCards.length)
+    await setDeckStatus(deckId, 'draft', finalCards.length)
     await updateJob(jobId, {
       stage: 'ready',
       progress_pct: 100,
