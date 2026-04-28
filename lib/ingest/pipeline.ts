@@ -6,7 +6,10 @@ import { updateJob, setDeckStatus } from './job'
 import { adminDb } from '../db/admin'
 import type { AtomicCard } from '../llm/types'
 
-const CARD_CAP = 200
+// Keep demo/Hobby-tier generations focused. Smaller card caps reduce filler
+// cards and keep extraction + embedding comfortably inside Vercel limits.
+const CARD_CAP = 60
+const EXTRACTION_BATCH_PAGE_SIZE = 4
 
 async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
   try {
@@ -37,7 +40,7 @@ export async function runIngest(args: {
 
     // --- extract ---
     await updateJob(jobId, { stage: 'extracting', progress_pct: 15 })
-    const batches = chunkPages(pages, 10)
+    const batches = chunkPages(pages, EXTRACTION_BATCH_PAGE_SIZE)
     const alreadyCarded: string[] = []
     const allCards: AtomicCard[] = []
 
