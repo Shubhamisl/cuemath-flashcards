@@ -23,7 +23,7 @@ export function MasteryRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="var(--soft-cream)"
+          stroke="var(--color-soft-cream)"
           strokeWidth={stroke}
         />
         <circle
@@ -31,7 +31,7 @@ export function MasteryRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="var(--cue-yellow)"
+          stroke="var(--color-cue-yellow)"
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={circumference}
