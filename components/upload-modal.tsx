@@ -64,7 +64,7 @@ export function UploadModal() {
 
   return (
     <div
-      className="motion-premium-reveal fixed inset-0 z-50 flex items-center justify-center bg-ink-black/40 backdrop-blur-[2px] p-4"
+      className="motion-premium-reveal fixed inset-0 z-50 flex items-center justify-center bg-ink-black/15 backdrop-blur-[3px] p-4"
       onClick={close}
       role="dialog"
       aria-modal="true"
