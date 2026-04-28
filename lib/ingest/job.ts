@@ -1,6 +1,13 @@
 import { adminDb } from '../db/admin'
 
-export type IngestStage = 'uploading' | 'parsing' | 'extracting' | 'embedding' | 'ready' | 'failed'
+export type IngestStage =
+  | 'uploading'
+  | 'parsing'
+  | 'extracting'
+  | 'critiquing'
+  | 'embedding'
+  | 'ready'
+  | 'failed'
 
 export async function updateJob(
   jobId: string,
