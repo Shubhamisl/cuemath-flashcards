@@ -50,7 +50,7 @@ describe('DeckCard', () => {
 
     expect(screen.getByText('Generation failed')).toBeInTheDocument()
     expect(
-      screen.getByText('This PDF looks image-only or scanned. Try a text-based PDF or run OCR first.'),
+      screen.getByText('This PDF looks image-only or scanned, and OCR could not read it clearly.'),
     ).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'View details' })).toHaveAttribute('href', '/deck/deck-1')
   })

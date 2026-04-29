@@ -1,6 +1,18 @@
 import PDFParser from 'pdf2json'
 
-export type ParsedPage = { index: number; text: string }
+export type ParsedPage = {
+  index: number
+  text: string
+  source?: 'pdf-text' | 'ocr'
+}
+
+export function hasUsefulPdfText(pages: ParsedPage[], minChars = 40): boolean {
+  const totalChars = pages.reduce(
+    (sum, page) => sum + page.text.replace(/\s+/g, '').length,
+    0,
+  )
+  return totalChars >= minChars
+}
 
 /**
  * Extract per-page text from a PDF buffer using pdf2json.
@@ -26,7 +38,7 @@ export async function parsePdf(buffer: Buffer): Promise<ParsedPage[]> {
       const pages: ParsedPage[] = pageTexts
         .map((t) => t.replace(/\s+/g, ' ').trim())
         .filter((t) => t.length > 0)
-        .map((text, index) => ({ index, text }))
+        .map((text, index) => ({ index, text, source: 'pdf-text' as const }))
       resolve(pages)
     })
     parser.parseBuffer(buffer)

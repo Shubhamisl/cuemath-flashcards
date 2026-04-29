@@ -19,6 +19,7 @@ type IngestDiagnostics = {
 const STAGE_LABELS: Record<string, string> = {
   uploading: 'Uploading',
   parsing: 'Parsing PDF',
+  ocr: 'Reading scanned PDF',
   extracting: 'Extracting cards',
   embedding: 'Embedding',
   ready: 'Ready',
@@ -37,7 +38,13 @@ export function summarizeIngestError(error: string | null | undefined): string |
   if (!trimmed) return null
 
   if (trimmed.includes('PDF had no extractable text')) {
-    return 'This PDF looks image-only or scanned. Try a text-based PDF or run OCR first.'
+    return 'This PDF looks image-only or scanned, and OCR could not read it clearly.'
+  }
+  if (trimmed.includes('OCR found no readable text')) {
+    return 'OCR found no readable text in this scanned PDF. Try a clearer scan or a text-based PDF.'
+  }
+  if (trimmed.includes('OpenRouter OCR failed') || trimmed.includes('OpenRouter OCR returned no text')) {
+    return 'OCR could not read this scanned PDF. Try again or upload a clearer scan.'
   }
   if (trimmed.includes('No cards extracted from PDF')) {
     return 'We could not find enough learning material to build cards from this PDF.'

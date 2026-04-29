@@ -3,6 +3,7 @@ import { adminDb } from '../db/admin'
 export type IngestStage =
   | 'uploading'
   | 'parsing'
+  | 'ocr'
   | 'extracting'
   | 'critiquing'
   | 'embedding'

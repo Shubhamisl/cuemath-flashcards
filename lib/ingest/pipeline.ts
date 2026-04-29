@@ -1,4 +1,4 @@
-import { parsePdf } from '../pdf/parse'
+import { parsePdfWithOcrFallback } from '../pdf/parse-with-ocr'
 import { chunkPages } from '../pdf/chunk'
 import { extractCards } from '../llm/extract-cards'
 import { critiqueCards } from '../llm/critique-cards'
@@ -36,7 +36,13 @@ export async function runIngest(args: {
     const { data: blob, error: dlErr } = await db.storage.from('pdfs').download(pdfPath)
     if (dlErr || !blob) throw new Error(`storage download: ${dlErr?.message}`)
     const buffer = Buffer.from(await blob.arrayBuffer())
-    const pages = await withRetry(() => parsePdf(buffer), 'parsePdf')
+    const pages = await withRetry(
+      () =>
+        parsePdfWithOcrFallback(buffer, {
+          onOcrStart: () => updateJob(jobId, { stage: 'ocr', progress_pct: 8 }),
+        }),
+      'parsePdfWithOcrFallback',
+    )
     if (pages.length === 0) throw new Error('PDF had no extractable text')
 
     // --- extract ---

@@ -24,8 +24,21 @@ describe('ingest/diagnostics', () => {
 
   it('turns empty-text PDFs into a clearer message', () => {
     expect(summarizeIngestError('PDF had no extractable text')).toBe(
-      'This PDF looks image-only or scanned. Try a text-based PDF or run OCR first.',
+      'This PDF looks image-only or scanned, and OCR could not read it clearly.',
     )
+  })
+
+  it('labels OCR jobs clearly', () => {
+    const diagnostics = buildIngestDiagnostics({
+      status: 'ingesting',
+      job: {
+        stage: 'ocr',
+        progress_pct: 12,
+        error: null,
+      },
+    })
+
+    expect(diagnostics?.stageLabel).toBe('Reading scanned PDF')
   })
 
   it('marks failed jobs retryable and trims noisy error text', () => {
