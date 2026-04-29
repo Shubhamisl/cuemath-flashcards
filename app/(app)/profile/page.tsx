@@ -1,15 +1,26 @@
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
+import { AppPageLoadingContent } from '@/components/app-page-loading'
 import { ProfileForm } from './profile-form'
 import type { subjectFamily } from '@/lib/brand/tokens'
 import { getAppShellData } from '../_lib/app-shell-data'
 
-export default async function ProfilePage() {
+export default function ProfilePage() {
+  return (
+    <main className="min-h-screen">
+      <Suspense fallback={<AppPageLoadingContent title="Loading settings" />}>
+        <ProfilePageData />
+      </Suspense>
+    </main>
+  )
+}
+
+async function ProfilePageData() {
   const { user, profile } = await getAppShellData()
 
   if (!profile?.onboarded_at) redirect('/onboarding/subject')
 
   return (
-    <main className="min-h-screen">
       <div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-10">
         <header className="mx-auto max-w-[600px] space-y-2">
           <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink-black sm:text-[36px]">
@@ -34,6 +45,5 @@ export default async function ProfilePage() {
           />
         </div>
       </div>
-    </main>
   )
 }

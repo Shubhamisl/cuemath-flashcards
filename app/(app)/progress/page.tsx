@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/db/server'
+import { AppPageLoadingContent } from '@/components/app-page-loading'
 import { CueCard } from '@/lib/brand/primitives/card'
 import { CuePill } from '@/lib/brand/primitives/pill'
 import { CueButton } from '@/lib/brand/primitives/button'
@@ -18,7 +20,17 @@ function StatTile({ value, label }: { value: string | number; label: string }) {
   )
 }
 
-export default async function ProgressPage() {
+export default function ProgressPage() {
+  return (
+    <main className="min-h-screen">
+      <Suspense fallback={<AppPageLoadingContent title="Loading progress" />}>
+        <ProgressPageData />
+      </Suspense>
+    </main>
+  )
+}
+
+async function ProgressPageData() {
   const { user, profile } = await getAppShellData()
   const supabase = await createClient()
 
@@ -73,7 +85,6 @@ export default async function ProgressPage() {
   const heatTone = ['bg-ink-black/8', 'bg-cue-yellow/30', 'bg-cue-yellow/50', 'bg-cue-yellow/70', 'bg-cue-yellow']
 
   return (
-    <main className="min-h-screen">
       <div className="mx-auto max-w-[1100px] space-y-8 px-4 py-8 sm:px-6 sm:py-10 sm:space-y-10">
         <header className="motion-premium-reveal flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
@@ -398,6 +409,5 @@ export default async function ProgressPage() {
           </CueCard>
         </section>
       </div>
-    </main>
   )
 }

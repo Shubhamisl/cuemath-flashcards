@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/db/server'
+import { AppPageLoadingContent } from '@/components/app-page-loading'
 import { DeckCard } from '@/components/deck-card'
 import { SearchSortBar } from '@/components/search-sort-bar'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
@@ -15,7 +16,27 @@ import {
 } from '@/lib/library/library-view'
 import { LibraryHero } from './library-hero'
 
-export default async function LibraryPage({
+export default function LibraryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    q?: string
+    sort?: string
+    subject?: string
+    status?: string
+    mastery?: string
+  }>
+}) {
+  return (
+    <main className="min-h-screen">
+      <Suspense fallback={<AppPageLoadingContent title="Loading library" />}>
+        <LibraryPageData searchParams={searchParams} />
+      </Suspense>
+    </main>
+  )
+}
+
+async function LibraryPageData({
   searchParams,
 }: {
   searchParams: Promise<{
@@ -139,56 +160,54 @@ export default async function LibraryPage({
   const progressPct = Math.min(100, Math.round((doneToday / dailyGoal) * 100))
 
   return (
-    <main className="min-h-screen">
-      <div className="mx-auto max-w-[1100px] space-y-8 px-4 py-8 sm:px-6 sm:py-10 sm:space-y-10">
-        <LibraryHero
-          name={name}
-          doneToday={doneToday}
-          dailyGoal={dailyGoal}
-          progressPct={progressPct}
-          globalDueNowCount={globalDueNowCount}
+    <div className="mx-auto max-w-[1100px] space-y-8 px-4 py-8 sm:px-6 sm:py-10 sm:space-y-10">
+      <LibraryHero
+        name={name}
+        doneToday={doneToday}
+        dailyGoal={dailyGoal}
+        progressPct={progressPct}
+        globalDueNowCount={globalDueNowCount}
+      />
+
+      <Suspense>
+        <SearchSortBar
+          initialQ={q}
+          initialSort={sort as LibrarySort}
+          initialSubject={subject as 'all' | subjectFamily}
+          initialStatus={status as LibraryStatusFilter}
+          initialMastery={mastery as LibraryMasteryFilter}
         />
+      </Suspense>
 
-        <Suspense>
-          <SearchSortBar
-            initialQ={q}
-            initialSort={sort as LibrarySort}
-            initialSubject={subject as 'all' | subjectFamily}
-            initialStatus={status as LibraryStatusFilter}
-            initialMastery={mastery as LibraryMasteryFilter}
-          />
-        </Suspense>
-
-        {(!decks || decks.length === 0) ? (
-          <div className="space-y-2 rounded-card border-2 border-dashed border-ink-black/20 p-8 text-center sm:p-12">
-            <h2 className="font-display text-xl font-extrabold">No decks yet</h2>
-            <p className="text-sm text-ink-black/70">Drop a PDF above to get started.</p>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="space-y-2 rounded-card border-2 border-dashed border-ink-black/20 p-8 text-center sm:p-12">
-            <h2 className="font-display text-xl font-extrabold">No decks match</h2>
-            <p className="text-sm text-ink-black/70">Try a different search term.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filtered.map((d) => (
-              <DeckCard
-                key={d.id}
-                id={d.id}
-                title={d.title}
-                subjectFamily={d.subjectFamily}
-                status={d.status as 'ingesting' | 'draft' | 'ready' | 'failed' | 'archived'}
-                cardCount={d.cardCount}
-                tags={d.tags}
-                tier={d.tier}
-                masteryPct={d.masteryPct}
-                dueCount={d.dueCount}
-                initialJob={latestJobByDeck[d.id] ?? null}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </main>
+      {(!decks || decks.length === 0) ? (
+        <div className="space-y-2 rounded-card border-2 border-dashed border-ink-black/20 p-8 text-center sm:p-12">
+          <h2 className="font-display text-xl font-extrabold">No decks yet</h2>
+          <p className="text-sm text-ink-black/70">Drop a PDF above to get started.</p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="space-y-2 rounded-card border-2 border-dashed border-ink-black/20 p-8 text-center sm:p-12">
+          <h2 className="font-display text-xl font-extrabold">No decks match</h2>
+          <p className="text-sm text-ink-black/70">Try a different search term.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filtered.map((d) => (
+            <DeckCard
+              key={d.id}
+              id={d.id}
+              title={d.title}
+              subjectFamily={d.subjectFamily}
+              status={d.status as 'ingesting' | 'draft' | 'ready' | 'failed' | 'archived'}
+              cardCount={d.cardCount}
+              tags={d.tags}
+              tier={d.tier}
+              masteryPct={d.masteryPct}
+              dueCount={d.dueCount}
+              initialJob={latestJobByDeck[d.id] ?? null}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
