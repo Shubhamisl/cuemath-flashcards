@@ -5,7 +5,7 @@ import { CueCard } from '@/lib/brand/primitives/card'
 import { CuePill } from '@/lib/brand/primitives/pill'
 import { CueButton } from '@/lib/brand/primitives/button'
 import { MasteryRing } from '@/components/mastery-ring'
-import { TopNav } from '../_components/top-nav'
+import { getAppShellData } from '../_lib/app-shell-data'
 import { computeProgressDashboard } from '@/lib/progress/dashboard'
 import { tierToTone } from '@/lib/progress/tier-tone'
 
@@ -19,17 +19,8 @@ function StatTile({ value, label }: { value: string | number; label: string }) {
 }
 
 export default async function ProgressPage() {
+  const { user, profile } = await getAppShellData()
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name, onboarded_at')
-    .eq('user_id', user.id)
-    .single()
 
   if (!profile?.onboarded_at) redirect('/onboarding/subject')
 
@@ -78,14 +69,11 @@ export default async function ProgressPage() {
     now,
   })
 
-  const name = (profile.display_name ?? 'there').split(' ')[0] ?? 'there'
   const maxActivity = Math.max(...dashboard.activity.map((day) => day.cardsReviewed), 1)
   const heatTone = ['bg-ink-black/8', 'bg-cue-yellow/30', 'bg-cue-yellow/50', 'bg-cue-yellow/70', 'bg-cue-yellow']
 
   return (
     <main className="min-h-screen">
-      <TopNav name={name} streak={dashboard.summary.streak} />
-
       <div className="mx-auto max-w-[1100px] space-y-8 px-4 py-8 sm:px-6 sm:py-10 sm:space-y-10">
         <header className="motion-premium-reveal flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">

@@ -1,43 +1,15 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/db/server'
-import { TopNav } from '../_components/top-nav'
 import { ProfileForm } from './profile-form'
-import { computeStreak } from '@/lib/progress/streak'
 import type { subjectFamily } from '@/lib/brand/tokens'
+import { getAppShellData } from '../_lib/app-shell-data'
 
 export default async function ProfilePage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
-
-  const now = new Date()
-  const fortyDaysAgo = new Date(now.getTime() - 40 * 86400000)
-  const [{ data: profile }, { data: sessions }] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('display_name, daily_goal_cards, daily_new_cards_limit, subject_family, level, onboarded_at')
-      .eq('user_id', user.id)
-      .single(),
-    supabase
-      .from('sessions')
-      .select('started_at')
-      .eq('user_id', user.id)
-      .gte('started_at', fortyDaysAgo.toISOString()),
-  ])
+  const { user, profile } = await getAppShellData()
 
   if (!profile?.onboarded_at) redirect('/onboarding/subject')
-  const streak = computeStreak(
-    (sessions ?? []).map((s) => s.started_at as string),
-    now,
-  )
-
-  const fullName = profile.display_name ?? ''
-  const firstName = fullName.split(' ')[0] || 'there'
 
   return (
     <main className="min-h-screen">
-      <TopNav name={firstName} streak={streak} />
-
       <div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-10">
         <header className="mx-auto max-w-[600px] space-y-2">
           <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink-black sm:text-[36px]">

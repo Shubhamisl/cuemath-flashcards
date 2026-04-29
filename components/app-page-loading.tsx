@@ -1,5 +1,6 @@
 type AppPageLoadingProps = {
   title: string
+  showNavigationSkeleton?: boolean
 }
 
 function LoadingBar({ width, className = 'h-4' }: { width: string; className?: string }) {
@@ -12,33 +13,35 @@ function LoadingBar({ width, className = 'h-4' }: { width: string; className?: s
   )
 }
 
-export function AppPageLoading({ title }: AppPageLoadingProps) {
+export function AppPageLoading({ title, showNavigationSkeleton = true }: AppPageLoadingProps) {
   return (
     <main className="min-h-screen">
-      <div className="border-b border-ink-black/10">
-        <div className="mx-auto max-w-[1200px] px-4 py-4 sm:px-6 sm:py-5">
-          <div
-            role="presentation"
-            aria-label="Navigation loading"
-            className="motion-premium-reveal rounded-[22px] border border-ink-black/10 bg-soft-cream/60 px-3 py-3 backdrop-blur-sm sm:rounded-[28px] sm:px-4"
-          >
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
-                <LoadingBar width="108px" className="h-6" />
-                <div className="grid w-full grid-cols-3 gap-1 rounded-[18px] border border-ink-black/10 bg-paper-white/85 p-1 sm:inline-flex sm:w-auto sm:items-center sm:gap-2 sm:rounded-full">
-                  <LoadingBar width="100%" className="h-9" />
-                  <LoadingBar width="100%" className="h-9" />
-                  <LoadingBar width="100%" className="h-9" />
+      {showNavigationSkeleton && (
+        <div className="border-b border-ink-black/10">
+          <div className="mx-auto max-w-[1200px] px-4 py-4 sm:px-6 sm:py-5">
+            <div
+              role="presentation"
+              aria-label="Navigation loading"
+              className="motion-premium-reveal rounded-[22px] border border-ink-black/10 bg-soft-cream/60 px-3 py-3 backdrop-blur-sm sm:rounded-[28px] sm:px-4"
+            >
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+                  <LoadingBar width="108px" className="h-6" />
+                  <div className="grid w-full grid-cols-3 gap-1 rounded-[18px] border border-ink-black/10 bg-paper-white/85 p-1 sm:inline-flex sm:w-auto sm:items-center sm:gap-2 sm:rounded-full">
+                    <LoadingBar width="100%" className="h-9" />
+                    <LoadingBar width="100%" className="h-9" />
+                    <LoadingBar width="100%" className="h-9" />
+                  </div>
                 </div>
-              </div>
-              <div className="flex w-full items-center justify-between gap-3 lg:w-auto lg:justify-end">
-                <div className="h-8 w-20 rounded-full bg-paper-white/90 animate-pulse" aria-hidden="true" />
-                <div className="h-9 w-9 rounded-full bg-paper-white animate-pulse" aria-hidden="true" />
+                <div className="flex w-full items-center justify-between gap-3 lg:w-auto lg:justify-end">
+                  <div className="h-8 w-20 rounded-full bg-paper-white/90 animate-pulse" aria-hidden="true" />
+                  <div className="h-9 w-9 rounded-full bg-paper-white animate-pulse" aria-hidden="true" />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="mx-auto max-w-[1100px] space-y-8 px-4 py-8 sm:px-6 sm:py-10 sm:space-y-10">
         <header className="space-y-3" aria-live="polite">

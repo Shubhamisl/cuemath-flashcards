@@ -13,4 +13,11 @@ describe('AppPageLoading', () => {
     expect(screen.getByRole('presentation', { name: 'Controls loading' })).toBeInTheDocument()
     expect(screen.getAllByRole('presentation', { name: 'Deck loading' })).toHaveLength(6)
   })
+
+  it('can omit the nav skeleton when the shared app layout already owns navigation', () => {
+    render(<AppPageLoading title="Loading progress" showNavigationSkeleton={false} />)
+
+    expect(screen.queryByRole('presentation', { name: 'Navigation loading' })).not.toBeInTheDocument()
+    expect(screen.getByRole('presentation', { name: 'Hero loading' })).toBeInTheDocument()
+  })
 })

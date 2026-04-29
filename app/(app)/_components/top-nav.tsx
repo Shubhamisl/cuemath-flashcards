@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { CuePill } from '@/lib/brand/primitives/pill'
 import { signOut } from '../profile/actions'
+import { NavRouteWarmer } from './nav-route-warmer'
 import { PrimaryNavLinks } from './primary-nav-links'
 
 export interface TopNavProps {
@@ -12,11 +14,13 @@ export interface TopNavProps {
 }
 
 export function TopNav({ name, streak }: TopNavProps) {
+  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [pending, startTransition] = useTransition()
   const wrapRef = useRef<HTMLDivElement>(null)
   const fullName = name && name.length > 0 ? name : 'there'
   const initial = (fullName[0] ?? '?').toUpperCase()
+  const hideNav = pathname?.startsWith('/onboarding')
 
   useEffect(() => {
     if (!open) return
@@ -42,8 +46,13 @@ export function TopNav({ name, streak }: TopNavProps) {
     })
   }
 
+  if (hideNav) {
+    return <NavRouteWarmer />
+  }
+
   return (
     <nav className="motion-premium-reveal mx-auto max-w-[1200px] px-4 py-4 sm:px-6 sm:py-5">
+      <NavRouteWarmer />
       <div className="motion-premium-list-item rounded-[22px] border border-ink-black/10 bg-soft-cream/60 px-3 py-3 backdrop-blur-sm sm:rounded-[28px] sm:px-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">

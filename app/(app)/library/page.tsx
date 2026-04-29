@@ -4,16 +4,15 @@ import { createClient } from '@/lib/db/server'
 import { DeckCard } from '@/components/deck-card'
 import { SearchSortBar } from '@/components/search-sort-bar'
 import { computeDeckStats, type StatCard } from '@/lib/progress/deck-stats'
-import { computeStreak } from '@/lib/progress/streak'
 import type { IngestJobSnapshot } from '@/lib/ingest/diagnostics'
 import type { subjectFamily } from '@/lib/brand/tokens'
+import { getAppShellData } from '../_lib/app-shell-data'
 import {
   filterAndSortDecks,
   type LibraryMasteryFilter,
   type LibrarySort,
   type LibraryStatusFilter,
 } from '@/lib/library/library-view'
-import { TopNav } from '../_components/top-nav'
 import { LibraryHero } from './library-hero'
 
 export default async function LibraryPage({
@@ -34,44 +33,28 @@ export default async function LibraryPage({
     status = 'active',
     mastery = 'all',
   } = await searchParams
+  const { user, profile, firstName: name } = await getAppShellData()
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
 
   const now = new Date()
-  const fortyDaysAgo = new Date(now.getTime() - 40 * 86400000)
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)
-  const [{ data: profile }, { data: sessions }, { data: todaySessions }, { data: decks }] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('display_name, daily_goal_cards, onboarded_at')
-      .eq('user_id', user!.id)
-      .single(),
-    supabase
-      .from('sessions')
-      .select('started_at')
-      .eq('user_id', user!.id)
-      .gte('started_at', fortyDaysAgo.toISOString()),
+  const [{ data: todaySessions }, { data: decks }] = await Promise.all([
     supabase
       .from('sessions')
       .select('cards_reviewed')
-      .eq('user_id', user!.id)
+      .eq('user_id', user.id)
       .gte('started_at', todayStart.toISOString()),
     supabase
       .from('decks')
       .select('id, title, subject_family, status, card_count, tags')
-      .eq('user_id', user!.id)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
   ])
 
   if (!profile?.onboarded_at) {
     redirect('/onboarding/subject')
   }
-
-  const streak = computeStreak(
-    (sessions ?? []).map((s) => s.started_at as string),
-    now,
-  )
 
   const doneToday = (todaySessions ?? []).reduce(
     (sum, s) => sum + (s.cards_reviewed ?? 0),
@@ -98,7 +81,7 @@ export default async function LibraryPage({
       ? supabase
           .from('cards')
           .select('deck_id, fsrs_state, suspended')
-          .eq('user_id', user!.id)
+          .eq('user_id', user.id)
           .in('deck_id', studyDeckIds)
       : Promise.resolve({ data: null }),
   ])
@@ -131,9 +114,6 @@ export default async function LibraryPage({
       0,
     )
 
-  const fullName = profile?.display_name ?? 'there'
-  const name = fullName.split(' ')[0] ?? 'there'
-
   const filtered = filterAndSortDecks(
     (decks ?? []).map((deck) => ({
       id: deck.id,
@@ -160,8 +140,6 @@ export default async function LibraryPage({
 
   return (
     <main className="min-h-screen">
-      <TopNav name={name} streak={streak} />
-
       <div className="mx-auto max-w-[1100px] space-y-8 px-4 py-8 sm:px-6 sm:py-10 sm:space-y-10">
         <LibraryHero
           name={name}

@@ -1,10 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { TopNav } from './top-nav'
 
-const { pathnameMock, signOutMock } = vi.hoisted(() => ({
+const { pathnameMock, prefetchMock, signOutMock } = vi.hoisted(() => ({
   pathnameMock: vi.fn(),
+  prefetchMock: vi.fn(),
   signOutMock: vi.fn(),
 }))
 
@@ -23,6 +24,7 @@ vi.mock('next/link', () => ({
 
 vi.mock('next/navigation', () => ({
   usePathname: () => pathnameMock(),
+  useRouter: () => ({ prefetch: prefetchMock }),
 }))
 
 vi.mock('../profile/actions', () => ({
@@ -30,6 +32,10 @@ vi.mock('../profile/actions', () => ({
 }))
 
 describe('TopNav', () => {
+  beforeEach(() => {
+    prefetchMock.mockClear()
+  })
+
   it('shows explicit primary nav and marks the current route', () => {
     pathnameMock.mockReturnValue('/library')
 
@@ -40,6 +46,9 @@ describe('TopNav', () => {
     expect(screen.getByRole('link', { name: 'Progress' })).toHaveAttribute('href', '/progress')
     expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute('href', '/profile')
     expect(screen.getByText('Day 3')).toBeInTheDocument()
+    expect(prefetchMock).toHaveBeenCalledWith('/library')
+    expect(prefetchMock).toHaveBeenCalledWith('/progress')
+    expect(prefetchMock).toHaveBeenCalledWith('/profile')
   })
 
   it('keeps sign-out inside the profile menu', async () => {
