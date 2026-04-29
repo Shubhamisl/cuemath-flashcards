@@ -1,19 +1,22 @@
 import { describe, it, expect } from 'vitest'
-import { buildExtractionPrompt, parseExtractionResponse, shouldRetryExtractionWithFallback } from './extract-cards'
+import {
+  buildExtractionPrompt,
+  buildLearningUnitPrompt,
+  parseExtractionResponse,
+  shouldRetryExtractionWithFallback,
+} from './extract-cards'
 
-describe('buildExtractionPrompt', () => {
+describe('buildLearningUnitPrompt', () => {
   it('embeds page texts with page markers', () => {
-    const p = buildExtractionPrompt({
-      pages: [{ index: 3, text: 'Hello' }, { index: 4, text: 'World' }],
-      alreadyCarded: [],
-      remainingBudget: 200,
-    })
+    const p = buildLearningUnitPrompt([{ index: 3, text: 'Hello' }, { index: 4, text: 'World' }])
     expect(p).toContain('--- Page 3 ---')
     expect(p).toContain('Hello')
     expect(p).toContain('--- Page 4 ---')
     expect(p).toContain('World')
   })
+})
 
+describe('buildExtractionPrompt', () => {
   it('includes already-carded list when non-empty', () => {
     const p = buildExtractionPrompt({
       pages: [{ index: 0, text: 'x' }],

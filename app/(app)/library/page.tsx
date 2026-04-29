@@ -162,7 +162,7 @@ export default async function LibraryPage({
     <main className="min-h-screen">
       <TopNav name={name} streak={streak} />
 
-      <div className="max-w-[1100px] mx-auto px-6 py-10 space-y-10">
+      <div className="mx-auto max-w-[1100px] space-y-8 px-4 py-8 sm:px-6 sm:py-10 sm:space-y-10">
         <LibraryHero
           name={name}
           doneToday={doneToday}
@@ -182,12 +182,12 @@ export default async function LibraryPage({
         </Suspense>
 
         {(!decks || decks.length === 0) ? (
-          <div className="rounded-card border-2 border-dashed border-ink-black/20 p-12 text-center space-y-2">
+          <div className="space-y-2 rounded-card border-2 border-dashed border-ink-black/20 p-8 text-center sm:p-12">
             <h2 className="font-display text-xl font-extrabold">No decks yet</h2>
             <p className="text-sm text-ink-black/70">Drop a PDF above to get started.</p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-card border-2 border-dashed border-ink-black/20 p-12 text-center space-y-2">
+          <div className="space-y-2 rounded-card border-2 border-dashed border-ink-black/20 p-8 text-center sm:p-12">
             <h2 className="font-display text-xl font-extrabold">No decks match</h2>
             <p className="text-sm text-ink-black/70">Try a different search term.</p>
           </div>

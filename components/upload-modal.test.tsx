@@ -14,7 +14,8 @@ describe('UploadModal', () => {
     render(<UploadModal />)
     await user.click(screen.getByRole('button', { name: 'Upload PDF' }))
 
-    expect(screen.getByRole('dialog', { name: 'Upload a PDF' })).toHaveClass('motion-premium-reveal')
+    expect(screen.getByRole('dialog', { name: 'Upload a PDF' })).toBeInTheDocument()
+    expect(screen.getByText('Upload a PDF').closest('.motion-premium-modal')).toBeInTheDocument()
     expect(screen.getByText('Drop a PDF here or click to choose').closest('label')).toHaveClass(
       'motion-premium-list-item',
     )

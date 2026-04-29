@@ -43,16 +43,16 @@ export function TopNav({ name, streak }: TopNavProps) {
   }
 
   return (
-    <nav className="motion-premium-reveal max-w-[1200px] mx-auto px-6 py-5">
-      <div className="motion-premium-list-item rounded-[28px] border border-ink-black/10 bg-soft-cream/60 px-4 py-3 backdrop-blur-sm">
+    <nav className="motion-premium-reveal mx-auto max-w-[1200px] px-4 py-4 sm:px-6 sm:py-5">
+      <div className="motion-premium-list-item rounded-[22px] border border-ink-black/10 bg-soft-cream/60 px-3 py-3 backdrop-blur-sm sm:rounded-[28px] sm:px-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+          <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
             <Link href="/library" className="font-display text-xl font-extrabold tracking-tight">
               SharpMind
             </Link>
             <PrimaryNavLinks />
           </div>
-          <div className="flex items-center gap-3 self-end lg:self-auto">
+          <div className="flex w-full items-center justify-between gap-3 lg:w-auto lg:justify-end">
             <CuePill tone="neutral">{streak > 0 ? `Day ${streak}` : 'Day 1'}</CuePill>
             <div ref={wrapRef} className="relative">
               <button

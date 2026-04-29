@@ -38,9 +38,9 @@ export default async function ProfilePage() {
     <main className="min-h-screen">
       <TopNav name={firstName} streak={streak} />
 
-      <div className="max-w-[1100px] mx-auto px-6 py-10">
+      <div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-10">
         <header className="mx-auto max-w-[600px] space-y-2">
-          <h1 className="font-display font-extrabold text-[36px] tracking-tight text-ink-black">
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink-black sm:text-[36px]">
             Your settings
           </h1>
           <p className="font-body text-ink-black/70">
@@ -48,7 +48,7 @@ export default async function ProfilePage() {
           </p>
         </header>
 
-        <div className="mx-auto max-w-[600px] mt-8 pb-20">
+        <div className="mx-auto mt-8 max-w-[600px] pb-20">
           <ProfileForm
             email={user.email ?? ''}
             initial={{

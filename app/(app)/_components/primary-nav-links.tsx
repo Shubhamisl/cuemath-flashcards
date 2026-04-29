@@ -13,7 +13,7 @@ export function PrimaryNavLinks() {
   const pathname = usePathname()
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-full border border-ink-black/10 bg-paper-white/85 p-1">
+    <div className="grid w-full grid-cols-3 gap-1 rounded-[18px] border border-ink-black/10 bg-paper-white/85 p-1 sm:inline-flex sm:w-auto sm:items-center sm:gap-2 sm:rounded-full">
       {LINKS.map((link) => {
         const active = pathname === link.href
 
@@ -23,7 +23,7 @@ export function PrimaryNavLinks() {
             href={link.href}
             aria-current={active ? 'page' : undefined}
             className={[
-              'rounded-full px-4 py-2 font-body text-sm font-semibold transition-colors',
+              'min-w-0 rounded-full px-2 py-2 text-center font-body text-xs font-semibold transition-colors sm:px-4 sm:text-sm',
               active
                 ? 'bg-cue-yellow text-ink-black'
                 : 'text-ink-black/65 hover:bg-soft-cream hover:text-ink-black',

@@ -48,10 +48,10 @@ export function SearchSortBar({
   return (
     <section className="space-y-3">
       <p className="text-xs font-display font-semibold uppercase tracking-[0.08em] text-ink-black/55">
-        Your decks
+        Find a deck
       </p>
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.15fr)_repeat(4,minmax(0,180px))]">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.15fr)_repeat(4,minmax(0,180px))]">
         <input
           type="search"
           value={q}
@@ -61,7 +61,7 @@ export function SearchSortBar({
           }}
           onBlur={() => push({ q, ...baseFilters })}
           placeholder="Search decks, tags, or subjects..."
-          className="flex-1 min-w-0 rounded-input border-2 border-ink-black/20 bg-paper-white px-4 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-cue-yellow"
+          className="min-w-0 rounded-input border-2 border-ink-black/20 bg-paper-white px-4 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-cue-yellow sm:col-span-2 lg:col-span-1"
         />
         <select
           value={initialSort}

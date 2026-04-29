@@ -88,7 +88,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
 
   return (
     <div className="space-y-8">
-      <CueCard tone="paper" className="shadow-card-rest p-8 space-y-6">
+      <CueCard tone="paper" className="space-y-6 p-5 shadow-card-rest sm:p-8">
         <div className="space-y-1">
           <h2 className="font-display font-semibold text-[22px] text-ink-black">Profile</h2>
           <p className="font-body text-sm text-ink-black/60">Tune your SharpMind defaults.</p>
@@ -108,7 +108,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
 
           <div>
             <FieldLabel>Email</FieldLabel>
-            <div className="inline-flex items-center rounded-full border border-ink-black/15 bg-paper-white px-4 py-2 font-body text-sm text-ink-black/60">
+            <div className="inline-flex max-w-full items-center rounded-full border border-ink-black/15 bg-paper-white px-4 py-2 font-body text-sm text-ink-black/60 break-all sm:break-normal [overflow-wrap:anywhere]">
               {email}
             </div>
           </div>
@@ -148,7 +148,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
                     type="button"
                     onClick={() => setLevel(l.id)}
                     aria-pressed={active}
-                    className={`rounded-full px-6 py-3 font-body text-base font-semibold text-ink-black transition ${
+                    className={`rounded-full px-4 py-2.5 font-body text-sm font-semibold text-ink-black transition sm:px-6 sm:py-3 sm:text-base ${
                       active
                         ? 'border-2 border-ink-black bg-soft-cream'
                         : 'border border-ink-black/15 bg-paper-white hover:bg-soft-cream/40'
@@ -175,7 +175,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
                       setDailyNewCardsLimit((current) => Math.min(current, Math.min(g, 20)))
                     }}
                     aria-pressed={active}
-                    className={`rounded-full px-6 py-3 font-body text-base font-semibold text-ink-black transition ${
+                    className={`rounded-full px-4 py-2.5 font-body text-sm font-semibold text-ink-black transition sm:px-6 sm:py-3 sm:text-base ${
                       active
                         ? 'border-2 border-ink-black bg-cue-yellow'
                         : 'border border-ink-black/15 bg-cue-yellow/50 hover:bg-cue-yellow/70'
@@ -202,7 +202,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
                     type="button"
                     onClick={() => setDailyNewCardsLimit(count)}
                     aria-pressed={active}
-                    className={`rounded-full px-6 py-3 font-body text-base font-semibold text-ink-black transition ${
+                    className={`rounded-full px-4 py-2.5 font-body text-sm font-semibold text-ink-black transition sm:px-6 sm:py-3 sm:text-base ${
                       active
                         ? 'border-2 border-ink-black bg-soft-cream'
                         : 'border border-ink-black/15 bg-paper-white hover:bg-soft-cream/40'
@@ -216,7 +216,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-2">
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-end">
           {toast && (
             <span
               role="status"
@@ -226,25 +226,26 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
               {toast}
             </span>
           )}
-          <CueButton onClick={save} disabled={pending}>
+          <CueButton onClick={save} disabled={pending} className="w-full sm:w-auto">
             {pending ? 'Saving...' : 'Save changes'}
           </CueButton>
         </div>
       </CueCard>
 
-      <CueCard tone="paper" className="shadow-card-rest p-8 space-y-6">
+      <CueCard tone="paper" className="space-y-6 p-5 shadow-card-rest sm:p-8">
         <div className="space-y-1">
           <h2 className="font-display font-semibold text-[22px] text-ink-black">Account</h2>
           <p className="font-body text-sm text-ink-black/60">Sign out or wipe everything.</p>
         </div>
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <span className="font-body text-base text-ink-black">Sign out of this device.</span>
           <CueButton
             variant="ghost"
             size="sm"
             onClick={handleSignOut}
             disabled={signOutPending}
+            className="w-full sm:w-auto"
           >
             {signOutPending ? 'Signing out...' : 'Sign out'}
           </CueButton>
@@ -253,7 +254,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
         <div className="h-px bg-ink-black/10" />
 
         <div
-          className="rounded-2xl border-l-4 border-alert-coral px-5 py-4 flex items-center justify-between gap-4"
+          className="flex flex-col gap-4 rounded-2xl border-l-4 border-alert-coral px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
           style={{ backgroundColor: 'rgba(249, 115, 115, 0.10)' }}
         >
           <div className="space-y-1">
@@ -267,7 +268,7 @@ export function ProfileForm({ email, initial }: { email: string; initial: Initia
           <button
             type="button"
             onClick={handleDelete}
-            className="rounded-input border-2 border-alert-coral bg-paper-white px-4 py-2 font-body text-sm font-semibold text-alert-coral hover:bg-alert-coral/10 transition"
+            className="rounded-input border-2 border-alert-coral bg-paper-white px-4 py-2 font-body text-sm font-semibold text-alert-coral transition hover:bg-alert-coral/10"
           >
             Delete
           </button>

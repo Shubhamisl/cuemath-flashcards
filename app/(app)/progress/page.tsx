@@ -86,13 +86,13 @@ export default async function ProgressPage() {
     <main className="min-h-screen">
       <TopNav name={name} streak={dashboard.summary.streak} />
 
-      <div className="max-w-[1100px] mx-auto px-6 py-10 space-y-10">
-        <header className="motion-premium-reveal flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+      <div className="mx-auto max-w-[1100px] space-y-8 px-4 py-8 sm:px-6 sm:py-10 sm:space-y-10">
+        <header className="motion-premium-reveal flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
               Progress
             </p>
-            <h1 className="font-display font-extrabold text-4xl md:text-5xl tracking-tight text-ink-black">
+            <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink-black md:text-5xl">
               Keep the curve moving.
             </h1>
             <p className="max-w-[640px] text-sm md:text-base text-ink-black/70">
@@ -100,15 +100,15 @@ export default async function ProgressPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center lg:justify-end">
             {dashboard.summary.dueNowCount > 0 && (
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/review">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link href="/review" className="w-full sm:w-auto">
                   <CueButton size="lg" className="w-full sm:w-auto">
                     Review all due
                   </CueButton>
                 </Link>
-                <Link href="/review?mode=quick">
+                <Link href="/review?mode=quick" className="w-full sm:w-auto">
                   <CueButton variant="ghost" size="lg" className="w-full sm:w-auto">
                     Quick 5
                   </CueButton>
@@ -127,7 +127,7 @@ export default async function ProgressPage() {
           </div>
         </header>
 
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatTile value={dashboard.summary.dueNowCount} label="Due now" />
           <StatTile
             value={dashboard.summary.retentionPct === null ? '-' : `${dashboard.summary.retentionPct}%`}
@@ -146,7 +146,7 @@ export default async function ProgressPage() {
               <h2 className="font-display font-bold text-2xl text-ink-black">Study rhythm</h2>
             </div>
 
-            <div className="grid grid-cols-7 gap-3 items-end min-h-[180px]">
+            <div className="grid min-h-[180px] grid-cols-7 items-end gap-2 sm:gap-3">
               {dashboard.activity.map((day) => {
                 const height = Math.max(18, Math.round((day.cardsReviewed / maxActivity) * 140))
                 return (
@@ -236,7 +236,7 @@ export default async function ProgressPage() {
           </CueCard>
         </section>
 
-        <section className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.05fr] gap-6 items-start">
+        <section className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[0.95fr_1.05fr]">
           <CueCard tone="paper" className="shadow-card-rest space-y-4">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
@@ -246,7 +246,7 @@ export default async function ProgressPage() {
             </div>
 
             <div className="space-y-3">
-              <div className="grid grid-cols-12 gap-1">
+              <div className="grid grid-cols-12 gap-1 overflow-hidden">
                 {dashboard.heatmap.map((day) => (
                   <div
                     key={day.isoDate}
@@ -256,7 +256,7 @@ export default async function ProgressPage() {
                   />
                 ))}
               </div>
-              <div className="flex items-center justify-between text-xs text-ink-black/60">
+              <div className="flex flex-col gap-1 text-xs text-ink-black/60 sm:flex-row sm:items-center sm:justify-between">
                 <span>lighter = quieter weeks</span>
                 <span>brighter = heavier study days</span>
               </div>
@@ -280,7 +280,7 @@ export default async function ProgressPage() {
                 {dashboard.weakConcepts.map((concept) => (
                   <div
                     key={concept.tag}
-                    className="flex items-center justify-between gap-3 rounded-card bg-soft-cream/60 px-4 py-3"
+                    className="flex flex-col gap-3 rounded-card bg-soft-cream/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="space-y-1 min-w-0">
                       <div className="font-display font-semibold text-ink-black">{concept.tag}</div>
@@ -288,7 +288,7 @@ export default async function ProgressPage() {
                         {concept.lapses} lapse{concept.lapses === 1 ? '' : 's'}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
                       <CuePill tone={concept.dueNowCount > 0 ? 'highlight' : 'neutral'}>
                         {concept.dueNowCount > 0
                           ? `${concept.dueNowCount} due now`
@@ -333,7 +333,7 @@ export default async function ProgressPage() {
                     {dashboard.recentSessions.map((session) => (
                       <div
                         key={session.id}
-                        className="grid grid-cols-[auto_1fr_auto] gap-4 items-center rounded-card bg-soft-cream/60 px-4 py-3"
+                    className="grid grid-cols-1 gap-3 rounded-card bg-soft-cream/60 px-4 py-3 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-4"
                       >
                         <CuePill tone={session.modeLabel === 'Quick 5' ? 'highlight' : 'neutral'}>
                           {session.modeLabel}
@@ -352,7 +352,7 @@ export default async function ProgressPage() {
                               : ''}
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-left sm:text-right">
                           <div className="font-display font-bold text-ink-black">
                             {session.accuracyPct === null ? '-' : `${session.accuracyPct}%`}
                           </div>
@@ -384,7 +384,7 @@ export default async function ProgressPage() {
                     href={`/deck/${deck.id}`}
                     className="motion-premium-list-item block rounded-card bg-paper-white hover:-translate-y-0.5 hover:bg-soft-cream/70 px-4 py-4"
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                       <div className="space-y-2 min-w-0">
                         <div className="font-display font-semibold text-ink-black truncate">
                           {deck.title}
@@ -396,7 +396,7 @@ export default async function ProgressPage() {
                           </CuePill>
                         </div>
                       </div>
-                      <div className="text-right shrink-0">
+                      <div className="shrink-0 text-left sm:text-right">
                         <div className="font-display font-bold text-ink-black">{deck.masteryPct}%</div>
                         <div className="text-xs text-ink-black/60">mastery</div>
                       </div>

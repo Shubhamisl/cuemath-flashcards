@@ -16,22 +16,22 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
   return (
     <main className="min-h-screen">
       <div className="border-b border-ink-black/10">
-        <div className="mx-auto max-w-[1200px] px-6 py-5">
+        <div className="mx-auto max-w-[1200px] px-4 py-4 sm:px-6 sm:py-5">
           <div
             role="presentation"
             aria-label="Navigation loading"
-            className="motion-premium-reveal rounded-[28px] border border-ink-black/10 bg-soft-cream/60 px-4 py-3 backdrop-blur-sm"
+            className="motion-premium-reveal rounded-[22px] border border-ink-black/10 bg-soft-cream/60 px-3 py-3 backdrop-blur-sm sm:rounded-[28px] sm:px-4"
           >
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
                 <LoadingBar width="108px" className="h-6" />
-                <div className="flex items-center gap-2 rounded-full border border-ink-black/10 bg-paper-white/85 p-1">
-                  <LoadingBar width="74px" className="h-9" />
-                  <LoadingBar width="76px" className="h-9" />
-                  <LoadingBar width="68px" className="h-9" />
+                <div className="grid w-full grid-cols-3 gap-1 rounded-[18px] border border-ink-black/10 bg-paper-white/85 p-1 sm:inline-flex sm:w-auto sm:items-center sm:gap-2 sm:rounded-full">
+                  <LoadingBar width="100%" className="h-9" />
+                  <LoadingBar width="100%" className="h-9" />
+                  <LoadingBar width="100%" className="h-9" />
                 </div>
               </div>
-              <div className="flex items-center gap-3 self-end lg:self-auto">
+              <div className="flex w-full items-center justify-between gap-3 lg:w-auto lg:justify-end">
                 <div className="h-8 w-20 rounded-full bg-paper-white/90 animate-pulse" aria-hidden="true" />
                 <div className="h-9 w-9 rounded-full bg-paper-white animate-pulse" aria-hidden="true" />
               </div>
@@ -40,7 +40,7 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1100px] px-6 py-10 space-y-10">
+      <div className="mx-auto max-w-[1100px] space-y-8 px-4 py-8 sm:px-6 sm:py-10 sm:space-y-10">
         <header className="space-y-3" aria-live="polite">
           <h1 className="font-display font-extrabold text-4xl md:text-5xl tracking-tight text-ink-black">
             {title}
@@ -53,7 +53,7 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
           aria-label="Hero loading"
           className="motion-premium-reveal grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.9fr)]"
         >
-          <div className="space-y-5 rounded-[28px] border border-ink-black/10 bg-paper-white px-6 py-6 shadow-card-rest">
+          <div className="space-y-5 rounded-[22px] border border-ink-black/10 bg-paper-white px-4 py-5 shadow-card-rest sm:rounded-[28px] sm:px-6 sm:py-6">
             <LoadingBar width="88px" className="h-3" />
             <LoadingBar width="214px" className="h-10" />
             <div className="flex items-center gap-3">
@@ -61,7 +61,7 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
               <LoadingBar width="96px" className="h-4" />
             </div>
           </div>
-          <div className="space-y-5 rounded-[28px] border border-ink-black/10 bg-mint-sky/55 px-6 py-6 shadow-card-rest">
+          <div className="space-y-5 rounded-[22px] border border-ink-black/10 bg-mint-green/55 px-4 py-5 shadow-card-rest sm:rounded-[28px] sm:px-6 sm:py-6">
             <div className="space-y-2">
               <LoadingBar width="82px" className="h-3" />
               <LoadingBar width="238px" className="h-4" />
@@ -84,7 +84,7 @@ export function AppPageLoading({ title }: AppPageLoadingProps) {
               <LoadingBar width="82px" className="h-3" />
               <LoadingBar width="232px" className="h-4" />
             </div>
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.15fr)_repeat(4,minmax(0,180px))]">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.15fr)_repeat(4,minmax(0,180px))]">
               <div className="h-11 rounded-input border-2 border-ink-black/10 bg-paper-white animate-pulse" aria-hidden="true" />
               <div className="h-11 rounded-input border-2 border-ink-black/10 bg-paper-white animate-pulse" aria-hidden="true" />
               <div className="h-11 rounded-input border-2 border-ink-black/10 bg-paper-white animate-pulse" aria-hidden="true" />

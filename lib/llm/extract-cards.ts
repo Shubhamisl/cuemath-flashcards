@@ -102,7 +102,7 @@ function stripJsonFences(raw: string): string {
     .trim()
 }
 
-function buildLearningUnitPrompt(pages: ParsedPage[]): string {
+export function buildLearningUnitPrompt(pages: ParsedPage[]): string {
   const pageBlocks = pages.map((p) => `--- Page ${p.index} ---\n${p.text}`).join('\n\n')
   const unitBudget = Math.max(8, pages.length * 8)
 
