@@ -9,8 +9,24 @@ export type RenderedPageImage = {
 export const OCR_PAGE_LIMIT = 12
 const OCR_RENDER_SCALE = 1.8
 
+type PdfJsWorkerGlobal = typeof globalThis & {
+  pdfjsWorker?: {
+    WorkerMessageHandler: unknown
+  }
+}
+
+async function loadPdfJsForNode() {
+  const [pdfjs, worker] = await Promise.all([
+    import('pdfjs-dist/legacy/build/pdf.mjs'),
+    import('pdfjs-dist/legacy/build/pdf.worker.mjs'),
+  ])
+
+  ;(globalThis as PdfJsWorkerGlobal).pdfjsWorker ??= worker
+  return pdfjs
+}
+
 export async function renderPdfPagesForOcr(buffer: Buffer): Promise<RenderedPageImage[]> {
-  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs')
+  const pdfjs = await loadPdfJsForNode()
   const loadingTask = pdfjs.getDocument({
     data: new Uint8Array(buffer),
   })
