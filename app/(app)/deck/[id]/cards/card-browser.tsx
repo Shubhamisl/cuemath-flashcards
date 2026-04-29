@@ -6,15 +6,23 @@ import { CueCard } from '@/lib/brand/primitives/card'
 import { CueButton } from '@/lib/brand/primitives/button'
 import { approveAllCards, deleteCard, setCardApproved, updateCard } from './actions'
 import { summarizeReviewGate } from '@/lib/decks/review-gate'
+import type { TextCardFormat } from '@/lib/llm/types'
 
 export type CardRow = {
   id: string
+  format: TextCardFormat
   front: { text: string }
   back: { text: string }
   concept_tag: string | null
   suspended: boolean
   approved: boolean
   updated_at: string
+}
+
+function formatLabel(format: TextCardFormat): string {
+  if (format === 'qa') return 'Q&A'
+  if (format === 'cloze') return 'Cloze'
+  return 'Worked example'
 }
 
 export function CardBrowser({
@@ -197,6 +205,7 @@ export function CardBrowser({
                   {card.concept_tag && (
                     <span className="text-xs text-ink-black/40">{card.concept_tag}</span>
                   )}
+                  <span className="text-xs text-ink-black/40">{formatLabel(card.format)}</span>
                   <span
                     className={`text-xs font-display font-semibold ${
                       card.approved ? 'text-green-700' : 'text-amber-700'

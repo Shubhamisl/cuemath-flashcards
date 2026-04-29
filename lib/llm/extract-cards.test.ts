@@ -31,6 +31,12 @@ describe('buildExtractionPrompt', () => {
     const p = buildExtractionPrompt({ pages: [], alreadyCarded: [], remainingBudget: 17 })
     expect(p).toContain('17')
   })
+
+  it('lists the supported text-only card formats', () => {
+    const p = buildExtractionPrompt({ pages: [], alreadyCarded: [], remainingBudget: 3 })
+    expect(p).toContain('qa | cloze | worked_example')
+    expect(p).toContain('Do not use image_occlusion')
+  })
 })
 
 describe('parseExtractionResponse', () => {
@@ -41,6 +47,39 @@ describe('parseExtractionResponse', () => {
     const parsed = parseExtractionResponse(raw)
     expect(parsed.cards).toHaveLength(1)
     expect(parsed.cards[0].front).toBe('Q1')
+    expect(parsed.cards[0].format).toBe('qa')
+  })
+
+  it('parses cloze cards', () => {
+    const raw = JSON.stringify({
+      cards: [
+        {
+          format: 'cloze',
+          front: 'The derivative of x^2 is ___.',
+          back: '2x',
+          concept_tag: 'derivative_power_rule',
+          source_page: 0,
+        },
+      ],
+    })
+    const parsed = parseExtractionResponse(raw)
+    expect(parsed.cards[0].format).toBe('cloze')
+  })
+
+  it('parses worked example cards', () => {
+    const raw = JSON.stringify({
+      cards: [
+        {
+          format: 'worked_example',
+          front: 'What is the next step after isolating x?',
+          back: 'Substitute the value back into the original equation and verify it.',
+          concept_tag: 'equation_checking',
+          source_page: 1,
+        },
+      ],
+    })
+    const parsed = parseExtractionResponse(raw)
+    expect(parsed.cards[0].format).toBe('worked_example')
   })
 
   it('strips markdown code fences before parsing', () => {

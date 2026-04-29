@@ -559,6 +559,7 @@ export function ReviewSession({
             back={current.back.text}
             flipped={flipped}
             subject={subject}
+            format={current.format}
           />
           {!flipped && (
             <div className="space-y-3">

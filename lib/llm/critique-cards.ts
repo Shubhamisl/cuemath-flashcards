@@ -28,6 +28,9 @@ Rules:
 - Keep or rewrite only cards with quality_score >= 3.
 - Drop cards with quality_score <= 2.
 - One card = one testable idea.
+- Preserve the candidate card format unless changing it clearly makes the card better.
+- Final card format must be exactly one of: qa, cloze, worked_example.
+- Do not use image_occlusion.
 - Front must be a direct, specific question.
 - Back must be concise but complete.
 - Prefer definitions, formulas, distinctions, cause-effect, steps, constraints, and common mistakes.
@@ -100,7 +103,7 @@ Candidate cards:
 ${JSON.stringify({ cards })}
 
 Respond with JSON:
-{"decisions":[{"decision":"keep","quality_score":4,"reason":"specific and atomic","card":{"front":"...","back":"...","concept_tag":"...","source_page":N}}]}`
+{"decisions":[{"decision":"keep","quality_score":4,"reason":"specific and atomic","card":{"format":"qa","front":"...","back":"...","concept_tag":"...","source_page":N}}]}`
 }
 
 async function runCritiqueWithProvider(

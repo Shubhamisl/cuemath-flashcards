@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/db/server'
 import { buildHintFromBack } from '@/lib/cards/hints'
 import type { SprintCard } from '@/lib/queue/types'
+import { textCardFormatSchema } from '@/lib/llm/types'
 
 export async function fetchEasyCards(args: {
   deckId: string
@@ -17,7 +18,7 @@ export async function fetchEasyCards(args: {
 
   const { data, error } = await supabase
     .from('cards')
-    .select('id, deck_id, concept_tag, front, back, fsrs_state, suspended, approved')
+    .select('id, deck_id, format, concept_tag, front, back, fsrs_state, suspended, approved')
     .eq('user_id', user.id)
     .eq('deck_id', deckId)
     .eq('suspended', false)
@@ -33,6 +34,7 @@ export async function fetchEasyCards(args: {
   const candidates = (data as Array<Omit<SprintCard, 'hint'>>)
     .map((card) => ({
       ...card,
+      format: textCardFormatSchema.catch('qa').parse(card.format),
       hint: buildHintFromBack(card.back.text),
     }))
     .filter(

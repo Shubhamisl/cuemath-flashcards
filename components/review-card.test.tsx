@@ -59,4 +59,38 @@ describe('ReviewCard', () => {
     expect(within(backFace as HTMLElement).getByText('Plants convert light into chemical energy.')).toBeInTheDocument()
     expect(within(frontFace as HTMLElement).queryByText('Answer')).not.toBeInTheDocument()
   })
+
+  it('uses cloze-specific front labels', () => {
+    const { container } = render(
+      <ReviewCard
+        front="The derivative of x^2 is ___."
+        back="2x"
+        flipped={false}
+        format="cloze"
+      />,
+    )
+
+    const frontFace = container.querySelector('[data-face="front"]')
+    expect(frontFace).not.toBeNull()
+    expect(within(frontFace as HTMLElement).getByText('Fill the blank')).toBeInTheDocument()
+    expect(within(frontFace as HTMLElement).getByText('Recall the missing piece before you flip.')).toBeInTheDocument()
+  })
+
+  it('uses worked-example labels on both faces', () => {
+    const { container } = render(
+      <ReviewCard
+        front="What is the next step?"
+        back="Differentiate both sides."
+        flipped
+        format="worked_example"
+      />,
+    )
+
+    const frontFace = container.querySelector('[data-face="front"]')
+    const backFace = container.querySelector('[data-face="back"]')
+    expect(frontFace).not.toBeNull()
+    expect(backFace).not.toBeNull()
+    expect(within(frontFace as HTMLElement).getByText('Method')).toBeInTheDocument()
+    expect(within(backFace as HTMLElement).getByText('Steps')).toBeInTheDocument()
+  })
 })

@@ -111,7 +111,7 @@ export async function runIngest(args: {
       deck_id: deckId,
       user_id: userId,
       approved: false,
-      format: 'qa',
+      format: c.format,
       front: { text: c.front },
       back: { text: c.back },
       concept_tag: c.concept_tag,

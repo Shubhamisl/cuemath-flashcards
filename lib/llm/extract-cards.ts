@@ -31,6 +31,8 @@ const CARD_SYSTEM = `You create high-quality spaced-repetition flashcards from s
 
 Rules:
 - One card = one testable idea.
+- Choose format as exactly one of: qa, cloze, worked_example.
+- Do not use image_occlusion.
 - Prefer precise questions with short, complete answers.
 - Prefer important definitions, formulas, distinctions, cause-effect relationships, steps, constraints, and common mistakes.
 - For math, preserve formulas exactly and separate formula, variable meaning, usage condition, and common mistake into separate cards.
@@ -142,8 +144,14 @@ Quality bar:
 - Keep answers concise but complete.
 - Use concept_tag as a short snake_case label for the tested idea.
 
+Card formats: qa | cloze | worked_example
+- qa: direct question and answer.
+- cloze: front contains one blank marker "___"; back gives the missing phrase plus a short explanation when useful.
+- worked_example: front asks for the next step, method, or reusable procedure; back gives concise steps.
+- Do not use image_occlusion.
+
 Respond with JSON:
-{"cards":[{"front":"...","back":"...","concept_tag":"...","source_page":N}]}`
+{"cards":[{"format":"qa","front":"...","back":"...","concept_tag":"...","source_page":N}]}`
 }
 
 function buildCardGenerationPrompt(args: BuildArgs & { units: LearningUnit[] }): string {
@@ -165,11 +173,17 @@ Card strategy:
 - common mistakes should become contrast or warning cards.
 - relationships should test the distinction or cause-effect link.
 
+Card formats: qa | cloze | worked_example
+- qa: direct question and answer.
+- cloze: front contains one blank marker "___"; back gives the missing phrase plus a short explanation when useful.
+- worked_example: front asks for the next step, method, or reusable procedure; back gives concise steps.
+- Do not use image_occlusion.
+
 Learning units:
 ${JSON.stringify({ units: unitsByImportance })}
 
 Respond with JSON:
-{"cards":[{"front":"...","back":"...","concept_tag":"...","source_page":N}]}`
+{"cards":[{"format":"qa","front":"...","back":"...","concept_tag":"...","source_page":N}]}`
 }
 
 function parseLearningUnitResponse(raw: string): LearningUnitBatch {

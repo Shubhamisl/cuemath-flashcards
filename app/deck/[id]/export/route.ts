@@ -5,6 +5,7 @@ import {
   cardTextFromContent,
   deckCsvFilename,
 } from '@/lib/export/csv'
+import { textCardFormatSchema } from '@/lib/llm/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,7 +37,7 @@ export async function GET(
 
   const { data: cards, error } = await supabase
     .from('cards')
-    .select('concept_tag, front, back, approved, suspended')
+    .select('format, concept_tag, front, back, approved, suspended')
     .eq('deck_id', id)
     .eq('user_id', user.id)
     .order('created_at', { ascending: true })
@@ -46,6 +47,7 @@ export async function GET(
   }
 
   const normalizedCards = (cards ?? []).map((card) => ({
+    format: textCardFormatSchema.catch('qa').parse(card.format),
     conceptTag: card.concept_tag,
     frontText: cardTextFromContent(card.front),
     backText: cardTextFromContent(card.back),
@@ -61,6 +63,7 @@ export async function GET(
     ? buildDeckAnkiTsv({
         cards: normalizedCards.map((card) => ({
           conceptTag: card.conceptTag,
+          format: card.format,
           frontText: card.frontText,
           backText: card.backText,
           tags: card.tags,
@@ -72,6 +75,7 @@ export async function GET(
         tags: (deck.tags ?? []) as string[],
         cards: normalizedCards.map((card) => ({
           conceptTag: card.conceptTag,
+          format: card.format,
           frontText: card.frontText,
           backText: card.backText,
           approved: card.approved,

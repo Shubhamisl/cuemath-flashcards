@@ -10,6 +10,7 @@ describe('deck csv export', () => {
       cards: [
         {
           conceptTag: 'mitosis',
+          format: 'cloze',
           frontText: 'What happens in "prophase"?',
           backText: 'Chromosomes condense,\nand the spindle begins forming.',
           approved: true,
@@ -19,7 +20,7 @@ describe('deck csv export', () => {
     })
 
     expect(csv).toContain(
-      '"Synthetic Data Models","science","biology|systems","mitosis","What happens in ""prophase""?","Chromosomes condense,\nand the spindle begins forming.","true","false"',
+      '"Synthetic Data Models","science","biology|systems","cloze","mitosis","What happens in ""prophase""?","Chromosomes condense,\nand the spindle begins forming.","true","false"',
     )
   })
 
@@ -32,7 +33,7 @@ describe('deck csv export', () => {
     })
 
     expect(csv.trim()).toBe(
-      'deck_title,subject_family,deck_tags,concept_tag,front_text,back_text,approved,suspended',
+      'deck_title,subject_family,deck_tags,format,concept_tag,front_text,back_text,approved,suspended',
     )
   })
 
@@ -47,12 +48,13 @@ describe('deck csv export', () => {
           frontText: 'What is 2 + 2?',
           backText: '4',
           conceptTag: 'addition',
+          format: 'qa',
           tags: ['math', 'easy'],
         },
       ],
     })
 
-    expect(tsv.trim()).toBe('What is 2 + 2?\t4\taddition math easy')
+    expect(tsv.trim()).toBe('What is 2 + 2?\t4\tformat:qa addition math easy')
   })
 
   it('sanitizes tabs and newlines for anki note exports', () => {
@@ -62,11 +64,12 @@ describe('deck csv export', () => {
           frontText: 'Line 1\nLine 2',
           backText: 'Back\tfield',
           conceptTag: null,
+          format: 'worked_example',
           tags: ['science'],
         },
       ],
     })
 
-    expect(tsv.trim()).toBe('Line 1 Line 2\tBack field\tscience')
+    expect(tsv.trim()).toBe('Line 1 Line 2\tBack field\tformat:worked_example science')
   })
 })

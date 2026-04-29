@@ -1,3 +1,5 @@
+import type { TextCardFormat } from '@/lib/llm/types'
+
 function csvCell(value: string): string {
   return `"${value.replaceAll('"', '""')}"`
 }
@@ -34,6 +36,7 @@ export function buildDeckCsv(args: {
   tags: string[]
   cards: Array<{
     conceptTag: string | null
+    format: TextCardFormat
     frontText: string
     backText: string
     approved: boolean
@@ -41,7 +44,7 @@ export function buildDeckCsv(args: {
   }>
 }): string {
   const lines = [
-    'deck_title,subject_family,deck_tags,concept_tag,front_text,back_text,approved,suspended',
+    'deck_title,subject_family,deck_tags,format,concept_tag,front_text,back_text,approved,suspended',
   ]
 
   for (const card of args.cards) {
@@ -50,6 +53,7 @@ export function buildDeckCsv(args: {
         args.title,
         args.subjectFamily,
         args.tags.join('|'),
+        card.format,
         card.conceptTag ?? '',
         card.frontText,
         card.backText,
@@ -67,6 +71,7 @@ export function buildDeckCsv(args: {
 export function buildDeckAnkiTsv(args: {
   cards: Array<{
     conceptTag: string | null
+    format: TextCardFormat
     frontText: string
     backText: string
     tags: string[]
@@ -76,7 +81,7 @@ export function buildDeckAnkiTsv(args: {
     .map((card) => [
       tsvCell(card.frontText),
       tsvCell(card.backText),
-      tsvCell([card.conceptTag ?? '', ...card.tags].filter(Boolean).join(' ')),
+      tsvCell([`format:${card.format}`, card.conceptTag ?? '', ...card.tags].filter(Boolean).join(' ')),
     ].join('\t'))
     .join('\n')
 }

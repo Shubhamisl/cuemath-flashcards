@@ -1,6 +1,33 @@
 'use client'
 
 import { subjectTint, type subjectFamily } from '@/lib/brand/tokens'
+import type { TextCardFormat } from '@/lib/llm/types'
+
+const CARD_FORMAT_COPY: Record<TextCardFormat, {
+  frontLabel: string
+  backLabel: string
+  frontHelper: string
+  backHelper: string
+}> = {
+  qa: {
+    frontLabel: 'Question',
+    backLabel: 'Answer',
+    frontHelper: 'Think it through before you flip.',
+    backHelper: 'Now rate how easily it came back.',
+  },
+  cloze: {
+    frontLabel: 'Fill the blank',
+    backLabel: 'Answer',
+    frontHelper: 'Recall the missing piece before you flip.',
+    backHelper: 'Now rate how easily it came back.',
+  },
+  worked_example: {
+    frontLabel: 'Method',
+    backLabel: 'Steps',
+    frontHelper: 'Work the step before you flip.',
+    backHelper: 'Now rate how clearly the method came back.',
+  },
+}
 
 export function ReviewCard({
   front,
@@ -9,6 +36,7 @@ export function ReviewCard({
   subject,
   stepLabel,
   modeLabel,
+  format = 'qa',
 }: {
   front: string
   back: string
@@ -16,8 +44,10 @@ export function ReviewCard({
   subject?: subjectFamily
   stepLabel?: string
   modeLabel?: string
+  format?: TextCardFormat
 }) {
   const tint = subjectTint(subject ?? 'other')
+  const copy = CARD_FORMAT_COPY[format]
 
   return (
     <div className="relative w-full" style={{ perspective: '1000px' }} aria-live="polite">
@@ -38,8 +68,8 @@ export function ReviewCard({
         <Face
           active={!flipped}
           tint={tint}
-          label="Question"
-          helperCopy="Think it through before you flip."
+          label={copy.frontLabel}
+          helperCopy={copy.frontHelper}
           text={front}
           modeLabel={modeLabel}
           stepLabel={stepLabel}
@@ -47,8 +77,8 @@ export function ReviewCard({
         <Face
           active={flipped}
           tint={tint}
-          label="Answer"
-          helperCopy="Now rate how easily it came back."
+          label={copy.backLabel}
+          helperCopy={copy.backHelper}
           text={back}
           backSide
         />

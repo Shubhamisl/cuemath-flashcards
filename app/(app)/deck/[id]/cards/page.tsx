@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/db/server'
 import { CardBrowser } from './card-browser'
+import { textCardFormatSchema } from '@/lib/llm/types'
 
 export default async function CardsPage({
   params,
@@ -26,13 +27,14 @@ export default async function CardsPage({
 
   const { data: cards } = await supabase
     .from('cards')
-    .select('id, front, back, concept_tag, suspended, approved, updated_at')
+    .select('id, format, front, back, concept_tag, suspended, approved, updated_at')
     .eq('deck_id', id)
     .eq('user_id', user.id)
     .order('created_at', { ascending: true })
 
   const rows = (cards ?? []) as Array<{
     id: string
+    format: unknown
     front: { text: string }
     back: { text: string }
     concept_tag: string | null
@@ -40,7 +42,11 @@ export default async function CardsPage({
     approved: boolean
     updated_at: string
   }>
-  const browserKey = `${deck.status}:${rows.map((card) => `${card.id}:${card.updated_at}`).join('|')}`
+  const normalizedRows = rows.map((card) => ({
+    ...card,
+    format: textCardFormatSchema.catch('qa').parse(card.format),
+  }))
+  const browserKey = `${deck.status}:${normalizedRows.map((card) => `${card.id}:${card.updated_at}`).join('|')}`
 
   return (
     <main className="min-h-screen">
@@ -53,16 +59,16 @@ export default async function CardsPage({
             ← {deck.title}
           </Link>
           <h1 className="font-display font-extrabold text-2xl">
-            {rows.length} {rows.length === 1 ? 'card' : 'cards'}
+            {normalizedRows.length} {normalizedRows.length === 1 ? 'card' : 'cards'}
           </h1>
         </div>
 
-        {rows.length === 0 ? (
+        {normalizedRows.length === 0 ? (
           <div className="rounded-card border-2 border-dashed border-ink-black/20 p-12 text-center space-y-2">
             <p className="text-sm text-ink-black/70">No cards yet.</p>
           </div>
         ) : (
-          <CardBrowser key={browserKey} deckId={id} deckStatus={deck.status} initialCards={rows} />
+          <CardBrowser key={browserKey} deckId={id} deckStatus={deck.status} initialCards={normalizedRows} />
         )}
       </div>
     </main>

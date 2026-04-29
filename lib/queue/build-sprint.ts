@@ -2,6 +2,7 @@ import type { SprintCard } from './types'
 import { createClient } from '@/lib/db/server'
 import { buildHintFromBack } from '@/lib/cards/hints'
 import { resolveNewCardCaps } from './new-card-caps'
+import { textCardFormatSchema } from '@/lib/llm/types'
 
 type NewCardBudget = {
   remainingGlobal: number
@@ -148,7 +149,7 @@ export async function buildSprint(args: {
   todayStart.setHours(0, 0, 0, 0)
   let query = supabase
     .from('cards')
-    .select('id, deck_id, concept_tag, front, back, fsrs_state, suspended, approved')
+    .select('id, deck_id, format, concept_tag, front, back, fsrs_state, suspended, approved')
     .eq('user_id', args.userId)
     .eq('suspended', false)
     .eq('approved', true)
@@ -178,6 +179,7 @@ export async function buildSprint(args: {
   if (reviewsError) throw reviewsError
   const rows = ((data ?? []) as Array<Omit<SprintCard, 'hint'>>).map((card) => ({
     ...card,
+    format: textCardFormatSchema.catch('qa').parse(card.format),
     hint: buildHintFromBack(card.back.text),
   }))
   const caps = resolveNewCardCaps({
