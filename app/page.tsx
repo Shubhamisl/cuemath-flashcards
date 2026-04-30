@@ -1,280 +1,243 @@
 import Link from 'next/link'
-import { CueButton } from '@/lib/brand/primitives/button'
-import { CueCard } from '@/lib/brand/primitives/card'
-import { CuePill } from '@/lib/brand/primitives/pill'
 
-const STATS = [
-  { value: '700M+', label: 'reviews backing the science' },
-  { value: '~20s', label: 'from upload to first card' },
-  { value: 'FSRS v5', label: 'the spacing engine, not a guess' },
+const PROOF_BLOCKS = [
+  {
+    label: 'Smart cards',
+    body: 'One idea per card, tuned from the source instead of copied as a wall of text.',
+    tone: 'bg-soft-cream',
+    mark: '01',
+  },
+  {
+    label: 'Spaced review',
+    body: 'A daily queue keeps the next right card in front of the learner.',
+    tone: 'bg-bubble-pink',
+    mark: '02',
+  },
+  {
+    label: 'Built for focus',
+    body: 'Short sprints, visible progress, and fewer decisions before study starts.',
+    tone: 'bg-trust-blue',
+    mark: '03',
+  },
 ]
 
 const STEPS = [
   {
     n: '01',
-    title: 'Drop a PDF',
-    body: 'Notes, a chapter, a textbook — anything up to 20MB.',
-    subject: 'math' as const,
+    title: 'Upload the lesson',
+    body: 'Drop in a PDF, class note, or worksheet up to 20MB.',
+    tone: 'bg-soft-cream',
   },
   {
     n: '02',
-    title: 'Get atomic cards',
-    body: 'One idea per card, written the way a great teacher would.',
-    subject: 'language' as const,
+    title: 'Shape the deck',
+    body: 'The app splits the material into atomic prompts and answers.',
+    tone: 'bg-bubble-pink',
   },
   {
     n: '03',
-    title: 'Run short sprints',
-    body: 'Spaced repetition keeps your edge without burning you out.',
-    subject: 'science' as const,
+    title: 'Run the sprint',
+    body: 'Students review what is due and build confidence without guesswork.',
+    tone: 'bg-mint-green',
   },
 ]
 
-const OUTCOMES = [
-  'Cards that match how you actually take notes',
-  'A schedule that respects your real life',
-  'Progress you can see, not just feel',
+const PRODUCT_TILES = [
+  { label: 'PDF upload', value: 'Chapter 4: Quadratics', tone: 'bg-soft-cream' },
+  { label: 'Smart extract', value: '18 cards ready', tone: 'bg-trust-blue' },
+  { label: 'Review queue', value: '9 due today', tone: 'bg-bubble-pink' },
+  { label: 'Mastery', value: '78% locked in', tone: 'bg-mint-green' },
 ]
 
 export default function Home() {
   return (
-    <main className="flex-1 flex flex-col">
-      {/* ============ HERO ============ */}
-      <section className="px-6 pt-14 pb-20 lg:pt-24 lg:pb-28 max-w-[1200px] mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-16 items-center">
-          {/* LEFT */}
-          <div className="space-y-7">
-            <CuePill tone="highlight">SharpMind journey</CuePill>
-            <h1
-              className="font-display font-extrabold text-ink-black"
-              style={{
-                fontSize: 'clamp(56px, 11vw, 128px)',
-                lineHeight: 0.92,
-                letterSpacing: '-0.03em',
-              }}
-            >
-              PDF in.
-              <br />
-              Memory forever.
-            </h1>
-            <p className="text-lg lg:text-xl text-ink-black/75 max-w-[480px] leading-relaxed">
-              Cuemath Flashcards turns any document into cognitively-tuned practice — the
-              same science behind 700M+ reviews a year.
-            </p>
-            <div className="flex flex-wrap items-center gap-5 pt-2">
-              <Link href="/login" className="inline-block">
-                <CueButton size="lg" className="px-10 text-lg">
-                  Start my journey
-                </CueButton>
-              </Link>
-              <Link
-                href="#how"
-                className="font-display font-semibold text-ink-black/60 hover:text-ink-black"
+    <main className="cue-grid-surface min-h-screen text-ink-black">
+      <header className="cue-nav-shell">
+        <div className="mx-auto flex h-[70px] max-w-[1440px] items-center justify-between pl-6 lg:pl-8">
+          <Link href="/" className="font-display text-[32px] font-extrabold leading-none">
+            CUEMATH
+          </Link>
+
+          <nav aria-label="Landing" className="hidden h-full items-center md:flex">
+            {['How it works', 'Proof', 'Inside the app'].map((item) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase().replaceAll(' ', '-')}`}
+                className="flex h-full min-w-[160px] items-center justify-center border-l border-ink-black px-6 font-display text-sm font-bold hover:bg-soft-cream"
               >
-                See how it works ↓
-              </Link>
-            </div>
-          </div>
-
-          {/* RIGHT — deck preview stack */}
-          <div className="lg:pl-8">
-            <DeckPreview />
-          </div>
-        </div>
-      </section>
-
-      {/* ============ PROOF STRIP ============ */}
-      <section className="bg-soft-cream py-12 lg:py-14 border-y-2 border-ink-black/5">
-        <div className="max-w-[1100px] mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 text-center">
-          {STATS.map((s) => (
-            <div key={s.label}>
-              <div
-                className="font-display font-extrabold tracking-tight text-ink-black"
-                style={{ fontSize: 'clamp(40px, 6vw, 64px)', lineHeight: 1 }}
-              >
-                {s.value}
-              </div>
-              <div className="text-sm text-ink-black/70 mt-2 max-w-[220px] mx-auto">
-                {s.label}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ============ HOW IT WORKS ============ */}
-      <section id="how" className="px-6 py-20 lg:py-28 max-w-[1100px] mx-auto w-full">
-        <div className="text-center space-y-3 mb-12 lg:mb-16">
-          <div className="text-xs uppercase tracking-[0.14em] font-display font-bold text-ink-black/50">
-            How it works
-          </div>
-          <h2
-            className="font-display font-extrabold tracking-tight"
-            style={{ fontSize: 'clamp(36px, 5vw, 56px)', lineHeight: 1.05 }}
-          >
-            Three steps,{' '}
-            <span className="bg-cue-yellow px-2 inline-block">zero friction</span>.
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {STEPS.map((s) => (
-            <CueCard
-              key={s.n}
-              subject={s.subject}
-              className="space-y-3 shadow-card-rest p-7 min-h-[200px]"
-            >
-              <div className="font-display font-extrabold text-3xl text-ink-black/35">
-                {s.n}
-              </div>
-              <h3 className="font-display text-2xl font-extrabold leading-tight">
-                {s.title}
-              </h3>
-              <p className="text-ink-black/75 leading-relaxed">{s.body}</p>
-            </CueCard>
-          ))}
-        </div>
-      </section>
-
-      {/* ============ OUTCOMES ============ */}
-      <section className="px-6 pb-20 lg:pb-24 max-w-[900px] mx-auto w-full">
-        <div className="space-y-8">
-          <h2
-            className="font-display font-extrabold text-center tracking-tight"
-            style={{ fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1 }}
-          >
-            What you get
-          </h2>
-          <ul className="space-y-4 max-w-[640px] mx-auto">
-            {OUTCOMES.map((o, i) => (
-              <li key={i} className="flex items-start gap-4 text-lg text-ink-black/85">
-                <span
-                  aria-hidden="true"
-                  className="font-display font-extrabold text-cue-yellow text-3xl leading-none mt-0.5"
-                >
-                  →
-                </span>
-                <span>{o}</span>
-              </li>
+                {item}
+              </a>
             ))}
-          </ul>
+          </nav>
+
+          <Link
+            href="/login"
+            className="flex h-full min-w-[180px] items-center justify-center border-l border-ink-black bg-cue-yellow px-6 font-display text-base font-extrabold hover:brightness-95"
+          >
+            Get started
+          </Link>
+        </div>
+      </header>
+
+      <section aria-label="Proof" id="proof" className="mx-auto max-w-[1280px] px-5 pt-10 sm:px-6 lg:pt-14">
+        <div className="grid cue-hard-panel overflow-hidden bg-paper-white md:grid-cols-3">
+          {PROOF_BLOCKS.map((block) => (
+            <article key={block.label} className={`${block.tone} relative min-h-[150px] border-ink-black p-7 md:border-r md:last:border-r-0`}>
+              <div className="absolute right-5 top-4 rounded-[4px] border border-ink-black bg-paper-white px-2 py-1 font-display text-xs font-extrabold">
+                {block.mark}
+              </div>
+              <h2 className="font-display text-2xl font-extrabold uppercase leading-tight">
+                {block.label}
+              </h2>
+              <p className="mt-3 max-w-[360px] text-base font-semibold leading-relaxed text-ink-black/80">
+                {block.body}
+              </p>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* ============ CLOSING CTA — full-bleed yellow ============ */}
-      <section className="bg-cue-yellow">
-        <div className="max-w-[900px] mx-auto px-6 py-20 lg:py-28 text-center space-y-7">
-          <h2
-            className="font-display font-extrabold tracking-tight text-ink-black"
-            style={{ fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 1 }}
+      <section className="mx-auto grid max-w-[1280px] grid-cols-1 gap-10 px-5 py-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:py-16">
+        <div className="flex flex-col justify-center">
+          <div className="mb-6 inline-flex w-fit border border-ink-black bg-paper-white px-3 py-2 font-display text-xs font-extrabold uppercase">
+            SharpMind study loop
+          </div>
+          <h1
+            className="max-w-[720px] font-display font-extrabold leading-[0.96]"
+            style={{ fontSize: 'clamp(48px, 7vw, 102px)', letterSpacing: '0' }}
           >
-            Ready to remember more?
-          </h2>
-          <p className="text-lg text-ink-black/80 max-w-[520px] mx-auto">
-            One PDF. Five minutes. A study habit that actually sticks.
+            Turn study material into MathFit memory sprints
+          </h1>
+          <p className="mt-7 max-w-[560px] text-xl font-semibold leading-relaxed text-ink-black/75">
+            Convert PDFs, notes, and class material into focused flashcard sessions that keep
+            learners moving from first exposure to confident recall.
           </p>
-          <Link href="/login" className="inline-block">
-            <button
-              type="button"
-              className="inline-flex items-center justify-center min-h-[56px] px-10 rounded-input bg-ink-black text-cue-yellow font-display font-bold text-lg transition-transform duration-tap active:scale-[0.98] hover:bg-ink-black/90"
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <Link
+              href="/login"
+              className="cue-primary-block inline-flex min-h-[58px] items-center justify-center bg-cue-yellow px-10 font-display text-lg font-extrabold hover:brightness-95"
             >
-              Start my journey
-            </button>
+              Start a sprint
+            </Link>
+            <a href="#inside-the-app" className="font-display text-base font-extrabold underline decoration-2 underline-offset-4">
+              View the loop
+            </a>
+          </div>
+
+          <dl className="mt-10 grid max-w-[560px] grid-cols-3 border border-ink-black bg-paper-white">
+            {[
+              ['20MB', 'PDF limit'],
+              ['1 idea', 'per card'],
+              ['Daily', 'review queue'],
+            ].map(([value, label]) => (
+              <div key={label} className="border-r border-ink-black p-4 last:border-r-0">
+                <dt className="font-display text-2xl font-extrabold">{value}</dt>
+                <dd className="mt-1 text-xs font-bold uppercase text-ink-black/60">{label}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <ProductCollage />
+      </section>
+
+      <section id="how-it-works" className="mx-auto max-w-[1180px] px-5 pb-16 sm:px-6 lg:pb-24">
+        <div className="mb-7 flex items-end justify-between gap-6">
+          <h2 className="max-w-[680px] font-display text-4xl font-extrabold leading-tight sm:text-5xl">
+            From lesson material to long-term confidence.
+          </h2>
+          <div className="hidden h-20 w-20 border border-ink-black bg-cue-yellow lg:block" aria-hidden="true" />
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-3">
+          {STEPS.map((step) => (
+            <article key={step.n} className={`cue-hard-card ${step.tone} min-h-[240px] p-7`}>
+              <div className="mb-10 font-display text-5xl font-extrabold leading-none text-ink-black/25">
+                {step.n}
+              </div>
+              <h3 className="font-display text-3xl font-extrabold leading-tight">{step.title}</h3>
+              <p className="mt-4 text-lg font-semibold leading-relaxed text-ink-black/75">{step.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="inside-the-app" className="border-y border-ink-black bg-ink-black text-paper-white">
+        <div className="mx-auto grid max-w-[1280px] gap-0 px-5 py-16 sm:px-6 lg:grid-cols-[1fr_420px] lg:py-20">
+          <div className="max-w-[760px]">
+            <p className="font-display text-sm font-extrabold uppercase text-cue-yellow">Inside the app</p>
+            <h2 className="mt-4 font-display text-5xl font-extrabold leading-tight sm:text-6xl">
+              Keep the learning loop clear.
+            </h2>
+            <p className="mt-6 max-w-[620px] text-lg font-semibold leading-relaxed text-paper-white/75">
+              Students see what is due, answer in short bursts, and leave each session with a
+              clearer sense of what they know and what needs another pass.
+            </p>
+          </div>
+          <Link
+            href="/login"
+            className="mt-10 flex min-h-[160px] items-center justify-center border border-cue-yellow bg-cue-yellow px-8 text-center font-display text-3xl font-extrabold text-ink-black hover:brightness-95 lg:mt-0"
+          >
+            Get Started
           </Link>
         </div>
       </section>
 
-      {/* ============ FOOTER ============ */}
-      <footer className="px-6 py-8 text-center text-xs text-ink-black/50 font-body">
-        Cuemath · Built for the SharpMind generation
+      <footer className="px-6 py-8 text-center font-display text-xs font-bold uppercase text-ink-black/60">
+        Cuemath Flashcards / Built for the SharpMind generation
       </footer>
     </main>
   )
 }
 
-/* ──────────────────────────────────────────────────────────
-   DeckPreview — static stacked cards illustrating the loop
-   PDF → deck card → review card. Uses real brand tokens and
-   the same MasteryRing component the in-app library uses.
-   No JS, no animation — pure CSS transforms.
-   ──────────────────────────────────────────────────────────*/
-function DeckPreview() {
+function ProductCollage() {
   return (
     <div
-      className="relative h-[380px] sm:h-[440px] lg:h-[480px] mx-auto max-w-[420px] lg:max-w-none"
-      aria-hidden="true"
+      data-testid="landing-product-collage"
+      className="cue-hard-panel bg-paper-white p-3 sm:p-4 lg:min-h-[620px]"
     >
-      {/* BACK card — peeking, blue tint */}
-      <div
-        className="absolute top-2 right-2 sm:top-4 sm:right-6 w-[240px] sm:w-[260px] rounded-card p-5 shadow-card-rest bg-trust-blue opacity-80"
-        style={{ transform: 'rotate(-7deg)' }}
-      >
-        <div className="text-[10px] uppercase tracking-[0.12em] text-ink-black/55 font-display font-bold mb-2">
-          Algebra II · Ch. 4
+      <div className="grid h-full gap-3 md:grid-cols-2">
+        <div className="cue-hard-card bg-cue-yellow p-6 md:col-span-2">
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <p className="font-display text-xs font-extrabold uppercase">Today sprint</p>
+              <h2 className="mt-3 max-w-[420px] font-display text-4xl font-extrabold leading-tight sm:text-5xl">
+                Fractions, ratios, and the next right question.
+              </h2>
+            </div>
+            <div className="hidden border border-ink-black bg-paper-white p-3 font-display text-sm font-extrabold md:block">
+              09 due
+            </div>
+          </div>
         </div>
-        <div className="font-display font-extrabold text-base leading-tight text-ink-black">
-          What does FSRS do that SM-2 cannot?
-        </div>
-      </div>
 
-      {/* MIDDLE card — pink tint */}
-      <div
-        className="absolute top-12 left-0 sm:top-16 sm:left-2 w-[260px] sm:w-[280px] rounded-card p-5 shadow-card-flip bg-bubble-pink"
-        style={{ transform: 'rotate(4deg)' }}
-      >
-        <div className="text-[10px] uppercase tracking-[0.12em] text-ink-black/55 font-display font-bold mb-2">
-          Spanish · verbos
-        </div>
-        <div className="font-display font-extrabold text-lg leading-tight text-ink-black">
-          Conjugate <span className="italic">tener</span> in the preterite, 1st person
-          plural.
-        </div>
-        <div className="mt-4 text-xs text-ink-black/55 font-body">tap to flip →</div>
-      </div>
+        {PRODUCT_TILES.map((tile) => (
+          <article key={tile.label} className={`cue-hard-card ${tile.tone} min-h-[150px] p-5`}>
+            <p className="font-display text-xs font-extrabold uppercase text-ink-black/60">{tile.label}</p>
+            <h3 className="mt-4 font-display text-2xl font-extrabold leading-tight">{tile.value}</h3>
+          </article>
+        ))}
 
-      {/* FRONT card — math/cream tint with mastery ring (mirrors DeckCard) */}
-      <div className="absolute bottom-0 right-0 w-[280px] sm:w-[300px] rounded-card p-5 shadow-card-flip bg-soft-cream">
-        <div className="flex items-start justify-between mb-3">
-          <LandingMasteryRing pct={78} />
-          <span className="px-3 py-1 rounded-full text-xs font-display font-bold bg-mint-green text-ink-black">
-            Confident
-          </span>
-        </div>
-        <div className="font-display font-extrabold text-xl leading-tight text-ink-black">
-          Calculus · Limits
-        </div>
-        <div className="text-sm text-ink-black/60 mt-1 font-body">
-          42 cards · 9 due today
-        </div>
-        <div className="mt-4 text-[11px] uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
-          78% mastered
+        <div className="cue-hard-card bg-ink-black p-5 text-paper-white md:col-span-2">
+          <div className="flex flex-wrap items-center justify-between gap-5">
+            <div>
+              <p className="font-display text-xs font-extrabold uppercase text-cue-yellow">Progress cells</p>
+              <p className="mt-2 font-display text-2xl font-extrabold">Confidence builds one answer at a time.</p>
+            </div>
+            <div aria-hidden="true" className="flex gap-1">
+              {['complete', 'complete', 'complete', 'current', 'empty', 'empty', 'empty'].map((state, index) => (
+                <span
+                  key={`${state}-${index}`}
+                  className={`cue-progress-cell ${
+                    state === 'complete' ? 'cue-progress-complete' : state === 'current' ? 'cue-progress-current' : ''
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  )
-}
-
-/* Inline mastery ring for the landing preview only.
-   Uses hex colors directly because the global var(--cue-yellow)
-   token isn't exported by Tailwind v4 @theme on this codebase. */
-function LandingMasteryRing({ pct, size = 52, stroke = 5 }: { pct: number; size?: number; stroke?: number }) {
-  const r = (size - stroke) / 2
-  const c = 2 * Math.PI * r
-  const offset = c * (1 - Math.max(0, Math.min(100, pct)) / 100)
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#F2E2B0" strokeWidth={stroke} />
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke="#FFBA07"
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        strokeDasharray={c}
-        strokeDashoffset={offset}
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-      />
-    </svg>
   )
 }
