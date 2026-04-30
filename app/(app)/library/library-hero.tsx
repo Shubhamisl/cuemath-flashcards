@@ -46,7 +46,7 @@ export function LibraryHero({
       </div>
 
       <div className="border-t border-ink-black bg-soft-cream lg:border-l lg:border-t-0">
-        <div className="grid grid-cols-3 border-b border-ink-black">
+        <div data-testid="library-hero-stats" className="grid grid-cols-1 border-b border-ink-black sm:grid-cols-3">
           <StatBlock label="Completed" value={doneToday} tone="bg-bubble-pink" />
           <StatBlock label="Due Today" value={globalDueNowCount} tone="bg-mint-green" />
           <StatBlock label="Goal" value={dailyGoal} tone="bg-trust-blue" />
@@ -83,7 +83,7 @@ export function LibraryHero({
 
 function StatBlock({ label, value, tone }: { label: string; value: number; tone: string }) {
   return (
-    <div className={`${tone} border-r border-ink-black px-3 py-4 last:border-r-0`}>
+    <div className={`${tone} border-b border-ink-black px-4 py-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0`}>
       <p className="text-[11px] font-display font-bold uppercase tracking-[0.06em] text-ink-black/60">
         {label}
       </p>

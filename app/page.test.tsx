@@ -15,6 +15,8 @@ describe('landing page', () => {
     const { container } = render(<Home />)
 
     expect(screen.getByRole('link', { name: 'CUEMATH' })).toHaveAttribute('href', '/')
+    expect(screen.getByTestId('landing-topbar')).toHaveClass('px-3')
+    expect(screen.getByRole('link', { name: 'Get started' })).toHaveClass('min-w-[132px]')
     expect(screen.getByRole('link', { name: 'Study flow' })).toHaveAttribute('href', '#how-it-works')
     expect(screen.getByRole('link', { name: 'Study flow' })).toHaveClass('border-r')
     expect(screen.queryByRole('link', { name: 'Proof' })).not.toBeInTheDocument()

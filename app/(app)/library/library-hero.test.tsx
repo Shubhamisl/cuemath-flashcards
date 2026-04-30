@@ -34,6 +34,8 @@ describe('LibraryHero', () => {
     expect(screen.getByText('Hi, Shubham')).toBeInTheDocument()
     expect(screen.getByRole('banner')).toHaveClass('motion-premium-reveal')
     expect(screen.getByRole('banner')).toHaveClass('cue-grid-hero')
+    expect(screen.getByTestId('library-hero-stats')).toHaveClass('grid-cols-1')
+    expect(screen.getByTestId('library-hero-stats')).toHaveClass('sm:grid-cols-3')
     expect(screen.getByText('Goal: 20 cards today')).toBeInTheDocument()
     expect(screen.getByText('Completed')).toBeInTheDocument()
     expect(screen.getByText('Due Today')).toBeInTheDocument()

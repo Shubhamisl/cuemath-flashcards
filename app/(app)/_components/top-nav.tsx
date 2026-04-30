@@ -53,18 +53,23 @@ export function TopNav({ name, streak }: TopNavProps) {
   return (
     <nav className="motion-premium-reveal cue-nav-shell sticky top-0 z-30">
       <NavRouteWarmer />
-      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-        <div className="flex min-h-[58px] flex-col gap-3 py-3 lg:flex-row lg:items-center lg:justify-between lg:py-0">
-          <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:gap-8">
-            <Link href="/library" className="font-display text-2xl font-extrabold tracking-tight text-ink-black">
+      <div className="mx-auto max-w-[1200px] px-3 sm:px-6">
+        <div
+          data-testid="top-nav-layout"
+          className="grid min-h-[58px] grid-cols-[1fr_auto] items-center gap-x-3 gap-y-2 py-2 lg:flex lg:items-center lg:justify-between lg:gap-8 lg:py-0"
+        >
+          <div className="flex min-w-0 items-center gap-3 lg:gap-8">
+            <Link
+              href="/library"
+              className="truncate font-display text-[24px] font-extrabold tracking-tight text-ink-black sm:text-2xl"
+            >
               CUEMATH
             </Link>
             <span className="hidden border-l border-ink-black/25 pl-3 text-xs font-display font-bold uppercase tracking-[0.12em] text-ink-black/55 lg:block">
               Flashcards
             </span>
-            <PrimaryNavLinks />
           </div>
-          <div className="flex w-full items-center justify-between gap-3 lg:w-auto lg:justify-end">
+          <div className="flex items-center justify-end gap-2 lg:order-3 lg:gap-3">
             <CuePill tone="neutral">{streak > 0 ? `Day ${streak}` : 'Day 1'}</CuePill>
             <div ref={wrapRef} className="relative">
               <button
@@ -96,6 +101,7 @@ export function TopNav({ name, streak }: TopNavProps) {
               )}
             </div>
           </div>
+          <PrimaryNavLinks className="col-span-2 lg:order-2 lg:col-span-1" />
         </div>
       </div>
     </nav>

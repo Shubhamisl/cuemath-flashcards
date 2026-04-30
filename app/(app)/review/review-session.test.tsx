@@ -299,6 +299,8 @@ describe('review-session', () => {
     )
 
     await user.click(screen.getByRole('button', { name: 'Try typing it' }))
+    expect(screen.getByTestId('typing-challenge-actions')).toHaveClass('grid-cols-1')
+    expect(screen.getByTestId('typing-challenge-actions')).toHaveClass('sm:grid-cols-2')
     await user.click(screen.getByRole('button', { name: 'Skip typing' }))
 
     expect(screen.getByRole('button', { name: 'Show answer (Space)' })).toBeInTheDocument()

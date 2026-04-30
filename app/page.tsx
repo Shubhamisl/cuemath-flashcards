@@ -63,8 +63,11 @@ export default function Home() {
   return (
     <main className="cue-grid-surface min-h-screen text-ink-black">
       <header className="cue-nav-shell">
-        <div className="mx-auto flex h-[70px] max-w-[1440px] items-center pl-6 lg:pl-8">
-          <Link href="/" className="font-display text-[32px] font-extrabold leading-none">
+        <div
+          data-testid="landing-topbar"
+          className="mx-auto flex h-[64px] max-w-[1440px] items-center px-3 sm:h-[70px] sm:pl-6 sm:pr-0 lg:pl-8"
+        >
+          <Link href="/" className="font-display text-[clamp(24px,7vw,32px)] font-extrabold leading-none">
             CUEMATH
           </Link>
 
@@ -83,7 +86,7 @@ export default function Home() {
 
             <Link
               href="/login"
-              className="flex h-full min-w-[180px] items-center justify-center bg-cue-yellow px-6 font-display text-base font-extrabold hover:brightness-95"
+              className="flex h-full min-w-[132px] items-center justify-center bg-cue-yellow px-4 font-display text-sm font-extrabold hover:brightness-95 sm:min-w-[180px] sm:px-6 sm:text-base"
             >
               Get started
             </Link>
@@ -94,7 +97,7 @@ export default function Home() {
       <MotionSection aria-label="Proof" id="proof" className="mx-auto max-w-[1280px] px-5 pt-10 sm:px-6 lg:pt-14">
         <div className="grid cue-hard-panel overflow-hidden bg-paper-white md:grid-cols-3">
           {PROOF_BLOCKS.map((block, index) => (
-            <MotionProofCard key={block.label} index={index} className={`${block.tone} relative min-h-[150px] border-ink-black p-7 md:border-r md:last:border-r-0`}>
+            <MotionProofCard key={block.label} index={index} className={`${block.tone} relative min-h-[150px] border-b border-ink-black p-6 last:border-b-0 sm:p-7 md:border-b-0 md:border-r md:last:border-r-0`}>
               <div className="absolute right-5 top-4 rounded-[4px] border border-ink-black bg-paper-white px-2 py-1 font-display text-xs font-extrabold">
                 {block.mark}
               </div>
@@ -109,7 +112,7 @@ export default function Home() {
         </div>
       </MotionSection>
 
-      <section className="mx-auto grid max-w-[1280px] grid-cols-1 gap-10 px-5 py-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:py-16">
+      <section className="mx-auto grid max-w-[1280px] grid-cols-1 gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:py-16">
         <div className="flex flex-col justify-center">
           <div className="mb-6 inline-flex w-fit border border-ink-black bg-paper-white px-3 py-2 font-display text-xs font-extrabold uppercase">
             SharpMind study loop
@@ -141,13 +144,13 @@ export default function Home() {
             </a>
           </div>
 
-          <dl className="mt-10 grid max-w-[560px] grid-cols-3 border border-ink-black bg-paper-white">
+          <dl className="mt-10 grid max-w-[560px] grid-cols-1 border border-ink-black bg-paper-white sm:grid-cols-3">
             {[
               ['20MB', 'PDF limit'],
               ['1 idea', 'per card'],
               ['Daily', 'review queue'],
             ].map(([value, label]) => (
-              <div key={label} className="border-r border-ink-black p-4 last:border-r-0">
+              <div key={label} className="border-b border-ink-black p-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0">
                 <dt className="font-display text-2xl font-extrabold">{value}</dt>
                 <dd className="mt-1 text-xs font-bold uppercase text-ink-black/60">{label}</dd>
               </div>
@@ -194,7 +197,7 @@ export default function Home() {
           <MotionPress className="mt-10 flex lg:mt-0">
             <Link
               href="/login"
-              className="flex min-h-[160px] flex-1 items-center justify-center border border-cue-yellow bg-cue-yellow px-8 text-center font-display text-3xl font-extrabold text-ink-black hover:brightness-95"
+              className="flex min-h-[120px] flex-1 items-center justify-center border border-cue-yellow bg-cue-yellow px-8 text-center font-display text-2xl font-extrabold text-ink-black hover:brightness-95 sm:min-h-[160px] sm:text-3xl"
             >
               Get Started
             </Link>

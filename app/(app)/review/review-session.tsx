@@ -597,7 +597,7 @@ export function ReviewSession({
                     autoFocus
                     className="w-full rounded-card border border-ink-black/15 bg-white/80 px-4 py-3 text-sm text-ink-black outline-none focus:border-cue-yellow focus:ring-2 focus:ring-cue-yellow/30"
                   />
-                  <div className="grid grid-cols-2 gap-2">
+                  <div data-testid="typing-challenge-actions" className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <CueButton
                       onClick={submitTypedChallenge}
                       disabled={typedAnswer.trim().length === 0}

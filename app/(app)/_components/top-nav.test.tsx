@@ -43,6 +43,8 @@ describe('TopNav', () => {
 
     expect(screen.getByRole('navigation')).toHaveClass('motion-premium-reveal')
     expect(screen.getByRole('navigation')).toHaveClass('cue-nav-shell')
+    expect(screen.getByTestId('top-nav-layout')).toHaveClass('grid-cols-[1fr_auto]')
+    expect(screen.getByTestId('primary-nav-links')).toHaveClass('col-span-2')
     expect(screen.getByRole('link', { name: 'CUEMATH' })).toHaveAttribute('href', '/library')
     expect(screen.getByRole('link', { name: 'Library' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'Progress' })).toHaveAttribute('href', '/progress')

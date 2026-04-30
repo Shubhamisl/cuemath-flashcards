@@ -9,11 +9,17 @@ const LINKS = [
   { href: '/profile', label: 'Profile' },
 ] as const
 
-export function PrimaryNavLinks() {
+export function PrimaryNavLinks({ className = '' }: { className?: string }) {
   const pathname = usePathname()
 
   return (
-    <div className="grid w-full grid-cols-3 gap-1 rounded-[18px] border border-ink-black/10 bg-paper-white/85 p-1 sm:inline-flex sm:w-auto sm:items-center sm:gap-2 sm:rounded-full">
+    <div
+      data-testid="primary-nav-links"
+      className={[
+        'grid w-full grid-cols-3 gap-1 overflow-x-auto rounded-[18px] border border-ink-black/10 bg-paper-white/85 p-1 sm:inline-flex sm:w-auto sm:items-center sm:gap-2 sm:rounded-full',
+        className,
+      ].join(' ')}
+    >
       {LINKS.map((link) => {
         const active = pathname === link.href
 
