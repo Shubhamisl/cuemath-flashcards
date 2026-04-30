@@ -28,7 +28,6 @@ export function MasteryRing({
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
-          className="motion-premium-ring"
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -37,6 +36,7 @@ export function MasteryRing({
           strokeWidth={stroke}
         />
         <circle
+          className="motion-premium-ring"
           cx={size / 2}
           cy={size / 2}
           r={radius}

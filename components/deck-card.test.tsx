@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { DeckCard } from './deck-card'
 
@@ -72,9 +72,14 @@ describe('DeckCard', () => {
 
     expect(screen.getByText('Biology Systems')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Biology Systems/ })).toHaveClass('cue-deck-card-link')
+    expect(screen.getByTestId('deck-card-deck-2')).toHaveAttribute('data-motion', 'deck-card')
+    const progressPanel = screen.getByTestId('deck-progress-panel')
+    expect(progressPanel).toHaveTextContent('Mastery')
+    expect(progressPanel).toHaveTextContent('82%')
+    expect(within(progressPanel).getByText('4 due')).toBeInTheDocument()
     expect(screen.getByText('Science')).toBeInTheDocument()
     expect(screen.getByText('SharpMind')).toBeInTheDocument()
-    expect(screen.getByText('4 due')).toBeInTheDocument()
+    expect(screen.getAllByText('4 due').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText('4 due now')).toBeInTheDocument()
     expect(screen.getByText('82% mastered')).toBeInTheDocument()
     expect(screen.getByText('biology')).toBeInTheDocument()

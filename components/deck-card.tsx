@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import Link from 'next/link'
+import { motion } from 'motion/react'
 import { CueCard } from '@/lib/brand/primitives/card'
 import { CuePill } from '@/lib/brand/primitives/pill'
 import { CueButton } from '@/lib/brand/primitives/button'
@@ -34,6 +35,34 @@ const SUBJECT_LABELS: Record<subjectFamily, string> = {
   science: 'Science',
   humanities: 'Humanities',
   other: 'Other',
+}
+
+function DeckProgressPanel({
+  masteryPct,
+  dueCount,
+}: {
+  masteryPct: number
+  dueCount?: number
+}) {
+  return (
+    <div
+      data-testid="deck-progress-panel"
+      className="flex min-w-0 flex-1 items-center gap-3 rounded-[6px] border border-ink-black bg-paper-white p-3"
+    >
+      <MasteryRing pct={masteryPct} size={54} stroke={6} showLabel={false} />
+      <div className="min-w-0 space-y-1">
+        <div className="font-display text-[10px] font-extrabold uppercase tracking-[0.1em] text-ink-black/55">
+          Mastery
+        </div>
+        <div className="font-display text-2xl font-extrabold leading-none text-ink-black">
+          {masteryPct}%
+        </div>
+        <div className="text-xs font-bold uppercase tracking-[0.06em] text-ink-black/55">
+          {typeof dueCount === 'number' && dueCount > 0 ? `${dueCount} due` : 'clear queue'}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function DeckCard({
@@ -157,9 +186,7 @@ export function DeckCard({
       <div className="flex flex-1 flex-col gap-5 p-5">
         <div className="flex items-start justify-between gap-3">
           {status === 'ready' && typeof masteryPct === 'number' ? (
-            <div className="rounded-[6px] border border-ink-black bg-paper-white p-2">
-              <MasteryRing pct={masteryPct} size={56} stroke={6} showLabel={false} />
-            </div>
+            <DeckProgressPanel masteryPct={masteryPct} dueCount={dueCount} />
           ) : (
             <div className="size-16" />
           )}
@@ -258,7 +285,17 @@ export function DeckCard({
 
   if (status === 'ready' || status === 'draft' || status === 'archived') {
     return (
-      <div className="relative group/card">
+      <motion.div
+        data-testid={`deck-card-${id}`}
+        data-motion="deck-card"
+        className="relative group/card"
+        layout
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        whileHover={{ y: -3 }}
+        transition={{ duration: 0.28 }}
+      >
         {confirmDelete && deleteConfirmUI}
         {trashButton}
         <Link href={`/deck/${id}`} className="motion-premium-list-item cue-deck-card-link block group">
@@ -269,17 +306,26 @@ export function DeckCard({
             {cardBody}
           </CueCard>
         </Link>
-      </div>
+      </motion.div>
     )
   }
 
   return (
-    <div className="relative group/card">
+    <motion.div
+      data-testid={`deck-card-${id}`}
+      data-motion="deck-card"
+      className="relative group/card"
+      layout
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.28 }}
+    >
       {confirmDelete && deleteConfirmUI}
       {status !== 'failed' && trashButton}
       <CueCard subject={subjectFamily} className="cue-hard-card h-full overflow-hidden p-0">
         {cardBody}
       </CueCard>
-    </div>
+    </motion.div>
   )
 }
