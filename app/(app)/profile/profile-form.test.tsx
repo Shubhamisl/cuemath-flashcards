@@ -14,6 +14,28 @@ vi.mock('./actions', () => ({
 }))
 
 describe('ProfileForm', () => {
+  it('surfaces the current study profile and review pace', () => {
+    render(
+      <ProfileForm
+        email="user@example.com"
+        initial={{
+          display_name: 'Shubham',
+          subject_family: 'math',
+          level: 'intermediate',
+          daily_goal_cards: 20,
+          daily_new_cards_limit: 10,
+        }}
+      />,
+    )
+
+    expect(screen.getByText('Study profile')).toBeInTheDocument()
+    expect(screen.getByText('Shubham')).toBeInTheDocument()
+    expect(screen.getByText('20')).toBeInTheDocument()
+    expect(screen.getByText('cards / day')).toBeInTheDocument()
+    expect(screen.getByText('10')).toBeInTheDocument()
+    expect(screen.getByText('new / day')).toBeInTheDocument()
+  })
+
   it('shows and saves the explicit daily new-card pace setting', async () => {
     updateProfileMock.mockResolvedValue({ ok: true })
     const user = userEvent.setup()

@@ -21,17 +21,22 @@ async function ProfilePageData() {
   if (!profile?.onboarded_at) redirect('/onboarding/subject')
 
   return (
-      <div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-10">
-        <header className="mx-auto max-w-[600px] space-y-2">
-          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink-black sm:text-[36px]">
-            Your settings
-          </h1>
-          <p className="font-body text-ink-black/70">
-            Defaults you can change anytime.
+      <div className="mx-auto max-w-[1100px] space-y-8 px-4 py-8 sm:px-6 sm:py-10">
+        <header className="grid gap-4 lg:grid-cols-[0.72fr_0.28fr] lg:items-end">
+          <div className="space-y-2">
+            <p className="font-display text-xs font-semibold uppercase tracking-[0.08em] text-ink-black/60">
+              Profile
+            </p>
+            <h1 className="max-w-[760px] font-display text-4xl font-extrabold tracking-tight text-ink-black sm:text-5xl">
+              Make the study room feel like yours.
+            </h1>
+          </div>
+          <p className="font-body text-sm leading-6 text-ink-black/70 lg:text-right">
+            Set the defaults that shape every deck, sprint, and review queue.
           </p>
         </header>
 
-        <div className="mx-auto mt-8 max-w-[600px] pb-20">
+        <div className="pb-20">
           <ProfileForm
             email={user.email ?? ''}
             initial={{
