@@ -99,6 +99,32 @@ describe('review-session', () => {
     expect(screen.getByRole('button', { name: 'Show answer (Space)' })).toBeInTheDocument()
   })
 
+  it('renders the sprint progress as Cuemath block cells', () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
+    observeSpy.mockReset()
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([])
+    resetPreviewMock()
+
+    render(
+      <ReviewSession
+        cards={[
+          card({ id: 'card-1' }),
+          card({ id: 'card-2', front: { text: 'Second prompt' } }),
+        ]}
+        deckId="deck-1"
+        startedAt="2026-04-26T00:00:00.000Z"
+        mode="quick"
+      />,
+    )
+
+    const progress = screen.getByTestId('review-progress-cells')
+    expect(progress).toHaveAttribute('aria-label', 'Card 1 of 2')
+    expect(progress.querySelectorAll('.cue-progress-cell')).toHaveLength(2)
+    expect(progress.querySelector('.cue-progress-current')).toBeInTheDocument()
+  })
+
   it('ends the session from escape before the card is flipped', async () => {
     pushSpy.mockReset()
     refreshSpy.mockReset()

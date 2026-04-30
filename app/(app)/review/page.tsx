@@ -74,15 +74,17 @@ export default async function ReviewPage({
   }
 
   return (
-    <main className="max-w-lg mx-auto p-6 space-y-6">
-      <header className="flex items-center justify-between">
+    <main className="mx-auto max-w-[760px] space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+      <header className="cue-hard-panel flex items-center justify-between bg-paper-white px-4 py-3">
         <div className="space-y-1 min-w-0">
           <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
             {conceptTag && !deckId ? `Focused drill - ${labelForMode(mode)}` : labelForMode(mode)}
           </p>
           <h1 className="font-display text-lg font-bold truncate">{title}</h1>
         </div>
-        <span className="text-sm opacity-60">{cards.length} cards</span>
+        <span className="border border-ink-black bg-cue-yellow px-2 py-1 text-xs font-display font-bold">
+          {cards.length} cards
+        </span>
       </header>
       <ReviewSession
         key={`${deckId ?? `concept:${conceptTag ?? 'all'}`}:${mode}:${run ?? 'base'}`}

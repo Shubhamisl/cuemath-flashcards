@@ -28,6 +28,14 @@ type Props = {
 
 type JobRow = IngestJobSnapshot
 
+const SUBJECT_LABELS: Record<subjectFamily, string> = {
+  math: 'Math',
+  language: 'Language',
+  science: 'Science',
+  humanities: 'Humanities',
+  other: 'Other',
+}
+
 export function DeckCard({
   id,
   title,
@@ -136,14 +144,26 @@ export function DeckCard({
   )
 
   const cardBody = (
-    <div className="flex h-full min-h-[220px] flex-col gap-5">
-      <div className="flex items-start justify-between gap-3">
-        {status === 'ready' && typeof masteryPct === 'number' ? (
-          <MasteryRing pct={masteryPct} size={64} stroke={6} showLabel={false} />
-        ) : (
-          <div className="size-16" />
-        )}
-        <div className="flex flex-col items-end gap-1.5">
+    <div className="flex h-full min-h-[220px] flex-col">
+      <div className="flex items-center justify-between border-b border-ink-black bg-paper-white px-4 py-2">
+        <span className="text-xs font-display font-bold text-ink-black">
+          {SUBJECT_LABELS[subjectFamily]}
+        </span>
+        <span aria-hidden="true" className="text-xs font-display font-bold text-ink-black/45">
+          {status.toUpperCase()}
+        </span>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-5 p-5">
+        <div className="flex items-start justify-between gap-3">
+          {status === 'ready' && typeof masteryPct === 'number' ? (
+            <div className="rounded-[6px] border border-ink-black bg-paper-white p-2">
+              <MasteryRing pct={masteryPct} size={56} stroke={6} showLabel={false} />
+            </div>
+          ) : (
+            <div className="size-16" />
+          )}
+          <div className="flex flex-col items-end gap-1.5">
           {status === 'draft' && <CuePill tone="warning">Draft</CuePill>}
           {status === 'archived' && <CuePill tone="neutral">Archived</CuePill>}
           {status === 'ready' && tier && (
@@ -153,85 +173,86 @@ export function DeckCard({
             <CuePill tone="info">{dueCount} due</CuePill>
           )}
           {active && <CuePill tone="info">{`${job?.progress_pct ?? 0}%`}</CuePill>}
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-2">
-        <div className="font-display text-[20px] font-extrabold leading-tight text-ink-black">
-          {title}
+        <div className="space-y-2">
+          <div className="font-display text-[20px] font-extrabold leading-tight text-ink-black">
+            {title}
+          </div>
+          {status === 'ready' && (
+            <div className="flex flex-wrap items-center gap-2 text-sm text-ink-black/62">
+              <span>{cardCount} cards</span>
+              {typeof dueCount === 'number' && dueCount > 0 ? <span aria-hidden="true">-</span> : null}
+              {typeof dueCount === 'number' && dueCount > 0 ? <span>{dueCount} due now</span> : null}
+            </div>
+          )}
+          {status === 'draft' && (
+            <div className="text-sm text-ink-black/60">{cardCount} cards - review before study</div>
+          )}
+          {status === 'archived' && (
+            <div className="text-sm text-ink-black/60">{cardCount} cards - hidden from active study</div>
+          )}
+          {active && (
+            <div className="text-sm text-ink-black/60">
+              {diagnostics?.stageLabel ?? getIngestStageLabel(job?.stage ?? 'uploading') ?? 'Working...'}
+              {diagnostics?.progressLabel ? ` - ${diagnostics.progressLabel}` : ''}
+            </div>
+          )}
+          {status === 'failed' && (
+            <div className="space-y-1">
+              <div className="text-sm font-semibold text-red-700">{diagnostics?.title ?? 'Generation failed'}</div>
+              {diagnostics?.detail && (
+                <div className="text-sm text-red-700/90">{diagnostics.detail}</div>
+              )}
+            </div>
+          )}
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-2">
+              {tags.slice(0, 3).map((tag) => (
+                <CuePill key={tag} tone="neutral">{tag}</CuePill>
+              ))}
+            </div>
+          )}
         </div>
-        {status === 'ready' && (
-          <div className="flex flex-wrap items-center gap-2 text-sm text-ink-black/62">
-            <span>{cardCount} cards</span>
-            {typeof dueCount === 'number' && dueCount > 0 ? <span aria-hidden="true">-</span> : null}
-            {typeof dueCount === 'number' && dueCount > 0 ? <span>{dueCount} due now</span> : null}
+
+        {status === 'ready' && typeof masteryPct === 'number' && (
+          <div className="mt-auto border-t border-dashed border-ink-black/30 pt-4 text-xs uppercase tracking-[0.08em] text-ink-black/60">
+            {masteryPct}% mastered
           </div>
         )}
+
         {status === 'draft' && (
-          <div className="text-sm text-ink-black/60">{cardCount} cards - review before study</div>
+          <div className="mt-auto text-xs uppercase tracking-[0.08em] text-ink-black/60">
+            Review gate pending
+          </div>
         )}
+
         {status === 'archived' && (
-          <div className="text-sm text-ink-black/60">{cardCount} cards - hidden from active study</div>
-        )}
-        {active && (
-          <div className="text-sm text-ink-black/60">
-            {diagnostics?.stageLabel ?? getIngestStageLabel(job?.stage ?? 'uploading') ?? 'Working...'}
-            {diagnostics?.progressLabel ? ` - ${diagnostics.progressLabel}` : ''}
+          <div className="mt-auto text-xs uppercase tracking-[0.08em] text-ink-black/60">
+            Archived
           </div>
         )}
+
         {status === 'failed' && (
-          <div className="space-y-1">
-            <div className="text-sm font-semibold text-red-700">{diagnostics?.title ?? 'Generation failed'}</div>
-            {diagnostics?.detail && (
-              <div className="text-sm text-red-700/90">{diagnostics.detail}</div>
-            )}
-          </div>
-        )}
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-2">
-            {tags.slice(0, 3).map((tag) => (
-              <CuePill key={tag} tone="neutral">{tag}</CuePill>
-            ))}
+          <div className="mt-auto flex flex-wrap items-center gap-2">
+            <CueButton variant="ghost" onClick={onRetry} disabled={pending}>
+              {pending ? '...' : 'Retry'}
+            </CueButton>
+            <Link href={`/deck/${id}`} className="font-body text-sm font-semibold text-ink-black/70 hover:underline">
+              View details
+            </Link>
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              disabled={pending}
+              className="font-body text-sm font-semibold text-alert-coral hover:underline disabled:opacity-50"
+            >
+              Delete
+            </button>
           </div>
         )}
       </div>
-
-      {status === 'ready' && typeof masteryPct === 'number' && (
-        <div className="mt-auto text-xs uppercase tracking-[0.08em] text-ink-black/60">
-          {masteryPct}% mastered
-        </div>
-      )}
-
-      {status === 'draft' && (
-        <div className="mt-auto text-xs uppercase tracking-[0.08em] text-ink-black/60">
-          Review gate pending
-        </div>
-      )}
-
-      {status === 'archived' && (
-        <div className="mt-auto text-xs uppercase tracking-[0.08em] text-ink-black/60">
-          Archived
-        </div>
-      )}
-
-      {status === 'failed' && (
-        <div className="mt-auto flex flex-wrap items-center gap-2">
-          <CueButton variant="ghost" onClick={onRetry} disabled={pending}>
-            {pending ? '...' : 'Retry'}
-          </CueButton>
-          <Link href={`/deck/${id}`} className="font-body text-sm font-semibold text-ink-black/70 hover:underline">
-            View details
-          </Link>
-          <button
-            type="button"
-            onClick={() => setConfirmDelete(true)}
-            disabled={pending}
-            className="font-body text-sm font-semibold text-alert-coral hover:underline disabled:opacity-50"
-          >
-            Delete
-          </button>
-        </div>
-      )}
     </div>
   )
 
@@ -240,10 +261,10 @@ export function DeckCard({
       <div className="relative group/card">
         {confirmDelete && deleteConfirmUI}
         {trashButton}
-        <Link href={`/deck/${id}`} className="motion-premium-list-item block group">
+        <Link href={`/deck/${id}`} className="motion-premium-list-item cue-deck-card-link block group">
           <CueCard
             subject={subjectFamily}
-            className="shadow-card-rest h-full group-hover:-translate-y-0.5"
+            className="cue-hard-card h-full overflow-hidden p-0 group-hover:-translate-y-0.5 group-hover:[box-shadow:3px_3px_0_var(--color-ink-black)]"
           >
             {cardBody}
           </CueCard>
@@ -256,7 +277,7 @@ export function DeckCard({
     <div className="relative group/card">
       {confirmDelete && deleteConfirmUI}
       {status !== 'failed' && trashButton}
-      <CueCard subject={subjectFamily} className="shadow-card-rest h-full">
+      <CueCard subject={subjectFamily} className="cue-hard-card h-full overflow-hidden p-0">
         {cardBody}
       </CueCard>
     </div>

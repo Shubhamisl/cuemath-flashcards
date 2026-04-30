@@ -33,7 +33,11 @@ describe('LibraryHero', () => {
 
     expect(screen.getByText('Hi, Shubham')).toBeInTheDocument()
     expect(screen.getByRole('banner')).toHaveClass('motion-premium-reveal')
-    expect(screen.getByText('7 / 20 today')).toBeInTheDocument()
+    expect(screen.getByRole('banner')).toHaveClass('cue-grid-hero')
+    expect(screen.getByText('Goal: 20 cards today')).toBeInTheDocument()
+    expect(screen.getByText('Completed')).toBeInTheDocument()
+    expect(screen.getByText('Due Today')).toBeInTheDocument()
+    expect(screen.getByText('9')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Review all due' })).toHaveAttribute('href', '/review')
     expect(screen.getByRole('link', { name: 'Quick 5' })).toHaveAttribute('href', '/review?mode=quick')
     expect(screen.getByRole('button', { name: 'Upload PDF' })).toBeInTheDocument()

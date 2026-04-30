@@ -22,7 +22,7 @@ export const CueCard = React.forwardRef<HTMLDivElement, CueCardProps>(
   ({ subject, tone, className, style, children, ...props }, ref) => {
     // `subject` (legacy ergonomic) wins for the inline-style tint; otherwise tone class applies.
     const tintStyle = subject ? { backgroundColor: subjectTint(subject), ...style } : style
-    const base = 'rounded-card p-6 shadow-sm'
+    const base = 'rounded-card p-6 border border-ink-black shadow-none'
     return (
       <div
         ref={ref}

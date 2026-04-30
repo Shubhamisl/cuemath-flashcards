@@ -110,9 +110,7 @@ function Face({
     <div
       aria-hidden={!active}
       data-face={backSide ? 'back' : 'front'}
-      className={`flex rounded-card border border-ink-black/5 p-6 text-center ${
-        backSide ? 'shadow-card-flip' : 'shadow-card-rest'
-      } motion-premium-card-face`}
+      className="motion-premium-card-face cue-hard-card flex overflow-hidden p-0 text-center"
       style={{
         gridArea: '1 / 1',
         minHeight: 240,
@@ -122,14 +120,14 @@ function Face({
       }}
     >
       <div className="flex w-full flex-col">
-        <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] font-medium uppercase tracking-wide opacity-60">
+        <div className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-ink-black bg-paper-white px-4 text-[11px] font-display font-bold uppercase tracking-[0.08em] text-ink-black/70">
+          <span>{label}</span>
           {modeLabel ? <span>{modeLabel}</span> : null}
           {stepLabel ? <span>{stepLabel}</span> : null}
         </div>
-        <div className="mt-6 flex flex-1 flex-col items-center justify-center gap-3">
-          <div className="text-xs uppercase tracking-wide opacity-60">{label}</div>
-          <div className="max-w-[24ch] text-sm leading-5 opacity-75">{helperCopy}</div>
-          <div className="font-display text-xl font-semibold break-words whitespace-pre-wrap">
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 sm:px-10">
+          <div className="max-w-[30ch] text-sm leading-5 text-ink-black/65">{helperCopy}</div>
+          <div className="font-display text-2xl font-extrabold leading-tight break-words whitespace-pre-wrap sm:text-[32px]">
             {text}
           </div>
         </div>

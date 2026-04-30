@@ -521,23 +521,20 @@ export function ReviewSession({
   return (
     <div className="motion-premium-reveal space-y-6">
       <div
+        data-testid="review-progress-cells"
         className="flex items-center justify-center gap-1.5 flex-wrap"
         aria-label={`Card ${Math.min(index + 1, cards.length)} of ${cards.length}`}
       >
         {cards.map((_, i) => (
           <span
             key={i}
-            className={`rounded-full transition-all ${
+            className={`cue-progress-cell transition-all ${
               i < index
-                ? 'bg-cue-yellow'
+                ? 'cue-progress-complete'
                 : i === index
-                  ? 'bg-cue-yellow/60'
-                  : 'bg-ink-black/15'
+                  ? 'cue-progress-current'
+                  : ''
             }`}
-            style={{
-              width: i === index ? 10 : 6,
-              height: i === index ? 10 : 6,
-            }}
           />
         ))}
       </div>
@@ -548,7 +545,7 @@ export function ReviewSession({
         <>
           {current.fsrs_state === null && (
             <div className="flex justify-center">
-              <span className="motion-premium-reveal text-xs font-display font-semibold uppercase tracking-[0.08em] bg-cue-yellow/30 text-ink-black px-3 py-1 rounded-full">
+              <span className="motion-premium-reveal border border-ink-black bg-cue-yellow px-3 py-1 text-xs font-display font-bold uppercase tracking-[0.08em] text-ink-black">
                 New
               </span>
             </div>

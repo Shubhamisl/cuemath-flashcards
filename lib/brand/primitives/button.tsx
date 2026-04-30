@@ -3,12 +3,12 @@ import { cn } from '@/lib/utils'
 import * as React from 'react'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center font-display font-bold transition-transform duration-tap active:scale-[0.98] min-h-[48px] px-6 rounded-input disabled:opacity-50 disabled:cursor-not-allowed',
+  'inline-flex items-center justify-center font-display font-bold transition-transform duration-tap active:translate-x-0.5 active:translate-y-0.5 min-h-[48px] px-6 rounded-[4px] disabled:opacity-50 disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
-        primary: 'bg-cue-yellow text-ink-black hover:brightness-95',
-        ghost: 'bg-transparent text-ink-black border-2 border-ink-black hover:bg-soft-cream',
+        primary: 'cue-primary-block bg-cue-yellow text-ink-black hover:brightness-95',
+        ghost: 'bg-paper-white text-ink-black border border-ink-black hover:bg-soft-cream',
         pill: 'bg-cue-yellow text-ink-black rounded-full px-8',
       },
       size: {

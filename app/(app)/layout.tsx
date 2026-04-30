@@ -5,9 +5,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const shell = await getAppShellData()
 
   return (
-    <>
+    <div className="min-h-screen cue-grid-surface">
       <TopNav name={shell.firstName} streak={shell.streak} />
       {children}
-    </>
+    </div>
   )
 }

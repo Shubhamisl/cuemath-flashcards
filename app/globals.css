@@ -58,8 +58,8 @@
   --color-alert-coral: #F97373;
 
   --radius-input: 12px;
-  --radius-card: 24px;
-  --radius-panel: 32px;
+  --radius-card: 8px;
+  --radius-panel: 8px;
 
   --duration-tap: 120ms;
   --duration-progress: 400ms;
@@ -259,6 +259,54 @@
     );
     background-size: 220% 100%;
     animation: premium-sheen 2.6s var(--ease-premium) infinite;
+  }
+
+  .cue-grid-surface {
+    background-color: var(--color-paper-white);
+    background-image:
+      linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .cue-nav-shell {
+    background: var(--color-paper-white);
+    border-bottom: 1px solid var(--color-ink-black);
+  }
+
+  .cue-grid-hero,
+  .cue-hard-card,
+  .cue-hard-panel {
+    border: 1px solid var(--color-ink-black);
+    border-radius: var(--radius-card);
+    box-shadow: none;
+  }
+
+  .cue-hard-shadow {
+    box-shadow: 3px 3px 0 var(--color-ink-black);
+  }
+
+  .cue-primary-block {
+    border: 1px solid var(--color-ink-black);
+    border-radius: 4px;
+    box-shadow: 2px 2px 0 var(--color-ink-black);
+  }
+
+  .cue-progress-cell {
+    display: inline-block;
+    height: 8px;
+    width: 18px;
+    border: 1px solid var(--color-ink-black);
+    border-radius: 2px;
+    background: var(--color-paper-white);
+  }
+
+  .cue-progress-current {
+    background: var(--color-cue-yellow);
+  }
+
+  .cue-progress-complete {
+    background: var(--color-ink-black);
   }
 
   @media (prefers-reduced-motion: reduce) {

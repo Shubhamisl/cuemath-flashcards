@@ -51,14 +51,17 @@ export function TopNav({ name, streak }: TopNavProps) {
   }
 
   return (
-    <nav className="motion-premium-reveal mx-auto max-w-[1200px] px-4 py-4 sm:px-6 sm:py-5">
+    <nav className="motion-premium-reveal cue-nav-shell sticky top-0 z-30">
       <NavRouteWarmer />
-      <div className="motion-premium-list-item rounded-[22px] border border-ink-black/10 bg-soft-cream/60 px-3 py-3 backdrop-blur-sm sm:rounded-[28px] sm:px-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
-            <Link href="/library" className="font-display text-xl font-extrabold tracking-tight">
-              SharpMind
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+        <div className="flex min-h-[58px] flex-col gap-3 py-3 lg:flex-row lg:items-center lg:justify-between lg:py-0">
+          <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:gap-8">
+            <Link href="/library" className="font-display text-2xl font-extrabold tracking-tight text-ink-black">
+              CUEMATH
             </Link>
+            <span className="hidden border-l border-ink-black/25 pl-3 text-xs font-display font-bold uppercase tracking-[0.12em] text-ink-black/55 lg:block">
+              Flashcards
+            </span>
             <PrimaryNavLinks />
           </div>
           <div className="flex w-full items-center justify-between gap-3 lg:w-auto lg:justify-end">
@@ -70,15 +73,15 @@ export function TopNav({ name, streak }: TopNavProps) {
                 aria-haspopup="menu"
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
-                className="flex size-9 items-center justify-center rounded-full bg-paper-white font-display text-sm font-bold transition-transform hover:brightness-95 active:scale-[0.98]"
+                className="flex size-9 items-center justify-center rounded-[4px] border border-ink-black bg-paper-white font-display text-sm font-bold transition-transform hover:bg-soft-cream active:translate-x-0.5 active:translate-y-0.5"
               >
                 {initial}
               </button>
               {open && (
                 <div
                   role="menu"
-                  className="motion-premium-modal absolute right-0 z-20 mt-2 w-44 rounded-card border border-ink-black/10 bg-paper-white p-1"
-                  style={{ boxShadow: 'var(--shadow-card-flip)' }}
+                  className="motion-premium-modal absolute right-0 z-20 mt-2 w-44 rounded-card border border-ink-black bg-paper-white p-1"
+                  style={{ boxShadow: '3px 3px 0 var(--color-ink-black)' }}
                 >
                   <button
                     role="menuitem"
