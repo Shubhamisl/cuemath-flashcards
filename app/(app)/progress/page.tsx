@@ -10,13 +10,22 @@ import { MasteryRing } from '@/components/mastery-ring'
 import { getAppShellData } from '../_lib/app-shell-data'
 import { computeProgressDashboard } from '@/lib/progress/dashboard'
 import { tierToTone } from '@/lib/progress/tier-tone'
+import {
+  ProgressBar,
+  ProgressHeatCell,
+  ProgressListItem,
+  ProgressPanel,
+  ProgressStatTile,
+} from './progress-motion'
 
-function StatTile({ value, label }: { value: string | number; label: string }) {
+function StatTile({ value, label, index }: { value: string | number; label: string; index: number }) {
   return (
-    <CueCard tone="cream" className="motion-premium-list-item shadow-card-rest px-5 py-4 space-y-1">
-      <div className="font-display font-extrabold text-2xl text-ink-black">{value}</div>
-      <div className="text-xs uppercase tracking-[0.08em] text-ink-black/60">{label}</div>
-    </CueCard>
+    <ProgressStatTile index={index}>
+      <CueCard tone="cream" className="shadow-card-rest px-5 py-4 space-y-1">
+        <div className="font-display font-extrabold text-2xl text-ink-black">{value}</div>
+        <div className="text-xs uppercase tracking-[0.08em] text-ink-black/60">{label}</div>
+      </CueCard>
+    </ProgressStatTile>
   )
 }
 
@@ -127,16 +136,18 @@ async function ProgressPageData() {
         </header>
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatTile value={dashboard.summary.dueNowCount} label="Due now" />
+          <StatTile index={0} value={dashboard.summary.dueNowCount} label="Due now" />
           <StatTile
+            index={1}
             value={dashboard.summary.retentionPct === null ? '-' : `${dashboard.summary.retentionPct}%`}
             label="Retention"
           />
-          <StatTile value={dashboard.summary.cardsReviewed7d} label="Cards this week" />
-          <StatTile value={dashboard.summary.sessions7d} label="Sessions this week" />
+          <StatTile index={2} value={dashboard.summary.cardsReviewed7d} label="Cards this week" />
+          <StatTile index={3} value={dashboard.summary.sessions7d} label="Sessions this week" />
         </section>
 
         <section className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-6 items-start">
+          <ProgressPanel index={0}>
           <CueCard tone="paper" className="shadow-card-rest space-y-5">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
@@ -146,15 +157,16 @@ async function ProgressPageData() {
             </div>
 
             <div className="grid min-h-[180px] grid-cols-7 items-end gap-2 sm:gap-3">
-              {dashboard.activity.map((day) => {
+              {dashboard.activity.map((day, index) => {
                 const height = Math.max(18, Math.round((day.cardsReviewed / maxActivity) * 140))
                 return (
                   <div key={day.isoDate} className="flex flex-col items-center gap-3">
                     <div className="text-xs text-ink-black/60">{day.cardsReviewed}</div>
-                    <div
-                      className="motion-premium-progress w-full rounded-t-[10px] bg-cue-yellow/80"
-                      style={{ height }}
-                      aria-label={`${day.label}: ${day.cardsReviewed} cards reviewed`}
+                    <ProgressBar
+                      index={index}
+                      height={height}
+                      className="w-full rounded-t-[10px] bg-cue-yellow/80"
+                      label={`${day.label}: ${day.cardsReviewed} cards reviewed`}
                     />
                     <div className="text-xs font-display font-semibold text-ink-black/60">
                       {day.label}
@@ -184,7 +196,9 @@ async function ProgressPageData() {
               </div>
             </div>
           </CueCard>
+          </ProgressPanel>
 
+          <ProgressPanel index={1}>
           <CueCard tone="blue" className="shadow-card-rest space-y-4">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
@@ -233,9 +247,11 @@ async function ProgressPageData() {
               </p>
             </div>
           </CueCard>
+          </ProgressPanel>
         </section>
 
         <section className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+          <ProgressPanel index={2}>
           <CueCard tone="paper" className="shadow-card-rest space-y-4">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
@@ -246,10 +262,11 @@ async function ProgressPageData() {
 
             <div className="space-y-3">
               <div className="grid grid-cols-12 gap-1 overflow-hidden">
-                {dashboard.heatmap.map((day) => (
-                  <div
+                {dashboard.heatmap.map((day, index) => (
+                  <ProgressHeatCell
                     key={day.isoDate}
-                    className={`motion-premium-list-item aspect-square rounded-[6px] ${heatTone[day.level]}`}
+                    index={index}
+                    className={`aspect-square rounded-[6px] ${heatTone[day.level]}`}
                     title={`${day.isoDate}: ${day.cardsReviewed} cards in ${day.sessions} session${day.sessions === 1 ? '' : 's'}`}
                     aria-label={`${day.isoDate}: ${day.cardsReviewed} cards reviewed`}
                   />
@@ -261,7 +278,9 @@ async function ProgressPageData() {
               </div>
             </div>
           </CueCard>
+          </ProgressPanel>
 
+          <ProgressPanel index={3}>
           <CueCard tone="paper" className="shadow-card-rest space-y-4">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
@@ -276,9 +295,10 @@ async function ProgressPageData() {
               </p>
             ) : (
               <div className="space-y-3">
-                {dashboard.weakConcepts.map((concept) => (
-                  <div
+                {dashboard.weakConcepts.map((concept, index) => (
+                  <ProgressListItem
                     key={concept.tag}
+                    index={index}
                     className="flex flex-col gap-3 rounded-card bg-soft-cream/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="space-y-1 min-w-0">
@@ -307,13 +327,15 @@ async function ProgressPageData() {
                         </Link>
                       )}
                     </div>
-                  </div>
+                  </ProgressListItem>
                 ))}
               </div>
             )}
           </CueCard>
+          </ProgressPanel>
 
-          <CueCard tone="paper" className="shadow-card-rest space-y-4 xl:col-span-2">
+          <ProgressPanel index={4} className="xl:col-span-2">
+          <CueCard tone="paper" className="shadow-card-rest space-y-4">
             <div className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.05fr] gap-6 items-start">
               <div className="space-y-4">
                 <div className="space-y-1">
@@ -329,10 +351,11 @@ async function ProgressPageData() {
                   </p>
                 ) : (
                   <div className="space-y-3">
-                    {dashboard.recentSessions.map((session) => (
-                      <div
+                    {dashboard.recentSessions.map((session, index) => (
+                      <ProgressListItem
                         key={session.id}
-                    className="grid grid-cols-1 gap-3 rounded-card bg-soft-cream/60 px-4 py-3 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-4"
+                        index={index}
+                        className="grid grid-cols-1 gap-3 rounded-card bg-soft-cream/60 px-4 py-3 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-4"
                       >
                         <CuePill tone={session.modeLabel === 'Quick 5' ? 'highlight' : 'neutral'}>
                           {session.modeLabel}
@@ -357,7 +380,7 @@ async function ProgressPageData() {
                           </div>
                           <div className="text-xs text-ink-black/60">accuracy</div>
                         </div>
-                      </div>
+                      </ProgressListItem>
                     ))}
                   </div>
                 )}
@@ -377,36 +400,38 @@ async function ProgressPageData() {
               </p>
             ) : (
               <div className="space-y-3">
-                {dashboard.deckSnapshots.map((deck) => (
-                  <Link
-                    key={deck.id}
-                    href={`/deck/${deck.id}`}
-                    className="motion-premium-list-item block rounded-card bg-paper-white hover:-translate-y-0.5 hover:bg-soft-cream/70 px-4 py-4"
-                  >
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="space-y-2 min-w-0">
-                        <div className="font-display font-semibold text-ink-black truncate">
-                          {deck.title}
+                {dashboard.deckSnapshots.map((deck, index) => (
+                  <ProgressListItem key={deck.id} index={index}>
+                    <Link
+                      href={`/deck/${deck.id}`}
+                      className="block rounded-card bg-paper-white hover:bg-soft-cream/70 px-4 py-4"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="space-y-2 min-w-0">
+                          <div className="font-display font-semibold text-ink-black truncate">
+                            {deck.title}
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <CuePill tone={tierToTone(deck.tier)}>{deck.tier}</CuePill>
+                            <CuePill tone={deck.dueCount > 0 ? 'highlight' : 'neutral'}>
+                              {deck.dueCount} due
+                            </CuePill>
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          <CuePill tone={tierToTone(deck.tier)}>{deck.tier}</CuePill>
-                          <CuePill tone={deck.dueCount > 0 ? 'highlight' : 'neutral'}>
-                            {deck.dueCount} due
-                          </CuePill>
+                        <div className="shrink-0 text-left sm:text-right">
+                          <div className="font-display font-bold text-ink-black">{deck.masteryPct}%</div>
+                          <div className="text-xs text-ink-black/60">mastery</div>
                         </div>
                       </div>
-                      <div className="shrink-0 text-left sm:text-right">
-                        <div className="font-display font-bold text-ink-black">{deck.masteryPct}%</div>
-                        <div className="text-xs text-ink-black/60">mastery</div>
-                      </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </ProgressListItem>
                 ))}
               </div>
             )}
               </div>
             </div>
           </CueCard>
+          </ProgressPanel>
         </section>
       </div>
   )
