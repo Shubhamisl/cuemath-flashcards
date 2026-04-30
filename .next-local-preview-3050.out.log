@@ -1,0 +1,12 @@
+▲ Next.js 16.2.4 (Turbopack)
+- Local:         http://localhost:3050
+- Network:       http://192.168.56.1:3050
+- Environments: .env.local
+✓ Ready in 695ms
+
+ GET / 200 in 1038ms (next.js: 136ms, proxy.ts: 251ms, application-code: 651ms)
+ GET / 200 in 1035ms (next.js: 452ms, proxy.ts: 254ms, application-code: 328ms)
+ GET / 200 in 270ms (next.js: 10ms, proxy.ts: 13ms, application-code: 247ms)
+ GET / 200 in 69ms (next.js: 3ms, proxy.ts: 5ms, application-code: 61ms)
+ GET / 200 in 80ms (next.js: 5ms, proxy.ts: 6ms, application-code: 69ms)
+ GET / 200 in 116ms (next.js: 11ms, proxy.ts: 8ms, application-code: 97ms)

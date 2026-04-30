@@ -1,0 +1,67 @@
+- generic [ref=e1]:
+  - alert [ref=e66]
+  - main [ref=e174]:
+    - navigation [ref=e175]:
+      - link "SharpMind" [ref=e176] [cursor=pointer]:
+        - /url: /library
+      - generic [ref=e177]:
+        - generic [ref=e178]: Day 1
+        - button "Shubham menu" [ref=e180]: S
+    - generic [ref=e181]:
+      - generic [ref=e182]:
+        - generic [ref=e183]:
+          - heading "Hi, Shubham" [level=1] [ref=e184]
+          - paragraph [ref=e185]: "Goal: 20 cards today"
+        - dialog "Upload a PDF" [ref=e238]:
+          - generic [ref=e239]:
+            - generic [ref=e240]:
+              - heading "Upload a PDF" [level=2] [ref=e241]
+              - button "Close" [ref=e242]:
+                - generic [ref=e243]: ×
+            - generic [ref=e244] [cursor=pointer]:
+              - generic [ref=e245]: ↑
+              - generic [ref=e246]: Drop a PDF here or click to choose
+              - generic [ref=e247]: Up to 20MB
+            - generic [ref=e248]:
+              - generic [ref=e249]: What is this about?
+              - generic [ref=e250]:
+                - button "Math" [active] [pressed] [ref=e251]
+                - button "Language" [ref=e252]
+                - button "Science" [ref=e253]
+                - button "Humanities" [ref=e254]
+                - button "Other" [ref=e255]
+            - generic [ref=e256]:
+              - button "Cancel" [ref=e257]
+              - button "Upload" [disabled] [ref=e258]
+      - generic [ref=e188]:
+        - link "Mastery 2% Curious sssss-1 8 cards 2% mastered" [ref=e189] [cursor=pointer]:
+          - /url: /deck/e5d11949-2297-4398-9bdc-df476cbab4d4
+          - generic [ref=e191]:
+            - generic [ref=e192]:
+              - generic "Mastery 2%" [ref=e193]:
+                - img [ref=e194]
+              - generic [ref=e197]: Curious
+            - generic [ref=e198]:
+              - generic [ref=e199]: sssss-1
+              - generic [ref=e200]: 8 cards
+            - generic [ref=e201]: 2% mastered
+        - generic [ref=e203]:
+          - generic [ref=e206]:
+            - generic [ref=e207]: sssss
+            - generic [ref=e208]: Failed
+          - button "Retry" [ref=e210]
+        - generic [ref=e212]:
+          - generic [ref=e215]:
+            - generic [ref=e216]: sssss
+            - generic [ref=e217]: Failed
+          - button "Retry" [ref=e219]
+        - generic [ref=e221]:
+          - generic [ref=e224]:
+            - generic [ref=e225]: sssss
+            - generic [ref=e226]: Failed
+          - button "Retry" [ref=e228]
+        - generic [ref=e230]:
+          - generic [ref=e233]:
+            - generic [ref=e234]: sssss
+            - generic [ref=e235]: Failed
+          - button "Retry" [ref=e237]

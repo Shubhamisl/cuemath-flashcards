@@ -1,0 +1,32 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e66]
+  - main [ref=e67]:
+    - link "← Library" [ref=e69] [cursor=pointer]:
+      - /url: /library
+    - generic [ref=e70]:
+      - generic [ref=e72]:
+        - generic "Mastery 2%" [ref=e73]:
+          - img [ref=e74]
+        - generic [ref=e77]:
+          - generic [ref=e78]: 2%
+          - generic [ref=e79]: Mastered
+      - generic [ref=e80]:
+        - generic [ref=e81]:
+          - generic [ref=e83]: Curious
+          - heading "sssss-1" [level=1] [ref=e84]
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - generic [ref=e87]: "8"
+            - generic [ref=e88]: Total
+          - generic [ref=e89]:
+            - generic [ref=e90]: "8"
+            - generic [ref=e91]: Due
+          - generic [ref=e92]:
+            - generic [ref=e93]: 2%
+            - generic [ref=e94]: Mastery
+        - generic [ref=e95]:
+          - link "Start sprint" [ref=e96] [cursor=pointer]:
+            - /url: /review?deck=e5d11949-2297-4398-9bdc-df476cbab4d4
+            - button "Start sprint" [ref=e97]
+          - paragraph [ref=e98]: Up to 20 cards ready — keep your edge.
+        - button "Delete deck" [ref=e100]

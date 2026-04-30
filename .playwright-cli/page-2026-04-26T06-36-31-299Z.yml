@@ -1,0 +1,30 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: SharpMind journey
+        - heading "PDF in. Memory forever." [level=1] [ref=e6]:
+          - text: PDF in.
+          - text: Memory forever.
+        - paragraph [ref=e7]: Cuemath Flashcards turns any document into cognitively-tuned practice. Built on the same science that powers 700M+ reviews a year.
+      - link "Start my journey" [ref=e8] [cursor=pointer]:
+        - /url: /login
+        - button "Start my journey" [ref=e9]
+      - generic [ref=e10]:
+        - generic [ref=e12]: Backed by 700M+ reviews
+        - generic [ref=e14]: Cognitive-science tuned
+        - generic [ref=e16]: Your PDFs stay private
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]: "01"
+        - heading "Drop a PDF" [level=3] [ref=e21]
+        - paragraph [ref=e22]: Notes, a chapter, anything you need to remember. Up to 20MB.
+      - generic [ref=e23]:
+        - generic [ref=e24]: "02"
+        - heading "Get atomic cards" [level=3] [ref=e25]
+        - paragraph [ref=e26]: One idea per card — written the way a great teacher would.
+      - generic [ref=e27]:
+        - generic [ref=e28]: "03"
+        - heading "Run short sprints" [level=3] [ref=e29]
+        - paragraph [ref=e30]: Modern spaced-repetition keeps your edge without burning you out.
+  - alert [ref=e31]

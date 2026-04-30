@@ -1,0 +1,41 @@
+{
+  "projectId": "3065800030091529504",
+  "screens": [
+    {
+      "slug": "cuemath-grid-landing-inspiration",
+      "id": "dea1f974d0934ac5894d18397ffcbde2",
+      "name": "projects/3065800030091529504/screens/dea1f974d0934ac5894d18397ffcbde2",
+      "title": "Cuemath Landing Page - Bold Minimalism",
+      "width": "2560",
+      "height": "4104",
+      "localPng": "D:\\CUEMATH\\Flashcard\\.stitch\\designs\\cuemath-grid-minimal\\cuemath-grid-landing-inspiration.png",
+      "localHtml": "D:\\CUEMATH\\Flashcard\\.stitch\\designs\\cuemath-grid-minimal\\cuemath-grid-landing-inspiration.html",
+      "docsPng": "D:\\CUEMATH\\Flashcard\\docs\\design\\stitch\\screenshots\\cuemath-grid-landing-inspiration.png",
+      "docsHtml": "D:\\CUEMATH\\Flashcard\\docs\\design\\stitch\\html\\cuemath-grid-landing-inspiration.html"
+    },
+    {
+      "slug": "cuemath-grid-library-inspiration",
+      "id": "8898f9c6ef5645feb708524969d10202",
+      "name": "projects/3065800030091529504/screens/8898f9c6ef5645feb708524969d10202",
+      "title": "Library Dashboard - Bold Brand v2",
+      "width": "2560",
+      "height": "2048",
+      "localPng": "D:\\CUEMATH\\Flashcard\\.stitch\\designs\\cuemath-grid-minimal\\cuemath-grid-library-inspiration.png",
+      "localHtml": "D:\\CUEMATH\\Flashcard\\.stitch\\designs\\cuemath-grid-minimal\\cuemath-grid-library-inspiration.html",
+      "docsPng": "D:\\CUEMATH\\Flashcard\\docs\\design\\stitch\\screenshots\\cuemath-grid-library-inspiration.png",
+      "docsHtml": "D:\\CUEMATH\\Flashcard\\docs\\design\\stitch\\html\\cuemath-grid-library-inspiration.html"
+    },
+    {
+      "slug": "cuemath-grid-review-inspiration",
+      "id": "bd2e926315b54b01927a653913150214",
+      "name": "projects/3065800030091529504/screens/bd2e926315b54b01927a653913150214",
+      "title": "Review Sprint - Bold Brand",
+      "width": "2560",
+      "height": "2048",
+      "localPng": "D:\\CUEMATH\\Flashcard\\.stitch\\designs\\cuemath-grid-minimal\\cuemath-grid-review-inspiration.png",
+      "localHtml": "D:\\CUEMATH\\Flashcard\\.stitch\\designs\\cuemath-grid-minimal\\cuemath-grid-review-inspiration.html",
+      "docsPng": "D:\\CUEMATH\\Flashcard\\docs\\design\\stitch\\screenshots\\cuemath-grid-review-inspiration.png",
+      "docsHtml": "D:\\CUEMATH\\Flashcard\\docs\\design\\stitch\\html\\cuemath-grid-review-inspiration.html"
+    }
+  ]
+}

@@ -15,6 +15,10 @@ describe('landing page', () => {
     const { container } = render(<Home />)
 
     expect(screen.getByRole('link', { name: 'CUEMATH' })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: 'Study flow' })).toHaveAttribute('href', '#how-it-works')
+    expect(screen.getByRole('link', { name: 'Study flow' })).toHaveClass('border-r')
+    expect(screen.queryByRole('link', { name: 'Proof' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Inside the app' })).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       'Turn study material into MathFit memory sprints',
     )
@@ -28,5 +32,6 @@ describe('landing page', () => {
     expect(screen.getByText('Smart cards')).toBeInTheDocument()
     expect(screen.getByText('Spaced review')).toBeInTheDocument()
     expect(screen.getByText('Built for focus')).toBeInTheDocument()
+    expect(screen.getByRole('slider', { name: 'Recall confidence' })).toBeInTheDocument()
   })
 })
