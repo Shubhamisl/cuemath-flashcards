@@ -97,6 +97,9 @@ describe('review/page', () => {
       readyDeckIds: ['deck-1', 'deck-2'],
       size: 20,
     })
+    expect(screen.getByRole('banner')).toHaveTextContent('Review sprint')
+    expect(screen.getByText('1 card ready')).toBeInTheDocument()
+    expect(screen.getByText('Sprint mode')).toBeInTheDocument()
     expect(screen.getByText('mock review session')).toBeInTheDocument()
     expect(screen.getByText('/library')).toBeInTheDocument()
   })

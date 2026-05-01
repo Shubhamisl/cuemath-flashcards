@@ -117,8 +117,11 @@ export function CardBrowser({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="rounded-card border border-ink-black/10 bg-paper-white px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-4">
+      <div
+        data-testid="card-browser-toolbar"
+        className="rounded-card border-2 border-ink-black bg-cue-yellow/20 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-card-rest"
+      >
         <div className="space-y-1">
           <p className="font-display font-semibold text-sm text-ink-black">
             {summary.approvedCount} approved / {summary.reviewableCount} reviewable
@@ -132,16 +135,27 @@ export function CardBrowser({
           </p>
         </div>
         {summary.pendingCount > 0 && (
-          <CueButton size="sm" onClick={handleApproveAll} disabled={pending}>
+          <CueButton
+            size="sm"
+            onClick={handleApproveAll}
+            disabled={pending}
+            aria-label="Approve all pending cards"
+            className="w-full sm:w-auto"
+          >
             {pending ? 'Working...' : 'Approve all'}
           </CueButton>
         )}
       </div>
 
-      {cards.map((card) => (
-        <CueCard key={card.id} tone="cream" className="shadow-card-rest p-5 space-y-4">
+      {cards.map((card, index) => (
+        <CueCard
+          key={card.id}
+          data-testid={`card-row-${card.id}`}
+          tone={card.approved ? 'mint' : 'cream'}
+          className="motion-premium-list-item shadow-card-rest border-2 p-4 sm:p-5 space-y-4 hover:-translate-y-0.5 transition-transform"
+        >
           {editing === card.id ? (
-            /* ── Edit mode ── */
+            /* Edit mode */
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <label className="text-xs uppercase tracking-[0.08em] text-ink-black/50">
@@ -179,64 +193,80 @@ export function CardBrowser({
                   disabled={pending || !editFront.trim() || !editBack.trim()}
                   size="sm"
                 >
-                  {pending ? '…' : 'Save'}
+                  {pending ? '...' : 'Save'}
                 </CueButton>
               </div>
             </div>
           ) : (
-            /* ── Read mode ── */
+            /* Read mode */
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <div className="text-xs uppercase tracking-[0.08em] text-ink-black/50">
-                    Front
-                  </div>
-                  <div className="text-sm font-body">{card.front.text}</div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-xs uppercase tracking-[0.08em] text-ink-black/50">
-                    Back
-                  </div>
-                  <div className="text-sm font-body">{card.back.text}</div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink-black/20 pb-3">
+                <span className="rounded-input border border-ink-black bg-paper-white px-3 py-1 text-xs uppercase tracking-[0.08em] text-ink-black/70 font-display font-bold">
+                  Card {String(index + 1).padStart(2, '0')}
+                </span>
+                <div
+                  data-testid={`card-meta-${card.id}`}
+                  className="flex flex-wrap items-center justify-start sm:justify-end gap-2"
+                >
                   {card.concept_tag && (
-                    <span className="text-xs text-ink-black/40">{card.concept_tag}</span>
+                    <span className="rounded-full bg-paper-white px-3 py-1 text-xs text-ink-black/70 border border-ink-black/20">
+                      {card.concept_tag}
+                    </span>
                   )}
-                  <span className="text-xs text-ink-black/40">{formatLabel(card.format)}</span>
+                  <span className="rounded-full bg-paper-white px-3 py-1 text-xs text-ink-black/70 border border-ink-black/20">
+                    {formatLabel(card.format)}
+                  </span>
                   <span
-                    className={`text-xs font-display font-semibold ${
-                      card.approved ? 'text-green-700' : 'text-amber-700'
+                    className={`rounded-full px-3 py-1 text-xs font-display font-semibold border ${
+                      card.approved
+                        ? 'border-green-800/40 bg-mint-green text-green-800'
+                        : 'border-amber-800/40 bg-cue-yellow text-amber-900'
                     }`}
                   >
                     {card.approved ? 'approved' : 'draft'}
                   </span>
                   {card.suspended && (
-                    <span className="text-xs text-alert-coral/70 font-display font-semibold">
+                    <span className="rounded-full border border-alert-coral/40 bg-alert-coral/10 px-3 py-1 text-xs text-alert-coral font-display font-semibold">
                       suspended
                     </span>
                   )}
                 </div>
-                <div className="flex gap-1">
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div className="space-y-2 rounded-card border border-ink-black/20 bg-paper-white/70 p-3">
+                  <div className="text-xs uppercase tracking-[0.08em] text-ink-black/50 font-display font-semibold">
+                    Front
+                  </div>
+                  <div className="text-sm font-body leading-relaxed text-ink-black">{card.front.text}</div>
+                </div>
+                <div className="space-y-2 rounded-card border border-ink-black/20 bg-paper-white/70 p-3">
+                  <div className="text-xs uppercase tracking-[0.08em] text-ink-black/50 font-display font-semibold">
+                    Back
+                  </div>
+                  <div className="text-sm font-body leading-relaxed text-ink-black">{card.back.text}</div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => toggleApproved(card.id, !card.approved)}
                     disabled={pending || card.suspended}
-                    className="px-3 py-1.5 text-xs font-display font-semibold text-ink-black/60 hover:text-ink-black rounded-full hover:bg-ink-black/5 disabled:opacity-50"
+                    className="min-h-[36px] rounded-input border border-ink-black bg-paper-white px-3 py-1.5 text-xs font-display font-semibold text-ink-black hover:bg-cue-yellow/30 disabled:opacity-50"
                   >
                     {card.approved ? 'Unapprove' : 'Approve'}
                   </button>
                   <button
                     onClick={() => startEdit(card)}
-                    className="px-3 py-1.5 text-xs font-display font-semibold text-ink-black/60 hover:text-ink-black rounded-full hover:bg-ink-black/5"
+                    className="min-h-[36px] rounded-input border border-ink-black bg-paper-white px-3 py-1.5 text-xs font-display font-semibold text-ink-black hover:bg-soft-cream"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(card.id)}
                     disabled={pending}
-                    className="px-3 py-1.5 text-xs font-display font-semibold text-alert-coral hover:text-red-800 rounded-full hover:bg-alert-coral/10 disabled:opacity-50"
+                    className="min-h-[36px] rounded-input border border-alert-coral bg-paper-white px-3 py-1.5 text-xs font-display font-semibold text-alert-coral hover:bg-alert-coral/10 disabled:opacity-50"
                   >
                     Delete
                   </button>

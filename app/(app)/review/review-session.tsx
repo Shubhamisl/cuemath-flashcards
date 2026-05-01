@@ -73,6 +73,12 @@ export function ReviewSession({
   const current = cards[index]
   const typingSupported = supportsTypingChallenge(current?.back.text ?? '')
   const completedPass = index >= cards.length
+  const visibleCardNumber = Math.min(index + 1, cards.length)
+  const sprintProgressPercent = cards.length > 0
+    ? Math.round((visibleCardNumber / cards.length) * 100)
+    : 0
+  const cardsRemaining = Math.max(cards.length - visibleCardNumber, 0)
+  const phaseLabel = phase === 'weak' ? 'Weak-card loop' : 'Main sprint'
   const showWeakLoopPrompt = !timedOut && phase === 'main' && completedPass && weakCards.length > 0
   const done = timedOut || phase === 'done'
   const replayMode: ReviewMode =
@@ -211,7 +217,7 @@ export function ReviewSession({
       setLastInterval(result.intervalDays)
       window.setTimeout(() => setLastInterval(null), 2000)
     } catch {
-      // optimistic compute failed — silently skip the hint, server still saves
+      // Optimistic compute failed; silently skip the hint, server still saves.
     }
 
     setError(null)
@@ -275,7 +281,7 @@ export function ReviewSession({
     }
 
     // Background server write. Failures bump a counter that the UI surfaces
-    // as a sticky banner — the rating itself stays advanced because rolling
+    // as a sticky banner; the rating itself stays advanced because rolling
     // back mid-sprint would be more disruptive than a "refresh to retry".
     void submitRating({ cardId, rating, elapsedMs, hintUsed: hintShown })
       .then((res) => {
@@ -520,23 +526,58 @@ export function ReviewSession({
 
   return (
     <div className="motion-premium-reveal space-y-6">
-      <div
-        data-testid="review-progress-cells"
-        className="flex items-center justify-center gap-1.5 flex-wrap"
-        aria-label={`Card ${Math.min(index + 1, cards.length)} of ${cards.length}`}
-      >
-        {cards.map((_, i) => (
-          <span
-            key={i}
-            className={`cue-progress-cell transition-all ${
-              i < index
-                ? 'cue-progress-complete'
-                : i === index
-                  ? 'cue-progress-current'
-                  : ''
-            }`}
-          />
-        ))}
+      <div className="cue-hard-panel overflow-hidden bg-paper-white shadow-card-rest">
+        <div
+          data-testid="review-sprint-status"
+          className="grid grid-cols-3 divide-x divide-ink-black border-b border-ink-black text-center"
+          aria-live="polite"
+        >
+          <div className="bg-cue-yellow px-2 py-3">
+            <p className="text-[10px] font-display font-bold uppercase tracking-[0.08em] text-ink-black/60">
+              Card
+            </p>
+            <p className="font-display text-base font-extrabold">
+              Card {visibleCardNumber} / {cards.length}
+            </p>
+          </div>
+          <div className="bg-soft-cream px-2 py-3">
+            <p className="text-[10px] font-display font-bold uppercase tracking-[0.08em] text-ink-black/60">
+              Sprint
+            </p>
+            <p className="font-display text-base font-extrabold">{sprintProgressPercent}%</p>
+          </div>
+          <div className="bg-trust-blue px-2 py-3">
+            <p className="text-[10px] font-display font-bold uppercase tracking-[0.08em] text-ink-black/60">
+              Phase
+            </p>
+            <p className="font-display text-sm font-extrabold leading-tight">{phaseLabel}</p>
+          </div>
+        </div>
+        <div className="space-y-3 px-3 py-3">
+          <div
+            data-testid="review-progress-cells"
+            className="flex items-center justify-center gap-1.5 flex-wrap"
+            aria-label={`Card ${visibleCardNumber} of ${cards.length}`}
+          >
+            {cards.map((_, i) => (
+              <span
+                key={i}
+                className={`cue-progress-cell transition-all ${
+                  i < index
+                    ? 'cue-progress-complete'
+                    : i === index
+                      ? 'cue-progress-current'
+                      : ''
+                }`}
+              />
+            ))}
+          </div>
+          <p className="text-center text-xs font-display font-semibold text-ink-black/55">
+            {cardsRemaining === 0
+              ? 'Last card in this pass'
+              : `${cardsRemaining} card${cardsRemaining === 1 ? '' : 's'} left in this pass`}
+          </p>
+        </div>
       </div>
 
       {showBreak ? (
@@ -559,7 +600,7 @@ export function ReviewSession({
             format={current.format}
           />
           {!flipped && (
-            <div className="space-y-3">
+            <div className="cue-hard-panel bg-paper-white p-3 shadow-card-rest space-y-3 sm:p-4">
               {current.hint && (
                 <>
                   <CueButton
@@ -654,7 +695,9 @@ export function ReviewSession({
                   </p>
                 </CueCard>
               )}
-              <RatingBar disabled={false} onRate={rate} />
+              <div className="cue-hard-panel bg-paper-white p-3 shadow-card-rest sm:p-4">
+                <RatingBar disabled={false} onRate={rate} />
+              </div>
             </div>
           )}
 

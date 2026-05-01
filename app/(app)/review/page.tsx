@@ -75,16 +75,42 @@ export default async function ReviewPage({
 
   return (
     <main className="mx-auto max-w-[760px] space-y-6 px-4 py-8 sm:px-6 sm:py-10">
-      <header className="cue-hard-panel flex items-center justify-between bg-paper-white px-4 py-3">
-        <div className="space-y-1 min-w-0">
-          <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
-            {conceptTag && !deckId ? `Focused drill - ${labelForMode(mode)}` : labelForMode(mode)}
-          </p>
-          <h1 className="font-display text-lg font-bold truncate">{title}</h1>
+      <header className="cue-hard-panel motion-premium-reveal overflow-hidden bg-paper-white">
+        <div className="flex flex-col gap-4 border-b border-ink-black bg-soft-cream px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className="min-w-0 space-y-1">
+            <p className="text-xs uppercase tracking-[0.08em] text-ink-black/60 font-display font-semibold">
+              Review sprint
+            </p>
+            <h1 className="font-display text-2xl font-extrabold leading-tight sm:text-[28px] truncate">
+              {title}
+            </h1>
+          </div>
+          <span className="w-fit border border-ink-black bg-cue-yellow px-3 py-2 text-xs font-display font-bold uppercase tracking-[0.06em]">
+            {cards.length} card{cards.length === 1 ? '' : 's'} ready
+          </span>
         </div>
-        <span className="border border-ink-black bg-cue-yellow px-2 py-1 text-xs font-display font-bold">
-          {cards.length} cards
-        </span>
+        <div className="grid grid-cols-1 divide-y divide-ink-black text-sm sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <div className="px-4 py-3 sm:px-5">
+            <p className="text-[11px] font-display font-bold uppercase tracking-[0.08em] text-ink-black/50">
+              Mode
+            </p>
+            <p className="font-display font-bold">{labelForMode(mode)} mode</p>
+          </div>
+          <div className="px-4 py-3 sm:px-5">
+            <p className="text-[11px] font-display font-bold uppercase tracking-[0.08em] text-ink-black/50">
+              Scope
+            </p>
+            <p className="font-display font-bold truncate">
+              {deckId ? 'Deck drill' : conceptTag ? 'Focused drill' : 'All ready decks'}
+            </p>
+          </div>
+          <div className="px-4 py-3 sm:px-5">
+            <p className="text-[11px] font-display font-bold uppercase tracking-[0.08em] text-ink-black/50">
+              Plan
+            </p>
+            <p className="font-display font-bold">{sprintSizeForMode(mode)} card plan</p>
+          </div>
+        </div>
       </header>
       <ReviewSession
         key={`${deckId ?? `concept:${conceptTag ?? 'all'}`}:${mode}:${run ?? 'base'}`}

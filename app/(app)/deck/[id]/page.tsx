@@ -129,17 +129,20 @@ export default async function DeckPage({
   }
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-soft-cream/35">
       <div className="max-w-[1100px] mx-auto px-6 py-8">
         <Link
           href="/library"
-          className="inline-block text-sm font-body text-ink-black/60 hover:text-ink-black"
+          className="inline-flex min-h-[40px] items-center rounded-input border border-ink-black bg-paper-white px-4 text-sm font-display font-bold text-ink-black shadow-card-rest hover:-translate-y-0.5 transition-transform"
         >
           {'<-'} Library
         </Link>
       </div>
 
-      <div className="motion-premium-reveal max-w-[1100px] mx-auto px-6 pb-16 grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-12 items-start">
+      <div
+        data-testid="deck-detail-hero"
+        className="motion-premium-reveal max-w-[1100px] mx-auto px-6 pb-16 grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8 lg:gap-12 items-start rounded-card border-2 border-ink-black bg-cue-yellow/20 pt-6 shadow-card-rest"
+      >
         <div className="flex flex-col items-center lg:items-start gap-4">
           <div className="relative">
             <MasteryRing pct={stats.masteryPct} size={256} stroke={12} showLabel={false} />
@@ -167,14 +170,17 @@ export default async function DeckPage({
             <DeckTagsForm deckId={deckRow.id} initialTags={(deckRow.tags ?? []) as string[]} />
           </div>
 
-          <div className="grid grid-cols-3 gap-4 max-w-[600px]">
+          <div
+            data-testid="deck-stats-grid"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-[680px]"
+          >
             <StatTile value={deckRow.card_count ?? 0} label="Total" />
             <StatTile value={gateSummary.approvedCount} label="Approved" />
             <StatTile value={`${stats.masteryPct}%`} label="Mastery" />
           </div>
 
           {deckRow.status === 'draft' && (
-            <div className="motion-premium-reveal max-w-[520px] rounded-card border border-amber-200 bg-amber-50 px-5 py-4 space-y-2">
+            <div className="motion-premium-reveal max-w-[680px] rounded-card border-2 border-ink-black bg-paper-white px-5 py-4 space-y-2 shadow-card-rest">
               <p className="font-display font-semibold text-sm text-ink-black">Review gate</p>
               <p className="text-sm text-ink-black/70">
                 {gateSummary.reviewableCount === 0
@@ -194,50 +200,53 @@ export default async function DeckPage({
             </div>
           )}
 
-          <div className="space-y-3">
+          <div
+            data-testid="deck-action-dock"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-[680px] rounded-card border-2 border-ink-black bg-paper-white p-3 shadow-card-rest"
+          >
             {deckRow.status === 'ready' ? (
               <>
-                <div className="flex flex-col sm:flex-row gap-3 w-full max-w-[480px]">
-                  <Link href={`/review?deck=${deckRow.id}`} className="inline-block flex-1">
+                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                  <Link href={`/review?deck=${deckRow.id}`} className="inline-block min-w-0">
                     <CueButton size="lg" className="w-full" disabled={stats.dueCount === 0}>
                       {stats.dueCount > 0 ? 'Start sprint' : 'All caught up'}
                     </CueButton>
                   </Link>
                   {stats.dueCount > 0 && (
-                    <Link href={`/review?deck=${deckRow.id}&mode=quick`} className="inline-block flex-1">
+                    <Link href={`/review?deck=${deckRow.id}&mode=quick`} className="inline-block min-w-0">
                       <CueButton variant="ghost" size="lg" className="w-full">
                         {labelForMode('quick')}
                       </CueButton>
                     </Link>
                   )}
                 </div>
-                <p className="text-sm text-ink-black/70 max-w-[480px]">
+                <p className="text-sm text-ink-black/70 sm:col-span-2 px-1">
                   {stats.dueCount > 0
                     ? 'Choose a full sprint or a shorter Quick 5 with hints available during review.'
                     : 'Nothing due right now. Check back later.'}
                 </p>
               </>
             ) : deckRow.status === 'archived' ? (
-              <div className="space-y-3">
-                <p className="text-sm text-ink-black/70 max-w-[480px]">
+              <div className="space-y-3 sm:col-span-2">
+                <p className="text-sm text-ink-black/70">
                   This deck is archived, so it stays out of the default library and review queue until you restore it.
                 </p>
                 <ArchiveDeckButton deckId={deckRow.id} archived />
               </div>
             ) : deckRow.status === 'draft' ? (
               <>
-                <Link href={`/deck/${deckRow.id}/cards`} className="inline-block w-full max-w-[480px]">
+                <Link href={`/deck/${deckRow.id}/cards`} className="inline-block min-w-0">
                   <CueButton size="lg" className="w-full">
                     Review generated cards
                   </CueButton>
                 </Link>
-                <p className="text-sm text-ink-black/70 max-w-[480px]">
+                <ReviewReadyButton deckId={deckRow.id} disabled={!canReady} />
+                <p className="text-sm text-ink-black/70 sm:col-span-2 px-1">
                   Approve, edit, or delete cards until the deck feels trustworthy.
                 </p>
-                <ReviewReadyButton deckId={deckRow.id} disabled={!canReady} />
               </>
             ) : deckRow.status === 'ingesting' ? (
-              <div className="motion-premium-reveal max-w-[560px] rounded-card border border-trust-blue/30 bg-trust-blue/10 px-5 py-4 space-y-2">
+              <div className="motion-premium-reveal sm:col-span-2 rounded-card border border-trust-blue/30 bg-trust-blue/10 px-5 py-4 space-y-2">
                 <p className="font-display font-semibold text-sm text-ink-black">
                   {ingestDiagnostics?.title ?? 'Generating cards'}
                 </p>
@@ -250,7 +259,7 @@ export default async function DeckPage({
                 </div>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 sm:col-span-2">
                 <div className="motion-premium-reveal max-w-[560px] rounded-card border border-alert-coral/30 bg-alert-coral/10 px-5 py-4 space-y-2">
                   <p className="font-display font-semibold text-sm text-ink-black">
                     {ingestDiagnostics?.title ?? 'Generation failed'}
@@ -305,8 +314,8 @@ export default async function DeckPage({
                 Upcoming
               </p>
               <CueCard tone="cream" className="motion-premium-list-item shadow-card-rest flex items-start gap-3 px-4 py-3">
-                <span aria-hidden="true" className="mt-0.5 inline-flex size-7 items-center justify-center rounded-full bg-paper-white/70 text-base">
-                  📅
+                <span aria-hidden="true" className="mt-0.5 inline-flex size-7 items-center justify-center rounded-full bg-paper-white/70 font-display text-[10px] font-extrabold uppercase">
+                  Due
                 </span>
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-black/75">
                   {preview.dueLaterToday > 0 && (

@@ -8,8 +8,12 @@ import { patchProfile } from '../actions'
 import { OnboardingProgress } from '../_components/progress'
 import { SubjectChip } from '../_components/subject-chip'
 
-const GOALS = [10, 20, 40] as const
-type Goal = (typeof GOALS)[number]
+const GOALS = [
+  { value: 10, label: 'Warm up', note: 'A light daily streak' },
+  { value: 20, label: 'Steady', note: 'Balanced practice' },
+  { value: 40, label: 'Sprint', note: 'Exam-mode reps' },
+] as const
+type Goal = (typeof GOALS)[number]['value']
 
 const LEVEL_LABEL: Record<string, string> = {
   beginner: 'Beginner',
@@ -27,6 +31,7 @@ export function GoalForm({
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [picked, setPicked] = useState<Goal | null>(null)
+  const [savingGoal, setSavingGoal] = useState<Goal | null>(null)
   const [saved, setSaved] = useState<Goal | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -35,8 +40,9 @@ export function GoalForm({
   }, [router])
 
   function pick(goal: Goal) {
-    if (pending || saved !== null) return
+    if (pending || saved !== null || savingGoal !== null) return
     setPicked(goal)
+    setSavingGoal(goal)
     setError(null)
     startTransition(async () => {
       const res = await patchProfile({
@@ -47,9 +53,11 @@ export function GoalForm({
       if (res && 'error' in res && res.error) {
         setError(res.error)
         setPicked(null)
+        setSavingGoal(null)
         return
       }
       setSaved(goal)
+      setSavingGoal(null)
     })
   }
 
@@ -60,50 +68,73 @@ export function GoalForm({
   return (
     <div className="motion-premium-reveal space-y-8">
       <OnboardingProgress step={3} />
-      <div className="space-y-3">
-        {subject && <SubjectChip subject={subject} />}
+      <div className="max-w-3xl space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {subject && <SubjectChip subject={subject} />}
+          <span className="font-display rounded-card border-2 border-ink-black bg-mint-green px-3 py-1 text-xs font-extrabold uppercase tracking-[0.06em]">
+            Final setup
+          </span>
+        </div>
         <div className="space-y-2">
-          <h1 className="font-display font-extrabold text-[36px] md:text-[44px] tracking-tight text-ink-black leading-[1.05]">
-            How many cards per day?
+          <h1 className="font-display text-[38px] font-extrabold leading-[1.02] tracking-tight text-ink-black md:text-[52px]">
+            Set today&apos;s card rhythm.
           </h1>
-          <p className="font-body text-ink-black/70">You can change this anytime.</p>
+          <p className="font-body max-w-2xl text-base text-ink-black/70">
+            Choose a daily target. We will keep new cards capped so reviews never swallow the day.
+          </p>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {GOALS.map((g) => {
-          const active = picked === g
+          const active = picked === g.value
+          const saving = savingGoal === g.value
+
           return (
             <CueCard
-              key={g}
+              key={g.value}
               role="button"
               tabIndex={0}
+              aria-label={saving ? `Saving ${g.value} cards` : `${g.value} cards per day. ${g.label}. ${g.note}`}
               aria-pressed={active}
-              aria-disabled={pending}
-              onClick={() => pick(g)}
+              aria-disabled={pending || savingGoal !== null}
+              onClick={() => pick(g.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
-                  pick(g)
+                  pick(g.value)
                 }
               }}
-              className={`cursor-pointer bg-cue-yellow text-ink-black shadow-card-rest border-2 transition-all duration-tap will-change-transform ${
+              className={`motion-premium-choice min-h-[160px] cursor-pointer border-2 text-ink-black shadow-[4px_4px_0_#000] will-change-transform ${
                 active
-                  ? 'border-ink-black scale-[1.02]'
-                  : 'border-transparent hover:border-ink-black hover:-translate-y-0.5'
-              }`}
+                  ? 'scale-[1.02] border-ink-black bg-cue-yellow'
+                  : 'border-ink-black bg-paper-white hover:-translate-y-0.5 hover:bg-cue-yellow'
+              } ${savingGoal !== null && !active ? 'opacity-55' : ''}`}
             >
-              <div className="font-display font-extrabold text-[48px] text-center leading-none">
-                {g}
-              </div>
-              <div className="font-body text-sm text-ink-black/70 text-center mt-2">
-                cards / day
+              <div className="flex h-full flex-col justify-between gap-5 text-center">
+                <div className="font-display mx-auto rounded-card border-2 border-ink-black bg-paper-white px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.06em]">
+                  {saving ? `Saving ${g.value} cards` : g.label}
+                </div>
+                <div>
+                  <div className="font-display text-[56px] font-extrabold leading-none">
+                    {g.value}
+                  </div>
+                  <div className="font-body mt-2 text-sm font-bold text-ink-black/75">
+                    cards per day
+                  </div>
+                </div>
+                <p className="font-body text-xs text-ink-black/65">{g.note}</p>
               </div>
             </CueCard>
           )
         })}
       </div>
+      {savingGoal !== null && (
+        <p className="font-display rounded-card border-2 border-ink-black bg-soft-cream px-4 py-3 text-center text-sm font-extrabold text-ink-black shadow-[3px_3px_0_#000]">
+          Locking in your {savingGoal}-card rhythm
+        </p>
+      )}
       {error && (
-        <p role="alert" className="text-sm text-alert-coral text-center">
+        <p role="alert" className="font-body text-center text-sm text-alert-coral">
           {error}
         </p>
       )}
@@ -124,39 +155,31 @@ function SuccessState({
 }) {
   const levelLabel = level ? (LEVEL_LABEL[level] ?? level) : null
   return (
-    <div className="space-y-8">
+    <div className="motion-premium-reveal space-y-8">
       <OnboardingProgress step={3} />
-      <CueCard tone="cream" className="shadow-card-flip p-8 md:p-10 space-y-6 text-center border-2 border-ink-black">
+      <CueCard tone="cream" className="space-y-6 border-2 border-ink-black p-8 text-center shadow-[6px_6px_0_#000] md:p-10">
         <div
-          className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-cue-yellow text-ink-black mx-auto"
+          className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-card border-2 border-ink-black bg-cue-yellow text-ink-black shadow-[3px_3px_0_#000]"
           aria-hidden="true"
         >
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <path
-              d="M6 14.5l5 5 11-11"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          OK
         </div>
         <div className="space-y-2">
-          <h2 className="font-display font-extrabold text-[32px] md:text-[40px] tracking-tight leading-[1.05] text-ink-black">
+          <h2 className="font-display text-[32px] font-extrabold leading-[1.05] tracking-tight text-ink-black md:text-[40px]">
             You&apos;re all set.
           </h2>
           <p className="font-body text-ink-black/70">
-            Drop a PDF whenever you&apos;re ready — your study habit starts now.
+            Drop a PDF whenever you&apos;re ready. Your study habit starts now.
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-2 pt-2">
           {subject && <SubjectChip subject={subject} />}
           {levelLabel && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-display font-bold uppercase tracking-[0.06em] bg-trust-blue text-ink-black">
+            <span className="font-display inline-flex items-center rounded-full bg-trust-blue px-3 py-1 text-xs font-bold uppercase tracking-[0.06em] text-ink-black">
               {levelLabel}
             </span>
           )}
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-display font-bold uppercase tracking-[0.06em] bg-mint-green text-ink-black">
+          <span className="font-display inline-flex items-center rounded-full bg-mint-green px-3 py-1 text-xs font-bold uppercase tracking-[0.06em] text-ink-black">
             {goal} a day
           </span>
         </div>
@@ -164,9 +187,9 @@ function SuccessState({
           <button
             type="button"
             onClick={onContinue}
-            className="inline-flex items-center justify-center min-h-[52px] px-8 rounded-input bg-ink-black text-cue-yellow font-display font-bold text-base transition-transform duration-tap active:scale-[0.98] hover:bg-ink-black/90"
+            className="font-display inline-flex min-h-[52px] items-center justify-center rounded-input bg-ink-black px-8 text-base font-bold text-cue-yellow transition-transform duration-tap hover:bg-ink-black/90 active:scale-[0.98]"
           >
-            Open my library →
+            Open my library
           </button>
         </div>
       </CueCard>

@@ -7,12 +7,12 @@ import type { subjectFamily } from '@/lib/brand/tokens'
 import { patchProfile } from '../actions'
 import { OnboardingProgress } from '../_components/progress'
 
-const OPTIONS: Array<{ id: subjectFamily; label: string; sub: string }> = [
-  { id: 'math', label: 'Math', sub: 'Algebra, calculus, statistics — anything with numbers' },
-  { id: 'science', label: 'Science', sub: 'Biology, chemistry, physics, lab notes' },
-  { id: 'language', label: 'Language', sub: 'A new language, vocabulary, grammar' },
-  { id: 'humanities', label: 'History / Humanities', sub: 'History, philosophy, literature' },
-  { id: 'other', label: 'Something else', sub: "We'll keep things flexible" },
+const OPTIONS: Array<{ id: subjectFamily; label: string; badge: string; sub: string }> = [
+  { id: 'math', label: 'Math', badge: 'Problem solving', sub: 'Formula-heavy practice, proofs, and number work' },
+  { id: 'science', label: 'Science', badge: 'Lab ready', sub: 'Biology, chemistry, physics, and lab notes' },
+  { id: 'language', label: 'Language', badge: 'Reading-heavy', sub: 'Vocabulary, grammar, and recall drills' },
+  { id: 'humanities', label: 'History / Humanities', badge: 'Story mode', sub: 'Dates, arguments, literature, and ideas' },
+  { id: 'other', label: 'Something else', badge: 'Flexible', sub: 'Keep the setup broad and adapt later' },
 ]
 
 export default function SubjectPage() {
@@ -33,43 +33,62 @@ export default function SubjectPage() {
   return (
     <div className="motion-premium-reveal space-y-8">
       <OnboardingProgress step={1} />
-      <div className="space-y-2">
-        <h1 className="font-display font-extrabold text-[36px] md:text-[44px] tracking-tight text-ink-black leading-[1.05]">
-          What are you studying?
+      <div className="max-w-3xl space-y-3">
+        <span className="font-display inline-flex rounded-card border-2 border-ink-black bg-cue-yellow px-3 py-1 text-xs font-extrabold uppercase tracking-[0.06em] shadow-[2px_2px_0_#000]">
+          Start with your strongest subject signal
+        </span>
+        <h1 className="font-display text-[40px] font-extrabold leading-[1.02] tracking-tight text-ink-black md:text-[56px]">
+          What are we turning into flashcards first?
         </h1>
-        <p className="font-body text-ink-black/70">
-          We&apos;ll tune the colors and defaults to fit.
+        <p className="font-body max-w-2xl text-base text-ink-black/70">
+          Your choice sets the first color tint and defaults. You can still upload any kind of PDF later.
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-3">
+      <div
+        role="list"
+        aria-label="Study subject choices"
+        className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+      >
         {OPTIONS.map((o) => {
           const active = picked === o.id
           return (
-            <CueCard
-              key={o.id}
-              subject={o.id}
-              role="button"
-              tabIndex={0}
-              aria-disabled={picked !== null}
-              aria-pressed={active}
-              onClick={() => pick(o.id)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  pick(o.id)
-                }
-              }}
-              className={`motion-premium-list-item cursor-pointer shadow-card-rest border-2 will-change-transform ${
-                active
-                  ? 'border-ink-black scale-[1.01]'
-                  : 'border-transparent hover:border-ink-black hover:-translate-y-0.5'
-              }`}
-            >
-              <div className="font-display font-bold text-[22px] text-ink-black leading-tight">
-                {o.label}
-              </div>
-              <div className="font-body text-sm text-ink-black/65 mt-1">{o.sub}</div>
-            </CueCard>
+            <div key={o.id} role="listitem">
+              <CueCard
+                subject={o.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`${o.label}. ${o.badge}. ${o.sub}`}
+                aria-disabled={picked !== null}
+                aria-pressed={active}
+                onClick={() => pick(o.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    pick(o.id)
+                  }
+                }}
+                className={`motion-premium-list-item min-h-[154px] cursor-pointer border-2 p-5 shadow-[4px_4px_0_#000] will-change-transform ${
+                  active
+                    ? 'scale-[1.01] border-ink-black'
+                    : 'border-ink-black hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000]'
+                }`}
+              >
+                <div className="flex h-full flex-col justify-between gap-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="font-display rounded-card border-2 border-ink-black bg-paper-white px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-[0.06em]">
+                      {o.badge}
+                    </span>
+                    <span className="h-4 w-4 rounded-full border-2 border-ink-black bg-cue-yellow shadow-[1px_1px_0_#000]" />
+                  </div>
+                  <div>
+                    <div className="font-display text-[28px] font-extrabold leading-none text-ink-black">
+                      {o.label}
+                    </div>
+                    <div className="font-body mt-2 text-sm leading-snug text-ink-black/70">{o.sub}</div>
+                  </div>
+                </div>
+              </CueCard>
+            </div>
           )
         })}
       </div>

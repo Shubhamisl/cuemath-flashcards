@@ -125,6 +125,39 @@ describe('review-session', () => {
     expect(progress.querySelector('.cue-progress-current')).toBeInTheDocument()
   })
 
+  it('shows live sprint status as the learner advances', async () => {
+    pushSpy.mockReset()
+    refreshSpy.mockReset()
+    observeSpy.mockReset()
+    observeSpy.mockReturnValue({ action: 'continue' })
+    fetchEasyCardsSpy.mockReset()
+    fetchEasyCardsSpy.mockResolvedValue([])
+    resetPreviewMock()
+    const user = userEvent.setup()
+
+    render(
+      <ReviewSession
+        cards={[
+          card({ id: 'card-1' }),
+          card({ id: 'card-2', front: { text: 'Second prompt' } }),
+        ]}
+        deckId="deck-1"
+        startedAt="2026-04-26T00:00:00.000Z"
+        mode="quick"
+      />,
+    )
+
+    expect(screen.getByTestId('review-sprint-status')).toHaveTextContent('Card 1 / 2')
+    expect(screen.getByTestId('review-sprint-status')).toHaveTextContent('50%')
+    expect(screen.getByTestId('review-sprint-status')).toHaveTextContent('Main sprint')
+
+    await user.click(screen.getByRole('button', { name: 'Show answer (Space)' }))
+    await user.click(screen.getByRole('button', { name: 'Got it (press 3)' }))
+
+    expect(screen.getByTestId('review-sprint-status')).toHaveTextContent('Card 2 / 2')
+    expect(screen.getByTestId('review-sprint-status')).toHaveTextContent('100%')
+  })
+
   it('ends the session from escape before the card is flipped', async () => {
     pushSpy.mockReset()
     refreshSpy.mockReset()
